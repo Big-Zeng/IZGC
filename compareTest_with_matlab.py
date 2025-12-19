@@ -1,0 +1,381 @@
+"""
+聚类算法对比测试 - 包含MATLAB算法
+对比 KMeans, DBSCAN, Contour-Based 和 MATLAB Algorithm_PR
+"""
+
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.metrics import silhouette_score
+from scipy.spatial import Voronoi
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
+
+import ContourBasedClusteringWithoutZ3 as ContourBasedClusteringWithoutZ
+from clustering_metrics import ClusteringMetrics
+
+# 尝试导入MATLAB集成
+try:
+    from matlab_integration import MatlabRunner
+    MATLAB_AVAILABLE = True
+except ImportError:
+    MATLAB_AVAILABLE = False
+    print("警告: matlab_integration模块未找到")
+
+
+# ==================== 配置区域 ====================
+DATASET = "data/flame.csv"          # 数据集路径
+N_CLUSTERS = 2                       # 真实簇数
+
+# 算法参数
+KMEANS_PARAMS = {
+    'n_clusters': N_CLUSTERS,
+    'random_state': 42,
+    'n_init': 10
+}
+
+DBSCAN_PARAMS = {
+    'eps': 1.5,
+    'min_samples': 5
+}
+
+CONTOUR_PARAMS = {
+    'grid_size': 1.2,
+    'max_buffer_distance': 5
+}
+
+MATLAB_PARAMS = {
+    'k': 11,                         # 近邻数量
+    'n_clusters': N_CLUSTERS
+}
+
+# 是否运行MATLAB算法
+RUN_MATLAB = True                    # 设置为False可跳过MATLAB
+# ==================================================
+
+
+class VRPAnalyzer:
+    """聚类分析器（包含MATLAB算法）"""
+    
+    def __init__(self, coords, true_labels):
+        self.coords = coords
+        self.true_labels = true_labels
+        self.matlab_runner = None
+    
+    def calculate_inertia(self, points, labels):
+        """计算簇内误差平方和"""
+        inertia = 0
+        unique_labels = np.unique(labels)
+        for label in unique_labels:
+            if label == -1:
+                continue
+            cluster_points = points[labels == label]
+            if len(cluster_points) == 0:
+                continue
+            cluster_center = np.mean(cluster_points, axis=0)
+            inertia += np.sum(np.linalg.norm(cluster_points - cluster_center, axis=1) ** 2)
+        return inertia
+    
+    def run_kmeans_clustering(self, n_clusters):
+        """KMeans聚类"""
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(self.coords)
+        
+        inertia = self.calculate_inertia(self.coords, labels)
+        silhouette_avg = silhouette_score(self.coords, labels) if len(set(labels)) > 1 else -1
+        
+        metrics = ClusteringMetrics.evaluate_all(self.true_labels, labels)
+        
+        return kmeans, labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
+    
+    def run_dbscan_clustering(self, eps=0.5, min_samples=5):
+        """DBSCAN聚类"""
+        dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='euclidean')
+        labels = dbscan.fit_predict(self.coords)
+        
+        inertia = self.calculate_inertia(self.coords, labels)
+        
+        if len(set(labels)) > 1:
+            mask = labels != -1
+            if np.sum(mask) > 0 and len(np.unique(labels[mask])) > 1:
+                silhouette_avg = silhouette_score(self.coords[mask], labels[mask])
+            else:
+                silhouette_avg = -1
+        else:
+            silhouette_avg = -1
+        
+        metrics = ClusteringMetrics.evaluate_all(self.true_labels, labels)
+        
+        return dbscan, labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
+    
+    def run_contour_clustering(self, grid_size=1.2, max_buffer_distance=5):
+        """等值线聚类"""
+        points = self.coords
+        vor = Voronoi(points)
+        density = np.zeros(len(points))
+        
+        for i, region_index in enumerate(vor.point_region):
+            region = vor.regions[region_index]
+            if -1 in region or len(region) == 0:
+                density[i] = 0
+                continue
+            
+            polygon = vor.vertices[region]
+            x = polygon[:, 0]
+            y = polygon[:, 1]
+            area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
+            density[i] = 1.0 / area if area > 0 else 0
+        
+        combined_data = [(*point, density[i], i) for i, point in enumerate(points)]
+        
+        cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
+            combined_data,
+            grid_size=grid_size,
+            max_buffer_distance=max_buffer_distance
+        )
+        
+        final_points = cluster.perform_clustering()
+        cluster.visualize_clusters()
+        
+        pre_labels = cluster.get_predicted_labels()
+        
+        inertia = self.calculate_inertia(self.coords, pre_labels)
+        
+        if len(set(pre_labels)) > 1:
+            mask = np.array(pre_labels) != -1
+            if np.sum(mask) > 0 and len(np.unique(np.array(pre_labels)[mask])) > 1:
+                silhouette_avg = silhouette_score(self.coords[mask], np.array(pre_labels)[mask])
+            else:
+                silhouette_avg = -1
+        else:
+            silhouette_avg = -1
+        
+        metrics = ClusteringMetrics.evaluate_all(self.true_labels, pre_labels)
+        
+        return final_points, pre_labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
+    
+    def run_matlab_algorithm_pr(self, k=11, n_clusters=None):
+        """运行MATLAB的Algorithm_PR算法"""
+        if not MATLAB_AVAILABLE:
+            print("MATLAB集成不可用，跳过")
+            return None, None, None, None, None, None, None
+        
+        if n_clusters is None:
+            n_clusters = len(np.unique(self.true_labels))
+        
+        print("\n启动MATLAB算法...")
+        
+        # 准备数据 [x, y, label]
+        data_with_labels = np.column_stack([self.coords, self.true_labels])
+        
+        # 初始化MATLAB运行器
+        if self.matlab_runner is None:
+            self.matlab_runner = MatlabRunner(method='auto')
+        
+        # 运行算法
+        labels, matlab_metrics = self.matlab_runner.run_algorithm_pr(
+            data_with_labels, n_clusters, k
+        )
+        
+        if labels is None:
+            print("MATLAB算法执行失败")
+            return None, None, None, None, None, None, None
+        
+        # 计算额外指标
+        inertia = self.calculate_inertia(self.coords, labels)
+        
+        if len(set(labels)) > 1:
+            silhouette_avg = silhouette_score(self.coords, labels)
+        else:
+            silhouette_avg = -1
+        
+        # 使用MATLAB返回的指标
+        ami = matlab_metrics['AMI']
+        ari = matlab_metrics['ARI']
+        fmi = matlab_metrics['FMI']
+        
+        return None, labels, inertia, silhouette_avg, ami, ari, fmi
+    
+    def close_matlab(self):
+        """关闭MATLAB引擎"""
+        if self.matlab_runner:
+            self.matlab_runner.close()
+
+
+# ==================== 主程序 ====================
+if __name__ == "__main__":
+    print("=" * 80)
+    print("聚类算法对比测试（包含MATLAB算法）")
+    print("=" * 80)
+    
+    # 读取数据
+    df = pd.read_csv(DATASET)
+    X = df[['x', 'y']].values
+    y_true = df['target'].values
+    
+    print(f"\n数据集: {DATASET}")
+    print(f"样本数: {len(X)}")
+    print(f"真实簇数: {len(np.unique(y_true))}")
+    print(f"X范围: [{X[:, 0].min():.2f}, {X[:, 0].max():.2f}]")
+    print(f"Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
+    
+    # 创建分析器
+    analyzer = VRPAnalyzer(X, y_true)
+    
+    results = []
+    
+    # 1. KMeans聚类
+    print("\n" + "-" * 80)
+    print("1. KMeans 聚类")
+    print("-" * 80)
+    kmeans_model, kmeans_labels, kmeans_inertia, kmeans_silhouette, kmeans_ami, kmeans_ari, kmeans_fmi = \
+        analyzer.run_kmeans_clustering(KMEANS_PARAMS['n_clusters'])
+    
+    print(f"Inertia:    {kmeans_inertia:.4f}")
+    print(f"Silhouette: {kmeans_silhouette:.4f}")
+    print(f"AMI:        {kmeans_ami:.4f}")
+    print(f"ARI:        {kmeans_ari:.4f}")
+    print(f"FMI:        {kmeans_fmi:.4f}")
+    
+    results.append({
+        'name': 'KMeans',
+        'labels': kmeans_labels,
+        'ami': kmeans_ami,
+        'ari': kmeans_ari,
+        'fmi': kmeans_fmi,
+        'silhouette': kmeans_silhouette,
+        'inertia': kmeans_inertia
+    })
+    
+    # 2. DBSCAN聚类
+    print("\n" + "-" * 80)
+    print("2. DBSCAN 聚类")
+    print("-" * 80)
+    dbscan_model, dbscan_labels, dbscan_inertia, dbscan_silhouette, dbscan_ami, dbscan_ari, dbscan_fmi = \
+        analyzer.run_dbscan_clustering(eps=DBSCAN_PARAMS['eps'], min_samples=DBSCAN_PARAMS['min_samples'])
+    
+    n_clusters_found = len(set(dbscan_labels)) - (1 if -1 in dbscan_labels else 0)
+    n_noise = list(dbscan_labels).count(-1)
+    print(f"发现簇数: {n_clusters_found}, 噪声点: {n_noise}")
+    print(f"Inertia:    {dbscan_inertia:.4f}")
+    print(f"Silhouette: {dbscan_silhouette:.4f}")
+    print(f"AMI:        {dbscan_ami:.4f}")
+    print(f"ARI:        {dbscan_ari:.4f}")
+    print(f"FMI:        {dbscan_fmi:.4f}")
+    
+    results.append({
+        'name': 'DBSCAN',
+        'labels': dbscan_labels,
+        'ami': dbscan_ami,
+        'ari': dbscan_ari,
+        'fmi': dbscan_fmi,
+        'silhouette': dbscan_silhouette,
+        'inertia': dbscan_inertia
+    })
+    
+    # 3. Contour-Based聚类
+    print("\n" + "-" * 80)
+    print("3. Contour-Based 聚类")
+    print("-" * 80)
+    contour_model, contour_labels, contour_inertia, contour_silhouette, contour_ami, contour_ari, contour_fmi = \
+        analyzer.run_contour_clustering(
+            grid_size=CONTOUR_PARAMS['grid_size'],
+            max_buffer_distance=CONTOUR_PARAMS['max_buffer_distance']
+        )
+    
+    n_clusters_found = len(set(contour_labels)) - (1 if -1 in contour_labels else 0)
+    n_noise = list(contour_labels).count(-1)
+    print(f"发现簇数: {n_clusters_found}, 噪声点: {n_noise}")
+    print(f"Inertia:    {contour_inertia:.4f}")
+    print(f"Silhouette: {contour_silhouette:.4f}")
+    print(f"AMI:        {contour_ami:.4f}")
+    print(f"ARI:        {contour_ari:.4f}")
+    print(f"FMI:        {contour_fmi:.4f}")
+    
+    results.append({
+        'name': 'Contour-Based',
+        'labels': contour_labels,
+        'ami': contour_ami,
+        'ari': contour_ari,
+        'fmi': contour_fmi,
+        'silhouette': contour_silhouette,
+        'inertia': contour_inertia
+    })
+    
+    # 4. MATLAB Algorithm_PR
+    if RUN_MATLAB and MATLAB_AVAILABLE:
+        print("\n" + "-" * 80)
+        print("4. MATLAB Algorithm_PR")
+        print("-" * 80)
+        
+        try:
+            matlab_model, matlab_labels, matlab_inertia, matlab_silhouette, matlab_ami, matlab_ari, matlab_fmi = \
+                analyzer.run_matlab_algorithm_pr(
+                    k=MATLAB_PARAMS['k'],
+                    n_clusters=MATLAB_PARAMS['n_clusters']
+                )
+            
+            if matlab_labels is not None:
+                n_clusters_found = len(set(matlab_labels))
+                print(f"发现簇数: {n_clusters_found}")
+                print(f"Inertia:    {matlab_inertia:.4f}")
+                print(f"Silhouette: {matlab_silhouette:.4f}")
+                print(f"AMI:        {matlab_ami:.4f}")
+                print(f"ARI:        {matlab_ari:.4f}")
+                print(f"FMI:        {matlab_fmi:.4f}")
+                
+                results.append({
+                    'name': 'MATLAB Algorithm_PR',
+                    'labels': matlab_labels,
+                    'ami': matlab_ami,
+                    'ari': matlab_ari,
+                    'fmi': matlab_fmi,
+                    'silhouette': matlab_silhouette,
+                    'inertia': matlab_inertia
+                })
+        except Exception as e:
+            print(f"MATLAB算法执行出错: {e}")
+    else:
+        if not RUN_MATLAB:
+            print("\n跳过MATLAB算法（RUN_MATLAB=False）")
+        elif not MATLAB_AVAILABLE:
+            print("\nMAT LAB不可用，跳过")
+    
+    # 关闭MATLAB引擎
+    analyzer.close_matlab()
+    
+    # 汇总对比
+    print("\n" + "=" * 90)
+    print("算法对比汇总")
+    print("=" * 90)
+    print(f"{'算法':<25} {'AMI':<10} {'ARI':<10} {'FMI':<10} {'Silhouette':<12} {'Inertia':<12}")
+    print("-" * 90)
+    
+    for r in results:
+        print(f"{r['name']:<25} {r['ami']:<10.4f} {r['ari']:<10.4f} {r['fmi']:<10.4f} "
+              f"{r['silhouette']:<12.4f} {r['inertia']:<12.2f}")
+    
+    print("=" * 90)
+    
+    # 可视化对比
+    n_plots = len(results) + 1
+    fig = plt.figure(figsize=(4 * n_plots, 4))
+    
+    # 真实标签
+    plt.subplot(1, n_plots, 1)
+    plt.scatter(X[:, 0], X[:, 1], c=y_true, cmap='tab10', s=20)
+    plt.title('Ground Truth')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    
+    # 各算法结果
+    for i, r in enumerate(results, 2):
+        plt.subplot(1, n_plots, i)
+        plt.scatter(X[:, 0], X[:, 1], c=r['labels'], cmap='tab10', s=20)
+        plt.title(f"{r['name']}\nARI={r['ari']:.3f}")
+        plt.xlabel('X')
+        plt.ylabel('Y')
+    
+    plt.tight_layout()
+    plt.show()

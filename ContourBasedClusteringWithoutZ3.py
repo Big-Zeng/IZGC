@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from sklearn.metrics import silhouette_score
 from scipy.spatial import cKDTree
+plt.rcParams['font.sans-serif'] = ['SimHei']   # 黑体
+plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
 class ContourBasedClusteringWithoutZ:
     def __init__(self, actual_points,   grid_size=1.0, max_buffer_distance=5):
         """

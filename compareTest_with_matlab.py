@@ -25,7 +25,7 @@ except ImportError:
 
 
 # ==================== 配置区域 ====================
-DATASET = "data/flame.csv"          # 数据集路径
+DATASET = "data/jain.csv"          # 数据集路径
 N_CLUSTERS = 2                       # 真实簇数
 
 # 算法参数
@@ -41,8 +41,10 @@ DBSCAN_PARAMS = {
 }
 
 CONTOUR_PARAMS = {
-    'grid_size': 1.2,
-    'max_buffer_distance': 5
+    'grid_size': None,               # None表示自动计算，或指定具体值如1.2
+    'max_buffer_distance': 5,
+    'auto_grid_multiplier': 2.0,     # 自动计算时：格子数 = 点数 × 此倍数
+    'optimize_grid': False           # True表示使用梯度下降优化grid_size
 }
 
 MATLAB_PARAMS = {
@@ -62,6 +64,49 @@ class VRPAnalyzer:
         self.coords = coords
         self.true_labels = true_labels
         self.matlab_runner = None
+    
+    def calculate_auto_grid_size(self, grid_multiplier=2.0):
+        """
+        自动计算grid_size
+        使得格子数量约为点数的grid_multiplier倍
+        
+        参数:
+            grid_multiplier: 格子数量倍数（默认2.0，即格子数=点数×2）
+            
+        返回:
+            grid_size: 计算得到的网格大小
+        """
+        n_points = len(self.coords)
+        
+        # 计算包裹所有点的矩形
+        x_min, y_min = self.coords.min(axis=0)
+        x_max, y_max = self.coords.max(axis=0)
+        
+        width = x_max - x_min
+        height = y_max - y_min
+        
+        # 矩形面积
+        area = width * height
+        
+        # 目标格子数量
+        target_grid_count = n_points * grid_multiplier
+        
+        # 计算grid_size
+        # 格子数量 = (width/grid_size) × (height/grid_size) = area / grid_size²
+        # grid_size² = area / target_grid_count
+        # grid_size = sqrt(area / target_grid_count)
+        grid_size = np.sqrt(area / target_grid_count)
+        
+        print(f"\n自动计算grid_size:")
+        print(f"  点数: {n_points}")
+        print(f"  矩形范围: X[{x_min:.2f}, {x_max:.2f}], Y[{y_min:.2f}, {y_max:.2f}]")
+        print(f"  矩形尺寸: {width:.2f} × {height:.2f}")
+        print(f"  矩形面积: {area:.2f}")
+        print(f"  目标格子数: {target_grid_count:.0f} (点数 × {grid_multiplier})")
+        print(f"  计算得到的grid_size: {grid_size:.3f}")
+        print(f"  实际格子数约: {int(width/grid_size) * int(height/grid_size)}")
+        
+        return grid_size
     
     def calculate_inertia(self, points, labels):
         """计算簇内误差平方和"""
@@ -109,8 +154,39 @@ class VRPAnalyzer:
         
         return dbscan, labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
     
-    def run_contour_clustering(self, grid_size=1.2, max_buffer_distance=5):
-        """等值线聚类"""
+    def run_contour_clustering(self, grid_size=None, max_buffer_distance=5, auto_grid_multiplier=2.0, optimize_grid=False):
+        """
+        等值线聚类
+        
+        参数:
+            grid_size: 网格大小，如果为None则自动计算
+            max_buffer_distance: 最大缓冲距离
+            auto_grid_multiplier: 自动计算时的格子数量倍数（默认2.0）
+            optimize_grid: 是否使用梯度下降优化grid_size
+        """
+        # 如果启用优化
+        if optimize_grid:
+            print("\n使用梯度下降优化grid_size...")
+            from optimize_grid_size import GridSizeOptimizer
+            
+            optimizer = GridSizeOptimizer(self.coords, self.true_labels, max_buffer_distance)
+            grid_size, _, _ = optimizer.optimize(
+                initial_step=None,
+                min_step=0.01,
+                step_decay=0.5,
+                max_iterations=15,
+                tolerance=0.001,
+                min_grid_size=0.1,
+                verbose=True
+            )
+            print(f"优化后的grid_size: {grid_size:.3f}\n")
+        
+        # 如果未指定grid_size且未优化，则自动计算
+        elif grid_size is None:
+            grid_size = self.calculate_auto_grid_size(grid_multiplier=auto_grid_multiplier)
+        else:
+            print(f"\n使用指定的grid_size: {grid_size:.3f}")
+        
         points = self.coords
         vor = Voronoi(points)
         density = np.zeros(len(points))
@@ -281,7 +357,9 @@ if __name__ == "__main__":
     contour_model, contour_labels, contour_inertia, contour_silhouette, contour_ami, contour_ari, contour_fmi = \
         analyzer.run_contour_clustering(
             grid_size=CONTOUR_PARAMS['grid_size'],
-            max_buffer_distance=CONTOUR_PARAMS['max_buffer_distance']
+            max_buffer_distance=CONTOUR_PARAMS['max_buffer_distance'],
+            auto_grid_multiplier=CONTOUR_PARAMS['auto_grid_multiplier'],
+            optimize_grid=CONTOUR_PARAMS['optimize_grid']
         )
     
     n_clusters_found = len(set(contour_labels)) - (1 if -1 in contour_labels else 0)

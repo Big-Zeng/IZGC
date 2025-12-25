@@ -11,19 +11,19 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 import time
 import os
-
+from scipy.spatial import cKDTree
 import ContourBasedClusteringWithoutZ2 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
 
 # ==================== 配置区域 ====================
 #DATASET = "data/jain.csv"
-DATASET = "data/pathbased.csv"               # 数据集路径 (支持.csv或.mat)
+DATASET = "data/complex9.csv"               # 数据集路径 (支持.csv或.mat)
 # GRID_SIZE_START 和 GRID_SIZE_END 将自动根据数据范围计算
 # GRID_SIZE_START = 最短边 / 100
 # GRID_SIZE_END = 最短边 / 2
-GRID_SIZE_STEP = 0.01                # 步长
-MAX_BUFFER_DISTANCE = 5                 # 最大缓冲距离
+GRID_SIZE_STEP = 0.001                # 步长
+MAX_BUFFER_DISTANCE = 0                 # 最大缓冲距离
 INTERPOLATION_METHOD = 'linear'         # 插值方法: linear, cubic, idw
 
 # 归一化选项
@@ -156,7 +156,7 @@ def calculate_grid_size_range(X):
     
     参数:
         X: 坐标数组 (n_samples, 2)
-        
+
     返回:
         grid_size_start: 起始grid_size (最短边 / 100)
         grid_size_end: 结束grid_size (最短边 / 2)
@@ -172,8 +172,8 @@ def calculate_grid_size_range(X):
     min_edge = min(x_range, y_range)
     
     # 计算grid_size范围
-    grid_size_start = min_edge / 25
-    grid_size_end = min_edge / 20
+    grid_size_start = min_edge / 90
+    grid_size_end = min_edge / 86
     
     return grid_size_start, grid_size_end, min_edge
 
@@ -210,19 +210,21 @@ class GridSizeTester:
             # 计算密度（使用Voronoi）
             points = self.coords
             vor = Voronoi(points)
-            density = np.zeros(len(points))
-            
-            for i, region_index in enumerate(vor.point_region):
-                region = vor.regions[region_index]
-                if -1 in region or len(region) == 0:
-                    density[i] = 0
-                    continue
-                
-                polygon = vor.vertices[region]
-                x = polygon[:, 0]
-                y = polygon[:, 1]
-                area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
-                density[i] = 1.0 / area if area > 0 else 0
+            tree = cKDTree(points)
+            density = np.array([len(tree.query_ball_point(p, 30)) for p in points])
+            # density = np.zeros(len(points))
+            #
+            # for i, region_index in enumerate(vor.point_region):
+            #     region = vor.regions[region_index]
+            #     if -1 in region or len(region) == 0:
+            #         density[i] = 0
+            #         continue
+            #
+            #     polygon = vor.vertices[region]
+            #     x = polygon[:, 0]
+            #     y = polygon[:, 1]
+            #     area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
+            #     density[i] = 1.0 / area if area > 0 else 0
             
             # 准备数据
             combined_data = [(*point, density[i], i) for i, point in enumerate(points)]

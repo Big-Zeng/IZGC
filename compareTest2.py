@@ -10,7 +10,7 @@ import ContourBasedClusteringWithoutZ2 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
 # ==================== 配置区域 ====================
-DATASET = "data/Compound.csv"                # 数据集路径
+DATASET = "data/complex9.csv"                # 数据集路径
 NORMALIZE_COORDS = True                 # 是否归一化坐标到[0,100]范围
 # ==================================================
 
@@ -18,7 +18,7 @@ NORMALIZE_COORDS = True                 # 是否归一化坐标到[0,100]范围
 df = pd.read_csv(DATASET)
 
 # 提取 X, Y, target 列
-X = df[['x', 'y']].values  # 用于聚类的二维数据点
+X = df[['x', 'y']].astype(float).values  # 用于聚类的二维数据点
 y_true = df['target'].values  # 实际标签
 
 
@@ -102,44 +102,44 @@ class VRPAnalyzer:
 # grid_size是影响比较大的
      #ls.csv 2.36
     # max_buffer_distance先不用了
-    def run_contour_clustering(self, grid_size=3, max_buffer_distance=5, min_cluster_size=2, radius=1, trueY=None):
+    def run_contour_clustering(self, grid_size=1.160, max_buffer_distance=0, min_cluster_size=2, radius=30, trueY=None):
         # 计算密度
         points = np.array(self.coords)
-        # tree = cKDTree(points)
-        # density = np.array([len(tree.query_ball_point(p, radius)) for p in points])  # zi = density
+        tree = cKDTree(points)
+        density = np.array([len(tree.query_ball_point(p, radius)) for p in points])  # zi = density
         # 计算 Voronoi
-        vor = Voronoi(points)
-
-        # 初始化密度
-        density = np.zeros(len(points))
-
-        # 对每个点计算自身 Voronoi 区域的面积
-        for i, region_index in enumerate(vor.point_region):
-            region = vor.regions[region_index]
-
-            # region = [-1] 代表无穷大区域（边界点），跳过
-            if -1 in region or len(region) == 0:
-                density[i] = 0  # 可设为0 或 np.nan
-                continue
-
-            polygon = vor.vertices[region]
-
-            # 使用多边形面积公式（shoelace formula）
-            x = polygon[:, 0]
-            y = polygon[:, 1]
-            area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
-
-            if area > 0:
-                density[i] = 1.0 / area
-            else:
-                density[i] = 0
+        # vor = Voronoi(points)
+        #
+        # # 初始化密度
+        # density = np.zeros(len(points))
+        #
+        # # 对每个点计算自身 Voronoi 区域的面积
+        # for i, region_index in enumerate(vor.point_region):
+        #     region = vor.regions[region_index]
+        #
+        #     # region = [-1] 代表无穷大区域（边界点），跳过
+        #     if -1 in region or len(region) == 0:
+        #         density[i] = 0  # 可设为0 或 np.nan
+        #         continue
+        #
+        #     polygon = vor.vertices[region]
+        #
+        #     # 使用多边形面积公式（shoelace formula）
+        #     x = polygon[:, 0]
+        #     y = polygon[:, 1]
+        #     area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
+        #
+        #     if area > 0:
+        #         density[i] = 1.0 / area
+        #     else:
+        #         density[i] = 0
         combined_data = [(*point, density[i], i) for i, point in enumerate(points)]
 
         cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
             combined_data,
             grid_size=grid_size,
             max_buffer_distance=max_buffer_distance,
-            interpolation_method='idw'
+
         )
 
         #运行代码

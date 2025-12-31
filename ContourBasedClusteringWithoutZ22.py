@@ -12,7 +12,8 @@ from scipy.interpolate import griddata
 from sklearn.metrics import silhouette_score
 from scipy.spatial import cKDTree
 
-
+plt.rcParams['font.sans-serif'] = ['SimHei']   # 黑体
+plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
 class ContourBasedClusteringWithoutZ:
     def __init__(self, actual_points, grid_size=1.0, max_buffer_distance=5, 
                  manual_virtual_points=None, min_cluster_size=5):
@@ -150,7 +151,7 @@ class ContourBasedClusteringWithoutZ:
 
         # 绘制实际点
         ax.scatter(x_coords, y_coords, c='red', s=50, label="实际点", zorder=3)
-        
+        ax.set_aspect('equal')
         # 绘制自动生成的虚拟点
         if virtual_points:
             auto_vx = [p[0] for p in virtual_points]
@@ -408,6 +409,70 @@ class ContourBasedClusteringWithoutZ:
 
         return self.point_to_density_center
 
+    def assign_unassigned_points(self):
+        """
+        将无归属的点分配到最近的簇中
+        对于没有被分配到任何簇的点，找到距离它最近的簇中的点，然后将该点分配给该簇
+        
+        返回:
+        assigned_count: 被分配的无归属点数量
+        """
+        if not self.density_centers:
+            print("警告: 没有密度中心，无法分配无归属点")
+            return 0
+        
+        # 找出所有已分配的点
+        assigned_points = set(self.point_to_density_center.keys())
+        
+        # 找出所有未分配的点
+        unassigned_points = [point for point in self.actual_points 
+                            if point not in assigned_points]
+        
+        if not unassigned_points:
+            print("所有点都已分配，无需处理无归属点")
+            return 0
+        
+        print(f"\n发现 {len(unassigned_points)} 个无归属点")
+        
+        # 获取所有簇及其包含的点
+        cluster_points_map = {}
+        for center in self.density_centers:
+            cluster_points = [point for point, centers in self.point_to_density_center.items() 
+                             if center in centers]
+            if cluster_points:  # 只考虑非空簇
+                cluster_points_map[center] = cluster_points
+        
+        if not cluster_points_map:
+            print("警告: 没有非空簇可以分配无归属点")
+            return 0
+        
+        assigned_count = 0
+        
+        # 对每个无归属点，找到最近的簇
+        for unassigned_point in unassigned_points:
+            min_dist = float('inf')
+            nearest_center = None
+            
+            # 遍历所有簇，找到距离该点最近的簇中的点
+            for center, cluster_points in cluster_points_map.items():
+                # 计算该点到簇中所有点的最小距离
+                for cluster_point in cluster_points:
+                    dist = self.calculate_distance(unassigned_point, cluster_point)
+                    if dist < min_dist:
+                        min_dist = dist
+                        nearest_center = center
+            
+            if nearest_center is None:
+                print(f"  警告: 点 {unassigned_point[:2]} 找不到合适的簇，保持未分配")
+                continue
+            
+            # 将该点分配给最近的簇
+            self.point_to_density_center[unassigned_point] = [nearest_center]
+            assigned_count += 1
+        
+        print(f"已将 {assigned_count} 个无归属点分配到最近的簇中")
+        return assigned_count
+
     def merge_small_clusters(self):
         """
         合并小簇：将点数小于min_cluster_size的簇合并到最近的大簇中
@@ -632,7 +697,7 @@ class ContourBasedClusteringWithoutZ:
         return score, inertia
 
     def perform_clustering(self):
-        """执行完整聚类流程（包含小簇合并）"""
+        """执行完整聚类流程（包含小簇合并和无归属点分配）"""
         self.generate_contour_areas()
         self.get_density_centers()
         self.assign_points_to_centers()
@@ -640,6 +705,9 @@ class ContourBasedClusteringWithoutZ:
         # 新增：合并小簇
         if self.min_cluster_size > 1:
             self.merge_small_clusters()
+        
+        # 新增：分配无归属点到最近的簇
+        self.assign_unassigned_points()
         
         return self.point_to_density_center
 

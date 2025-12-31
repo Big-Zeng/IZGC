@@ -14,7 +14,7 @@ import time
 import os
 from scipy.spatial import cKDTree
 from sklearn.decomposition import PCA
-import ContourBasedClusteringWithoutZ2 as ContourBasedClusteringWithoutZ
+import ContourBasedClusteringWithoutZ22 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
 
@@ -23,7 +23,7 @@ DATASET = "compare/dataset/uci/iris.txt"    # 数据集路径 (支持.csv, .txt�
 # GRID_SIZE_START 和 GRID_SIZE_END 将自动根据数据范围计算
 # GRID_SIZE_START = 最短边 / 100
 # GRID_SIZE_END = 最短边 / 2
-GRID_SIZE_STEP = 0.1                  # 步长
+GRID_SIZE_STEP = 0.001                  # 步长
 MAX_BUFFER_DISTANCE = 0                 # 最大缓冲距离
 INTERPOLATION_METHOD = 'linear'         # 插值方法: linear, cubic, idw
 
@@ -200,8 +200,8 @@ def calculate_grid_size_range(X):
     min_edge = min(x_range, y_range)
     
     # 计算grid_size范围
-    grid_size_start = min_edge / 100
-    grid_size_end = min_edge / 2
+    grid_size_start = 2.5
+    grid_size_end = 4
     
     return grid_size_start, grid_size_end, min_edge
 
@@ -257,6 +257,7 @@ class GridSizeTester:
                 combined_data,
                 grid_size=grid_size,
                 max_buffer_distance=max_buffer_distance,
+                min_cluster_size=0
             )
             
             cluster.perform_clustering()

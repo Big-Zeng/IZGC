@@ -1,0 +1,422 @@
+{
+  "total_clients": 8489,
+  "total_cities": 14,
+  "total_areas": 47,
+  "cities": [
+    {
+      "city": "长沙市",
+      "count": 3229,
+      "json_file": "client_data_by_city/长沙市.json",
+      "csv_file": "client_data_by_city/长沙市.csv"
+    },
+    {
+      "city": "株洲市",
+      "count": 1232,
+      "json_file": "client_data_by_city/株洲市.json",
+      "csv_file": "client_data_by_city/株洲市.csv"
+    },
+    {
+      "city": "湘潭市",
+      "count": 1093,
+      "json_file": "client_data_by_city/湘潭市.json",
+      "csv_file": "client_data_by_city/湘潭市.csv"
+    },
+    {
+      "city": "衡阳市",
+      "count": 487,
+      "json_file": "client_data_by_city/衡阳市.json",
+      "csv_file": "client_data_by_city/衡阳市.csv"
+    },
+    {
+      "city": "益阳市",
+      "count": 484,
+      "json_file": "client_data_by_city/益阳市.json",
+      "csv_file": "client_data_by_city/益阳市.csv"
+    },
+    {
+      "city": "常德市",
+      "count": 473,
+      "json_file": "client_data_by_city/常德市.json",
+      "csv_file": "client_data_by_city/常德市.csv"
+    },
+    {
+      "city": "邵阳市",
+      "count": 342,
+      "json_file": "client_data_by_city/邵阳市.json",
+      "csv_file": "client_data_by_city/邵阳市.csv"
+    },
+    {
+      "city": "郴州市",
+      "count": 320,
+      "json_file": "client_data_by_city/郴州市.json",
+      "csv_file": "client_data_by_city/郴州市.csv"
+    },
+    {
+      "city": "岳阳市",
+      "count": 320,
+      "json_file": "client_data_by_city/岳阳市.json",
+      "csv_file": "client_data_by_city/岳阳市.csv"
+    },
+    {
+      "city": "娄底市",
+      "count": 313,
+      "json_file": "client_data_by_city/娄底市.json",
+      "csv_file": "client_data_by_city/娄底市.csv"
+    },
+    {
+      "city": "永州市",
+      "count": 134,
+      "json_file": "client_data_by_city/永州市.json",
+      "csv_file": "client_data_by_city/永州市.csv"
+    },
+    {
+      "city": "韶山市",
+      "count": 55,
+      "json_file": "client_data_by_city/韶山市.json",
+      "csv_file": "client_data_by_city/韶山市.csv"
+    },
+    {
+      "city": null,
+      "count": 5,
+      "json_file": "client_data_by_city/None.json",
+      "csv_file": "client_data_by_city/None.csv"
+    },
+    {
+      "city": "湘乡市",
+      "count": 2,
+      "json_file": "client_data_by_city/湘乡市.json",
+      "csv_file": "client_data_by_city/湘乡市.csv"
+    }
+  ],
+  "city_areas": [
+    {
+      "city": "娄底市",
+      "area": "娄星区",
+      "count": 313,
+      "json_file": "client_data_by_city/by_area/娄底市_娄星区.json",
+      "csv_file": "client_data_by_city/by_area/娄底市_娄星区.csv"
+    },
+    {
+      "city": "岳阳市",
+      "area": "岳阳楼区",
+      "count": 320,
+      "json_file": "client_data_by_city/by_area/岳阳市_岳阳楼区.json",
+      "csv_file": "client_data_by_city/by_area/岳阳市_岳阳楼区.csv"
+    },
+    {
+      "city": "常德市",
+      "area": "武陵区",
+      "count": 294,
+      "json_file": "client_data_by_city/by_area/常德市_武陵区.json",
+      "csv_file": "client_data_by_city/by_area/常德市_武陵区.csv"
+    },
+    {
+      "city": "常德市",
+      "area": "鼎城区",
+      "count": 178,
+      "json_file": "client_data_by_city/by_area/常德市_鼎城区.json",
+      "csv_file": "client_data_by_city/by_area/常德市_鼎城区.csv"
+    },
+    {
+      "city": "常德市",
+      "area": "天心区",
+      "count": 1,
+      "json_file": "client_data_by_city/by_area/常德市_天心区.json",
+      "csv_file": "client_data_by_city/by_area/常德市_天心区.csv"
+    },
+    {
+      "city": "株洲市",
+      "area": "荷塘区",
+      "count": 334,
+      "json_file": "client_data_by_city/by_area/株洲市_荷塘区.json",
+      "csv_file": "client_data_by_city/by_area/株洲市_荷塘区.csv"
+    },
+    {
+      "city": "株洲市",
+      "area": "天元区",
+      "count": 331,
+      "json_file": "client_data_by_city/by_area/株洲市_天元区.json",
+      "csv_file": "client_data_by_city/by_area/株洲市_天元区.csv"
+    },
+    {
+      "city": "株洲市",
+      "area": "芦淞区",
+      "count": 239,
+      "json_file": "client_data_by_city/by_area/株洲市_芦淞区.json",
+      "csv_file": "client_data_by_city/by_area/株洲市_芦淞区.csv"
+    },
+    {
+      "city": "株洲市",
+      "area": "石峰区",
+      "count": 181,
+      "json_file": "client_data_by_city/by_area/株洲市_石峰区.json",
+      "csv_file": "client_data_by_city/by_area/株洲市_石峰区.csv"
+    },
+    {
+      "city": "株洲市",
+      "area": "醴陵市",
+      "count": 86,
+      "json_file": "client_data_by_city/by_area/株洲市_醴陵市.json",
+      "csv_file": "client_data_by_city/by_area/株洲市_醴陵市.csv"
+    },
+    {
+      "city": "株洲市",
+      "area": "株洲县",
+      "count": 61,
+      "json_file": "client_data_by_city/by_area/株洲市_株洲县.json",
+      "csv_file": "client_data_by_city/by_area/株洲市_株洲县.csv"
+    },
+    {
+      "city": "永州市",
+      "area": "冷水滩区",
+      "count": 134,
+      "json_file": "client_data_by_city/by_area/永州市_冷水滩区.json",
+      "csv_file": "client_data_by_city/by_area/永州市_冷水滩区.csv"
+    },
+    {
+      "city": "湘乡市",
+      "area": "湘乡市",
+      "count": 2,
+      "json_file": "client_data_by_city/by_area/湘乡市_湘乡市.json",
+      "csv_file": "client_data_by_city/by_area/湘乡市_湘乡市.csv"
+    },
+    {
+      "city": "湘潭市",
+      "area": "岳塘区",
+      "count": 336,
+      "json_file": "client_data_by_city/by_area/湘潭市_岳塘区.json",
+      "csv_file": "client_data_by_city/by_area/湘潭市_岳塘区.csv"
+    },
+    {
+      "city": "湘潭市",
+      "area": "湘潭县",
+      "count": 281,
+      "json_file": "client_data_by_city/by_area/湘潭市_湘潭县.json",
+      "csv_file": "client_data_by_city/by_area/湘潭市_湘潭县.csv"
+    },
+    {
+      "city": "湘潭市",
+      "area": "雨湖区",
+      "count": 242,
+      "json_file": "client_data_by_city/by_area/湘潭市_雨湖区.json",
+      "csv_file": "client_data_by_city/by_area/湘潭市_雨湖区.csv"
+    },
+    {
+      "city": "湘潭市",
+      "area": "湘乡市",
+      "count": 230,
+      "json_file": "client_data_by_city/by_area/湘潭市_湘乡市.json",
+      "csv_file": "client_data_by_city/by_area/湘潭市_湘乡市.csv"
+    },
+    {
+      "city": "湘潭市",
+      "area": "韶山市",
+      "count": 4,
+      "json_file": "client_data_by_city/by_area/湘潭市_韶山市.json",
+      "csv_file": "client_data_by_city/by_area/湘潭市_韶山市.csv"
+    },
+    {
+      "city": "益阳市",
+      "area": "赫山区",
+      "count": 287,
+      "json_file": "client_data_by_city/by_area/益阳市_赫山区.json",
+      "csv_file": "client_data_by_city/by_area/益阳市_赫山区.csv"
+    },
+    {
+      "city": "益阳市",
+      "area": "阮江市",
+      "count": 81,
+      "json_file": "client_data_by_city/by_area/益阳市_阮江市.json",
+      "csv_file": "client_data_by_city/by_area/益阳市_阮江市.csv"
+    },
+    {
+      "city": "益阳市",
+      "area": "资阳区",
+      "count": 61,
+      "json_file": "client_data_by_city/by_area/益阳市_资阳区.json",
+      "csv_file": "client_data_by_city/by_area/益阳市_资阳区.csv"
+    },
+    {
+      "city": "益阳市",
+      "area": "桃江县",
+      "count": 55,
+      "json_file": "client_data_by_city/by_area/益阳市_桃江县.json",
+      "csv_file": "client_data_by_city/by_area/益阳市_桃江县.csv"
+    },
+    {
+      "city": "衡阳市",
+      "area": "蒸湘区",
+      "count": 230,
+      "json_file": "client_data_by_city/by_area/衡阳市_蒸湘区.json",
+      "csv_file": "client_data_by_city/by_area/衡阳市_蒸湘区.csv"
+    },
+    {
+      "city": "衡阳市",
+      "area": "雁峰区",
+      "count": 95,
+      "json_file": "client_data_by_city/by_area/衡阳市_雁峰区.json",
+      "csv_file": "client_data_by_city/by_area/衡阳市_雁峰区.csv"
+    },
+    {
+      "city": "衡阳市",
+      "area": "珠晖区",
+      "count": 85,
+      "json_file": "client_data_by_city/by_area/衡阳市_珠晖区.json",
+      "csv_file": "client_data_by_city/by_area/衡阳市_珠晖区.csv"
+    },
+    {
+      "city": "衡阳市",
+      "area": "三塘镇",
+      "count": 42,
+      "json_file": "client_data_by_city/by_area/衡阳市_三塘镇.json",
+      "csv_file": "client_data_by_city/by_area/衡阳市_三塘镇.csv"
+    },
+    {
+      "city": "衡阳市",
+      "area": "石鼓区",
+      "count": 34,
+      "json_file": "client_data_by_city/by_area/衡阳市_石鼓区.json",
+      "csv_file": "client_data_by_city/by_area/衡阳市_石鼓区.csv"
+    },
+    {
+      "city": "衡阳市",
+      "area": "高新区",
+      "count": 1,
+      "json_file": "client_data_by_city/by_area/衡阳市_高新区.json",
+      "csv_file": "client_data_by_city/by_area/衡阳市_高新区.csv"
+    },
+    {
+      "city": "邵阳市",
+      "area": "大祥区",
+      "count": 233,
+      "json_file": "client_data_by_city/by_area/邵阳市_大祥区.json",
+      "csv_file": "client_data_by_city/by_area/邵阳市_大祥区.csv"
+    },
+    {
+      "city": "邵阳市",
+      "area": "双清区",
+      "count": 66,
+      "json_file": "client_data_by_city/by_area/邵阳市_双清区.json",
+      "csv_file": "client_data_by_city/by_area/邵阳市_双清区.csv"
+    },
+    {
+      "city": "邵阳市",
+      "area": "北塔区",
+      "count": 42,
+      "json_file": "client_data_by_city/by_area/邵阳市_北塔区.json",
+      "csv_file": "client_data_by_city/by_area/邵阳市_北塔区.csv"
+    },
+    {
+      "city": "邵阳市",
+      "area": "北塔去",
+      "count": 1,
+      "json_file": "client_data_by_city/by_area/邵阳市_北塔去.json",
+      "csv_file": "client_data_by_city/by_area/邵阳市_北塔去.csv"
+    },
+    {
+      "city": "郴州市",
+      "area": "北湖区",
+      "count": 271,
+      "json_file": "client_data_by_city/by_area/郴州市_北湖区.json",
+      "csv_file": "client_data_by_city/by_area/郴州市_北湖区.csv"
+    },
+    {
+      "city": "郴州市",
+      "area": "苏仙区",
+      "count": 49,
+      "json_file": "client_data_by_city/by_area/郴州市_苏仙区.json",
+      "csv_file": "client_data_by_city/by_area/郴州市_苏仙区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "岳麓区",
+      "count": 762,
+      "json_file": "client_data_by_city/by_area/长沙市_岳麓区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_岳麓区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "雨花区",
+      "count": 536,
+      "json_file": "client_data_by_city/by_area/长沙市_雨花区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_雨花区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "长沙县",
+      "count": 416,
+      "json_file": "client_data_by_city/by_area/长沙市_长沙县.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_长沙县.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "天心区",
+      "count": 360,
+      "json_file": "client_data_by_city/by_area/长沙市_天心区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_天心区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "开福区",
+      "count": 352,
+      "json_file": "client_data_by_city/by_area/长沙市_开福区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_开福区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "芙蓉区",
+      "count": 334,
+      "json_file": "client_data_by_city/by_area/长沙市_芙蓉区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_芙蓉区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "望城区",
+      "count": 204,
+      "json_file": "client_data_by_city/by_area/长沙市_望城区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_望城区.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "宁乡县",
+      "count": 154,
+      "json_file": "client_data_by_city/by_area/长沙市_宁乡县.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_宁乡县.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "浏阳市",
+      "count": 110,
+      "json_file": "client_data_by_city/by_area/长沙市_浏阳市.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_浏阳市.csv"
+    },
+    {
+      "city": "长沙市",
+      "area": "宁乡区",
+      "count": 1,
+      "json_file": "client_data_by_city/by_area/长沙市_宁乡区.json",
+      "csv_file": "client_data_by_city/by_area/长沙市_宁乡区.csv"
+    },
+    {
+      "city": "韶山市",
+      "area": "韶山市",
+      "count": 55,
+      "json_file": "client_data_by_city/by_area/韶山市_韶山市.json",
+      "csv_file": "client_data_by_city/by_area/韶山市_韶山市.csv"
+    },
+    {
+      "city": null,
+      "area": "湘潭县",
+      "count": 4,
+      "json_file": "client_data_by_city/by_area/未知城市_湘潭县.json",
+      "csv_file": "client_data_by_city/by_area/未知城市_湘潭县.csv"
+    },
+    {
+      "city": null,
+      "area": "雨花区",
+      "count": 1,
+      "json_file": "client_data_by_city/by_area/未知城市_雨花区.json",
+      "csv_file": "client_data_by_city/by_area/未知城市_雨花区.csv"
+    }
+  ]
+}

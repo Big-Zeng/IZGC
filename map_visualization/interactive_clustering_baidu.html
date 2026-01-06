@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>交互式客户聚类分析 - 百度地图版（含等值线）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            width: 100%;
+            height: 100%;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #sidebar {
+            width: 350px;
+            background: #f5f5f5;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        #map {
+            flex: 1;
+            position: relative;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        .param-group {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .param-group h3 {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .param-item {
+            margin-bottom: 15px;
+        }
+        
+        .param-item label {
+            display: block;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        
+        .param-item input[type="number"],
+        .param-item input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        
+        .param-item input[type="range"] {
+            padding: 0;
+        }
+        
+        .param-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .btn-cluster {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-cluster:hover {
+            background: #0056b3;
+        }
+        
+        .btn-cluster:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .results h3 {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: #666;
+        }
+        
+        .metric-value {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .metric-value.good {
+            color: #28a745;
+        }
+        
+        .metric-value.excellent {
+            color: #007bff;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+        
+        .info-box {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            max-width: 300px;
+        }
+        
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .legend-item {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+        
+        .BMap_cpyCtrl {
+            display: none !important;
+        }
+        
+        .anchorBL {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="sidebar">
+            <h2>🎯 聚类参数设置</h2>
+            
+            <div class="param-group">
+                <h3>基本参数</h3>
+                
+                <div class="param-item">
+                    <label>
+                        网格大小 (grid_size)
+                        <span class="param-value" id="grid-size-value">0.05</span>
+                    </label>
+                    <input type="range" id="grid-size" min="0.01" max="0.2" step="0.01" value="0.05">
+                    <small style="color: #999; font-size: 11px;">值越小，网格越密集</small>
+                </div>
+                
+                <div class="param-item">
+                    <label>
+                        最大缓冲距离 (max_buffer_distance)
+                        <span class="param-value" id="buffer-distance-value">5</span>
+                    </label>
+                    <input type="range" id="buffer-distance" min="1" max="20" step="1" value="5">
+                    <small style="color: #999; font-size: 11px;">扩展缓冲区的最大步数</small>
+                </div>
+                
+                <div class="param-item">
+                    <label>
+                        最小簇大小 (min_cluster_size)
+                        <span class="param-value" id="min-cluster-size-value">10</span>
+                    </label>
+                    <input type="range" id="min-cluster-size" min="1" max="50" step="1" value="10">
+                    <small style="color: #999; font-size: 11px;">小于此值的簇会被合并</small>
+                </div>
+            </div>
+            
+            <button class="btn-cluster" id="btn-cluster" onclick="performClustering()">
+                开始聚类分析
+            </button>
+            
+            <div id="results-container"></div>
+        </div>
+        
+        <div id="map"></div>
+    </div>
+    
+    <!-- 百度地图API -->
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=7GJV8YHkODN1xUoziJd3jvkrIYmT05Oc"></script>
+    
+    <script>
+        // 全局变量
+        let map = null;
+        let clients = [];
+        let currentOverlays = [];
+        
+        // 初始化地图
+        function initMap() {
+            map = new BMap.Map("map");
+            const point = new BMap.Point(112.9388, 28.2282);
+            map.centerAndZoom(point, 8);
+            map.enableScrollWheelZoom(true);
+            
+            // 添加控件
+            map.addControl(new BMap.NavigationControl());
+            map.addControl(new BMap.ScaleControl());
+            
+            console.log('地图初始化完成');
+        }
+        
+        // 加载客户数据
+        async function loadClients() {
+            try {
+                const response = await fetch('http://localhost:5000/api/clients');
+                const data = await response.json();
+                
+                if (data.success) {
+                    clients = data.clients;
+                    console.log(`加载了 ${clients.length} 个客户`);
+                    
+                    // 显示原始数据
+                    displayClients(clients, null, null);
+                } else {
+                    console.error('加载客户数据失败:', data.error);
+                }
+            } catch (error) {
+                console.error('加载客户数据出错:', error);
+            }
+        }
+        
+        // 显示客户点和等值线
+        function displayClients(clientsData, labels, contourPolygons) {
+            // 清除现有覆盖物
+            currentOverlays.forEach(overlay => map.removeOverlay(overlay));
+            currentOverlays = [];
+            
+            // 如果有标签，生成颜色映射
+            let clusterColors = {};
+            if (labels) {
+                const uniqueLabels = [...new Set(labels)].filter(l => l !== -1);
+                uniqueLabels.forEach((label, index) => {
+                    const hue = (index * 360 / uniqueLabels.length) % 360;
+                    clusterColors[label] = `hsl(${hue}, 70%, 50%)`;
+                });
+                clusterColors[-1] = '#888888';  // 噪声点
+            }
+            
+            // 绘制等值线多边形
+            if (contourPolygons && contourPolygons.length > 0) {
+                console.log(`绘制 ${contourPolygons.length} 个等值线多边形`);
+                
+                contourPolygons.forEach(contourData => {
+                    const clusterId = contourData.cluster_id;
+                    const polygon = contourData.polygon;
+                    const color = clusterColors[clusterId] || '#888888';
+                    
+                    // 将坐标转换为百度地图点
+                    const points = polygon.map(coord => new BMap.Point(coord[0], coord[1]));
+                    
+                    // 创建多边形
+                    const baiduPolygon = new BMap.Polygon(points, {
+                        strokeColor: color,
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8,
+                        fillColor: color,
+                        fillOpacity: 0.2
+                    });
+                    
+                    map.addOverlay(baiduPolygon);
+                    currentOverlays.push(baiduPolygon);
+                    
+                    // 添加多边形点击事件
+                    baiduPolygon.addEventListener('click', function() {
+                        const infoContent = '<div style="padding: 10px; min-width: 200px;">' +
+                            '<h4 style="margin: 0 0 10px 0; color: ' + color + ';">簇 ' + clusterId + '</h4>' +
+                            '<p style="margin: 5px 0;"><b>点数:</b> ' + contourData.point_count + '</p>' +
+                            '<p style="margin: 5px 0;"><b>中心:</b> [' + contourData.center[0].toFixed(4) + ', ' + contourData.center[1].toFixed(4) + ']</p>' +
+                            '</div>';
+                        
+                        const infoWindow = new BMap.InfoWindow(infoContent, {
+                            width: 220,
+                            height: 120,
+                            title: '聚类信息'
+                        });
+                        
+                        // 在多边形中心显示信息窗口
+                        const centerPoint = new BMap.Point(contourData.center[0], contourData.center[1]);
+                        map.openInfoWindow(infoWindow, centerPoint);
+                    });
+                });
+            }
+            
+            // 添加客户标记
+            clientsData.forEach((client, index) => {
+                const pt = new BMap.Point(client.lon, client.lat);
+                const label = labels ? labels[index] : 0;
+                const color = labels ? (clusterColors[label] || '#888888') : '#1E90FF';
+                
+                // 创建圆形标记
+                const circle = new BMap.Circle(pt, 100, {
+                    strokeColor: 'white',
+                    strokeWeight: 1,
+                    strokeOpacity: 0.8,
+                    fillColor: color,
+                    fillOpacity: 0.8
+                });
+                
+                map.addOverlay(circle);
+                currentOverlays.push(circle);
+                
+                // 信息窗口
+                const clusterLabel = labels ? (label === -1 ? '噪声点' : '簇 ' + label) : '未聚类';
+                const infoContent = '<div style="padding: 10px; min-width: 250px;">' +
+                    '<h4 style="margin: 0 0 10px 0; color: #333;">' + client.name + '</h4>' +
+                    '<p style="margin: 5px 0;"><b>客户ID:</b> ' + client.id + '</p>' +
+                    (labels ? '<p style="margin: 5px 0;"><b>聚类:</b> <span style="color: ' + color + '; font-weight: bold;">' + clusterLabel + '</span></p>' : '') +
+                    '<p style="margin: 5px 0;"><b>等级:</b> ' + (client.degree === '2' ? '<span style="color: red;">重点客户</span>' : '普通客户') + '</p>' +
+                    '<p style="margin: 5px 0;"><b>城市:</b> ' + (client.city || '未知') + '</p>' +
+                    '<p style="margin: 5px 0;"><b>区域:</b> ' + (client.area || '未知') + '</p>' +
+                    '<p style="margin: 5px 0;"><b>地址:</b> ' + (client.street || '未知') + '</p>' +
+                    '</div>';
+                
+                circle.addEventListener('click', function() {
+                    const infoWindow = new BMap.InfoWindow(infoContent, {
+                        width: 280,
+                        height: 220,
+                        title: '客户信息'
+                    });
+                    map.openInfoWindow(infoWindow, pt);
+                });
+                
+                // 鼠标悬停
+                circle.addEventListener('mouseover', function() {
+                    const labelText = labels ? client.name + ' (' + clusterLabel + ')' : client.name;
+                    const label = new BMap.Label(labelText, {
+                        position: pt,
+                        offset: new BMap.Size(10, -10)
+                    });
+                    label.setStyle({
+                        color: '#333',
+                        fontSize: '12px',
+                        backgroundColor: 'white',
+                        border: '1px solid #ccc',
+                        padding: '5px',
+                        borderRadius: '3px',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                    });
+                    map.addOverlay(label);
+                    circle._label = label;
+                });
+                
+                circle.addEventListener('mouseout', function() {
+                    if (circle._label) {
+                        map.removeOverlay(circle._label);
+                        circle._label = null;
+                    }
+                });
+            });
+            
+            // 更新图例
+            if (labels) {
+                updateLegend(clusterColors, labels);
+            }
+        }
+        
+        // 更新图例
+        function updateLegend(clusterColors, labels) {
+            // 移除旧图例
+            const oldLegend = document.querySelector('.legend');
+            if (oldLegend) {
+                oldLegend.remove();
+            }
+            
+            // 统计每个簇的点数
+            const clusterCounts = {};
+            labels.forEach(label => {
+                if (label !== -1) {
+                    clusterCounts[label] = (clusterCounts[label] || 0) + 1;
+                }
+            });
+            
+            const noiseCount = labels.filter(l => l === -1).length;
+            
+            // 创建新图例
+            const legend = document.createElement('div');
+            legend.className = 'legend';
+            legend.innerHTML = '<h4>聚类图例</h4>';
+            
+            Object.keys(clusterCounts).sort((a, b) => a - b).forEach(label => {
+                const count = clusterCounts[label];
+                const color = clusterColors[label];
+                legend.innerHTML += `
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: ${color};"></span>
+                        簇 ${label} (${count}个客户)
+                    </div>
+                `;
+            });
+            
+            if (noiseCount > 0) {
+                legend.innerHTML += `
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #888888;"></span>
+                        噪声点 (${noiseCount}个)
+                    </div>
+                `;
+            }
+            
+            document.getElementById('map').appendChild(legend);
+        }
+        
+        // 执行聚类
+        async function performClustering() {
+            const btn = document.getElementById('btn-cluster');
+            btn.disabled = true;
+            btn.textContent = '聚类中...';
+            
+            // 清除之前的结果
+            document.getElementById('results-container').innerHTML = '<div class="loading">正在执行聚类分析，请稍候...</div>';
+            
+            // 获取参数
+            const params = {
+                grid_size: parseFloat(document.getElementById('grid-size').value),
+                max_buffer_distance: parseInt(document.getElementById('buffer-distance').value),
+                min_cluster_size: parseInt(document.getElementById('min-cluster-size').value)
+            };
+            
+            console.log('聚类参数:', params);
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/cluster', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('聚类成功:', data);
+                    console.log('等值线多边形数量:', data.contour_polygons ? data.contour_polygons.length : 0);
+                    
+                    // 显示聚类结果（包含等值线）
+                    displayClients(clients, data.labels, data.contour_polygons);
+                    
+                    // 显示评价指标
+                    displayMetrics(data);
+                    
+                    // 更新信息框
+                    updateInfoBox(data);
+                } else {
+                    console.error('聚类失败:', data.error);
+                    document.getElementById('results-container').innerHTML = 
+                        '<div class="error">聚类失败: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                console.error('聚类请求出错:', error);
+                document.getElementById('results-container').innerHTML = 
+                    '<div class="error">聚类请求出错: ' + error.message + '</div>';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '开始聚类分析';
+            }
+        }
+        
+        // 显示评价指标
+        function displayMetrics(data) {
+            const metrics = data.metrics;
+            
+            let html = '<div class="results"><h3>📊 聚类结果</h3>';
+            
+            html += `
+                <div class="metric-item">
+                    <span class="metric-label">簇数</span>
+                    <span class="metric-value">${data.n_clusters}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">噪声点</span>
+                    <span class="metric-value">${data.n_noise}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">有效点数</span>
+                    <span class="metric-value">${data.n_valid_points}</span>
+                </div>
+            `;
+            
+            html += '</div><div class="results"><h3>📈 评价指标</h3>';
+            
+            if (metrics.silhouette_score !== undefined) {
+                const silhouette = metrics.silhouette_score;
+                const silhouetteClass = silhouette > 0.7 ? 'excellent' : (silhouette > 0.5 ? 'good' : '');
+                
+                html += `
+                    <div class="metric-item">
+                        <span class="metric-label">轮廓系数</span>
+                        <span class="metric-value ${silhouetteClass}">${silhouette.toFixed(4)}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">CH指数</span>
+                        <span class="metric-value">${metrics.calinski_harabasz_score.toFixed(2)}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">DB指数</span>
+                        <span class="metric-value ${metrics.davies_bouldin_score < 0.5 ? 'excellent' : ''}">${metrics.davies_bouldin_score.toFixed(4)}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">簇内误差</span>
+                        <span class="metric-value">${metrics.inertia.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            
+            document.getElementById('results-container').innerHTML = html;
+        }
+        
+        // 更新信息框
+        function updateInfoBox(data) {
+            // 移除旧信息框
+            const oldInfoBox = document.querySelector('.info-box');
+            if (oldInfoBox) {
+                oldInfoBox.remove();
+            }
+            
+            // 创建新信息框
+            const infoBox = document.createElement('div');
+            infoBox.className = 'info-box';
+            infoBox.innerHTML = `
+                <h3>客户聚类分析结果</h3>
+                <p><b>总客户数:</b> ${clients.length}</p>
+                <p><b>发现簇数:</b> ${data.n_clusters}</p>
+                <p><b>噪声点数:</b> ${data.n_noise}</p>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    使用等值线聚类算法<br>
+                    彩色区域为聚类边界<br>
+                    点击标记或区域查看详情
+                </p>
+            `;
+            
+            document.getElementById('map').appendChild(infoBox);
+        }
+        
+        // 参数滑块事件
+        document.getElementById('grid-size').addEventListener('input', function(e) {
+            document.getElementById('grid-size-value').textContent = e.target.value;
+        });
+        
+        document.getElementById('buffer-distance').addEventListener('input', function(e) {
+            document.getElementById('buffer-distance-value').textContent = e.target.value;
+        });
+        
+        document.getElementById('min-cluster-size').addEventListener('input', function(e) {
+            document.getElementById('min-cluster-size-value').textContent = e.target.value;
+        });
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            initMap();
+            loadClients();
+        };
+    </script>
+</body>
+</html>

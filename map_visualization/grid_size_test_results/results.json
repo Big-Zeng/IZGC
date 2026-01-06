@@ -1,0 +1,10 @@
+[
+  {
+    "city": "长沙市",
+    "area": "长沙县",
+    "count": 416,
+    "best_grid_size": 0.02,
+    "best_silhouette_score": 0.8023652910289657,
+    "best_n_clusters": 2
+  }
+]

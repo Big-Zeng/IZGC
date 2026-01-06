@@ -6,8 +6,8 @@ import pandas as pd
 import numpy as np
 
 # 读取CSV文件
-print("正在读取 data/complex9.csv...")
-df = pd.read_csv('data/complex9.csv')
+
+df = pd.read_csv('data/2d_3c.csv')
 
 print(f"✓ 读取成功，共 {len(df)} 个点")
 

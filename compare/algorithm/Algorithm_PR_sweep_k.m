@@ -5,7 +5,7 @@ clear;
 close all;
 
 % ==================== 配置区域 ====================
-num = 94;  % 数据集编号
+num = 87;  % 数据集编号
 k_start = 50;  % k值起始
 k_end = 100;  % k值结束
 k_step = 1;  % k值步长
@@ -36,7 +36,7 @@ case{52},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\dataset\n
 case{53},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\dataset\newDatasets\jain23.mat'); KK=2;AA = AA.d;     
 case{54},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\dataset\newDatasets\line4.mat'); KK=4;AA = AA.d; %dpc达到1     
 case{55},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\dataset\newDatasets\ls3.mat'); KK=6;AA = AA.d;     
-    
+      case{87},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\dataset\shape\2d_3c.txt');KK=3;
 case{56},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\10-19dataset\shape\Eyes2.mat'); KK=3;AA = AA.d;       
     case{57},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\dataset\shape\lineblobs.txt'); KK=3; 
 case{58},AA=load('F:\科研\论文\分区论文\distrubuteArea\compare\cheng_data\artificial\Twomoons.mat'); KK=2;AA = AA.d;      

@@ -21,7 +21,7 @@ except ImportError:
     print("警告: pyclustering未安装，请运行: pip install pyclustering")
 
 # ==================== 配置 ====================
-DATASET = "../data/jain.csv"
+DATASET = "../data/ring.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
@@ -31,7 +31,7 @@ NORMALIZE = True
 # - density_threshold: 密度阈值
 PARAM_RANGES = {
     'intervals': (4, 100, 1),           # 网格划分数：从5到30，步长1
-    'density_threshold': (1, 15, 1)    # 密度阈值：从1到15，步长1
+    'density_threshold': (1, 50, 1)    # 密度阈值：从1到15，步长1
 }
 
 # 优化目标

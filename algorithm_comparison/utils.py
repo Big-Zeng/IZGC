@@ -156,3 +156,39 @@ def print_best_result(algorithm_name, best_params, best_metrics):
     print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
     print(f"簇数: {best_metrics['n_clusters']}, 噪声点: {best_metrics['n_noise']}")
     print(f"{'='*60}")
+
+
+def save_best_result(algorithm_name, dataset_name, best_params, best_metrics, save_path):
+    """
+    保存最佳结果到txt文件
+    
+    参数:
+        algorithm_name: 算法名称
+        dataset_name: 数据集名称
+        best_params: 最佳参数字典
+        best_metrics: 最佳指标字典
+        save_path: 保存路径
+    """
+    with open(save_path, 'w', encoding='utf-8') as f:
+        f.write(f"{'='*60}\n")
+        f.write(f"算法: {algorithm_name}\n")
+        f.write(f"数据集: {dataset_name}\n")
+        f.write(f"{'='*60}\n\n")
+        
+        f.write("最佳参数:\n")
+        for key, value in best_params.items():
+            if isinstance(value, float):
+                f.write(f"  {key}: {value:.4f}\n")
+            else:
+                f.write(f"  {key}: {value}\n")
+        
+        f.write("\n评估指标:\n")
+        f.write(f"  AMI: {best_metrics['AMI']:.4f}\n")
+        f.write(f"  ARI: {best_metrics['ARI']:.4f}\n")
+        f.write(f"  FMI: {best_metrics['FMI']:.4f}\n")
+        f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+        f.write(f"  簇数: {best_metrics['n_clusters']}\n")
+        f.write(f"  噪声点: {best_metrics['n_noise']}\n")
+        f.write(f"{'='*60}\n")
+    
+    print(f"  结果已保存: {save_path}")

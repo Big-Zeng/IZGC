@@ -102,22 +102,45 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
     plt.rcParams['axes.labelsize'] = 14
     plt.rcParams['axes.titlesize'] = 16
     
-    # 获取唯一标签
-    unique_labels = np.unique(labels)
+    # 固定颜色列表（20种不同颜色，适合论文）
+    FIXED_COLORS = [
+        '#1f77b4',  # 蓝色
+        '#ff7f0e',  # 橙色
+        '#2ca02c',  # 绿色
+        '#d62728',  # 红色
+        '#9467bd',  # 紫色
+        '#8c564b',  # 棕色
+        '#e377c2',  # 粉色
+        '#7f7f7f',  # 灰色
+        '#bcbd22',  # 黄绿色
+        '#17becf',  # 青色
+        '#aec7e8',  # 浅蓝
+        '#ffbb78',  # 浅橙
+        '#98df8a',  # 浅绿
+        '#ff9896',  # 浅红
+        '#c5b0d5',  # 浅紫
+        '#c49c94',  # 浅棕
+        '#f7b6d2',  # 浅粉
+        '#c7c7c7',  # 浅灰
+        '#dbdb8d',  # 浅黄绿
+        '#9edae5',  # 浅青
+    ]
+    
+    # 获取唯一标签（排序以保证一致性）
+    unique_labels = sorted(set(labels))
     n_clusters = len(unique_labels) - (1 if -1 in unique_labels else 0)
     
-    # 颜色映射
-    colors = plt.cm.tab10(np.linspace(0, 1, max(10, n_clusters + 1)))
-    
     # 绘制每个簇
-    for i, label in enumerate(unique_labels):
-        mask = labels == label
+    for label in unique_labels:
+        mask = np.array(labels) == label
         if label == -1:
-            # 噪声点用灰色
+            # 噪声点用灰色X标记
             plt.scatter(X[mask, 0], X[mask, 1], c='gray', s=marker_size/2, 
                        alpha=0.5, label='Noise', marker='x')
         else:
-            plt.scatter(X[mask, 0], X[mask, 1], c=[colors[label % len(colors)]], 
+            # 使用固定颜色（循环使用）
+            color = FIXED_COLORS[label % len(FIXED_COLORS)]
+            plt.scatter(X[mask, 0], X[mask, 1], c=color, 
                        s=marker_size, alpha=0.7, label=f'Cluster {label+1}',
                        edgecolors='white', linewidths=0.5)
     
@@ -127,16 +150,15 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
     if show_title:
         plt.title(title)
     
-    if show_legend and n_clusters <= 10:
-        plt.legend(loc='best', framealpha=0.9, fontsize=10)
+    if show_legend and n_clusters
+       plt.legend(loc='best', framealpha=0.9, fontsize=10)
     
     plt.tight_layout()
     plt.savefig(save_path, dpi=dpi, bbox_inches='tight', 
-                facecolor='white', edgecolor='none')
+                facecolor='white', edgecolor=e')
     plt.close()
     
     print(f"  图表已保存: {save_path}")
-
 
 def plot_ground_truth(X, y_true, save_path, figsize=(8, 6), dpi=300, marker_size=30):
     """绘制真实标签图"""

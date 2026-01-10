@@ -45,11 +45,16 @@ def generate_param_values(start, end, step):
 
 def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, density_radius):
     """运行等值线聚类"""
+    from scipy.spatial import Voronoi
+    
+    # 计算密度
     tree = cKDTree(X)
     density = np.array([len(tree.query_ball_point(p, density_radius)) for p in X])
     
+    # 准备数据：(x, y, density, index)
     combined_data = [(*point, density[i], i) for i, point in enumerate(X)]
     
+    # 创建聚类实例
     cluster = ContourClustering.ContourBasedClusteringWithoutZ(
         combined_data,
         grid_size=grid_size,
@@ -58,7 +63,10 @@ def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, 
         interactive=False
     )
     
+    # 执行聚类
     cluster.perform_clustering()
+    
+    # 获取标签
     labels = cluster.get_predicted_labels()
     
     return np.array(labels)
@@ -83,33 +91,49 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     # 生成所有参数组合
     param_names = list(param_grid.keys())
     param_values = list(param_grid.values())
-    total_combinations = np.prod([len(v) for v in param_values])
+    total_combinations = int(np.prod([len(v) for v in param_values]))
     
     print(f"参数组合总数: {total_combinations}")
     
     results = []
+    success_count = 0
+    fail_count = 0
     
     for i, values in enumerate(product(*param_values), 1):
         params = dict(zip(param_names, values))
         
         try:
             labels = run_contour_clustering(X, **params)
+            
+            # 检查聚类是否有效
+            n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+            if n_clusters < 2:
+                fail_count += 1
+                if i % 50 == 0 or i == total_combinations:
+                    print(f"  进度: {i}/{total_combinations}, 成功: {success_count}, 当前最佳{optimize_metric}: {best_score:.4f}")
+                continue
+            
             metrics = evaluate_clustering(y_true, labels, X)
             
             score = metrics[optimize_metric]
             results.append({'params': params, 'metrics': metrics, 'labels': labels})
+            success_count += 1
             
             if score > best_score:
                 best_score = score
-                best_params = params
-                best_labels = labels
-                best_metrics = metrics
+                best_params = params.copy()
+                best_labels = labels.copy()
+                best_metrics = metrics.copy()
             
-            if i % 20 == 0 or i == total_combinations:
-                print(f"  进度: {i}/{total_combinations}, 当前最佳{optimize_metric}: {best_score:.4f}")
+            if i % 50 == 0 or i == total_combinations:
+                print(f"  进度: {i}/{total_combinations}, 成功: {success_count}, 当前最佳{optimize_metric}: {best_score:.4f}")
                 
         except Exception as e:
-            pass
+            fail_count += 1
+            if i % 100 == 0:
+                print(f"  进度: {i}/{total_combinations}, 参数 {params} 失败: {str(e)[:50]}")
+    
+    print(f"\n搜索完成: 成功 {success_count}/{total_combinations}, 失败 {fail_count}/{total_combinations}")
     
     return best_params, best_labels, best_metrics, results
 
@@ -140,23 +164,30 @@ if __name__ == "__main__":
         X, y_true, PARAM_RANGES, OPTIMIZE_METRIC
     )
     
-    # 打印最佳结果
-    print_best_result("ContourBasedClustering", best_params, best_metrics)
-    
-    # 保存图表
-    save_path = f"{OUTPUT_DIR}/ContourBased_{dataset_name}.png"
-    plot_clustering_result(
-        X, best_labels, 
-        f'ContourBased (ARI={best_metrics["ARI"]:.3f})',
-        save_path, dpi=300
-    )
-    
-    # 保存最佳结果到txt
-    txt_path = f"{OUTPUT_DIR}/ContourBased_{dataset_name}_best.txt"
-    save_best_result("ContourBasedClustering", dataset_name, best_params, best_metrics, txt_path)
-    
-    # 保存真实标签图
-    gt_path = f"{OUTPUT_DIR}/GroundTruth_{dataset_name}.png"
-    plot_clustering_result(X, y_true, 'Ground Truth', gt_path, dpi=300)
+    if best_params is None:
+        print("\n未找到有效的参数组合")
+        print("建议:")
+        print("  1. 检查数据集是否正确")
+        print("  2. 调整参数范围")
+        print("  3. 增大density_radius")
+    else:
+        # 打印最佳结果
+        print_best_result("ContourBasedClustering", best_params, best_metrics)
+        
+        # 保存图表
+        save_path = f"{OUTPUT_DIR}/ContourBased_{dataset_name}.png"
+        plot_clustering_result(
+            X, best_labels, 
+            f'ContourBased (ARI={best_metrics["ARI"]:.3f})',
+            save_path, dpi=300
+        )
+        
+        # 保存最佳结果到txt
+        txt_path = f"{OUTPUT_DIR}/ContourBased_{dataset_name}_best.txt"
+        save_best_result("ContourBasedClustering", dataset_name, best_params, best_metrics, txt_path)
+        
+        # 保存真实标签图
+        gt_path = f"{OUTPUT_DIR}/GroundTruth_{dataset_name}.png"
+        plot_clustering_result(X, y_true, 'Ground Truth', gt_path, dpi=300)
     
     print(f"\n完成！结果保存在 {OUTPUT_DIR}/")

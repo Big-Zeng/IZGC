@@ -15,7 +15,7 @@ from algorithm_comparison.utils import (
 )
 
 # ==================== 配置 ====================
-DATASET = "../data/jain.csv"
+DATASET = "../data/2d_3c.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
@@ -25,8 +25,8 @@ NORMALIZE = True
 # - covariance_type: 协方差类型 ('full', 'tied', 'diag', 'spherical')
 # - n_init: 初始化次数
 PARAM_RANGES = {
-    'n_components': (2, 2, 1),    # 簇数：从2到15，步长1
-    'n_init': (1, 50, 1)           # 初始化次数：从5到20，步长5
+    'n_components': (3, 3, 1),    # 簇数：从2到15，步长1
+    'n_init': (10, 50, 1)           # 初始化次数：从5到20，步长5
 }
 
 # 协方差类型列表（单独处理）

@@ -14,7 +14,7 @@ from algorithm_comparison.utils import (
 )
 
 # ==================== 配置 ====================
-DATASET = "../data/jain.csv"
+DATASET = "../data/2d_3c.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 

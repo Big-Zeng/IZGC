@@ -10,7 +10,7 @@ from itertools import product
 
 from algorithm_comparison.utils import (
     load_dataset, normalize_coordinates, evaluate_clustering,
-    plot_clustering_result, print_best_result
+    plot_clustering_result, print_best_result, save_best_result
 )
 
 # 尝试导入pyclustering
@@ -179,6 +179,10 @@ if __name__ == "__main__":
             f'BANG (ARI={best_metrics["ARI"]:.3f})',
             save_path, dpi=300
         )
+        
+        # 保存最佳结果到txt
+        txt_path = f"{OUTPUT_DIR}/BANG_{dataset_name}_best.txt"
+        save_best_result("BANG", dataset_name, best_params, best_metrics, txt_path)
     else:
         print("\n未找到有效的参数组合")
     

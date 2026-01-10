@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from algorithm_comparison.utils import (
     load_dataset, normalize_coordinates, evaluate_clustering,
-    plot_clustering_result, print_best_result
+    plot_clustering_result, print_best_result, save_best_result
 )
 
 # 尝试导入MATLAB集成
@@ -166,6 +166,10 @@ if __name__ == "__main__":
             f'DPC-FWSN (ARI={best_metrics["ARI"]:.3f})',
             save_path, dpi=300
         )
+        
+        # 保存最佳结果到txt
+        txt_path = f"{OUTPUT_DIR}/DPC-FWSN_{dataset_name}_best.txt"
+        save_best_result("DPC-FWSN", dataset_name, best_params, best_metrics, txt_path)
     else:
         print("\n未找到有效的参数组合")
     

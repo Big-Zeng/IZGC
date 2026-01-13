@@ -13,15 +13,26 @@ import sys
 # 添加父目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from clustering_metrics import ClusteringMetrics
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
 
 
 def load_dataset(filepath):
     """加载数据集"""
     df = pd.read_csv(filepath)
     X = df[['x', 'y']].values.astype(float)
-    y_true = df['target'].values
+    # 检查是否有 target 列（真实标签）
+    if 'target' in df.columns:
+        y_true = df['target'].values
+    else:
+        y_true = None  # 无监督数据集
     return X, y_true
+
+
+def load_real_dataset(filepath):
+    """加载真实数据集（无标签）"""
+    df = pd.read_csv(filepath)
+    X = df[['x', 'y']].values.astype(float)
+    return X
 
 
 def normalize_coordinates(X):
@@ -54,28 +65,48 @@ def calculate_inertia(X, labels):
 
 
 def evaluate_clustering(y_true, y_pred, X):
-    """评估聚类结果"""
-    metrics = ClusteringMetrics.evaluate_all(y_true, y_pred)
+    """评估聚类结果（有监督指标 + 无监督指标）"""
+    # 无监督指标（始终计算）
+    n_clusters = len(set(y_pred)) - (1 if -1 in y_pred else 0)
     
     # 轮廓系数
-    if len(set(y_pred)) > 1:
+    if n_clusters > 1:
         mask = np.array(y_pred) != -1
-        if np.sum(mask) > 0 and len(np.unique(np.array(y_pred)[mask])) > 1:
+        if np.sum(mask) > 1 and len(np.unique(np.array(y_pred)[mask])) > 1:
             silhouette = silhouette_score(X[mask], np.array(y_pred)[mask])
+            ch_score = calinski_harabasz_score(X[mask], np.array(y_pred)[mask])
         else:
             silhouette = -1
+            ch_score = 0
     else:
         silhouette = -1
+        ch_score = 0
     
-    return {
-        'AMI': metrics['AMI'],
-        'ARI': metrics['ARI'],
-        'FMI': metrics['FMI'],
+    result = {
         'Silhouette': silhouette,
+        'CH': ch_score,  # Calinski-Harabasz 指数
         'Inertia': calculate_inertia(X, np.array(y_pred)),
-        'n_clusters': len(set(y_pred)) - (1 if -1 in y_pred else 0),
+        'n_clusters': n_clusters,
         'n_noise': list(y_pred).count(-1)
     }
+    
+    # 有监督指标（仅当有真实标签时计算）
+    if y_true is not None:
+        metrics = ClusteringMetrics.evaluate_all(y_true, y_pred)
+        result['AMI'] = metrics['AMI']
+        result['ARI'] = metrics['ARI']
+        result['FMI'] = metrics['FMI']
+    else:
+        result['AMI'] = None
+        result['ARI'] = None
+        result['FMI'] = None
+    
+    return result
+
+
+def evaluate_clustering_unsupervised(y_pred, X):
+    """仅使用无监督指标评估聚类结果"""
+    return evaluate_clustering(None, y_pred, X)
 
 
 def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300, 
@@ -102,22 +133,45 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
     plt.rcParams['axes.labelsize'] = 14
     plt.rcParams['axes.titlesize'] = 16
     
-    # 获取唯一标签
-    unique_labels = np.unique(labels)
+    # 固定颜色列表（20种不同颜色，适合论文）
+    FIXED_COLORS = [
+        '#1f77b4',  # 蓝色
+        '#ff7f0e',  # 橙色
+        '#2ca02c',  # 绿色
+        '#d62728',  # 红色
+        '#9467bd',  # 紫色
+        '#8c564b',  # 棕色
+        '#e377c2',  # 粉色
+        '#7f7f7f',  # 灰色
+        '#bcbd22',  # 黄绿色
+        '#17becf',  # 青色
+        '#aec7e8',  # 浅蓝
+        '#ffbb78',  # 浅橙
+        '#98df8a',  # 浅绿
+        '#ff9896',  # 浅红
+        '#c5b0d5',  # 浅紫
+        '#c49c94',  # 浅棕
+        '#f7b6d2',  # 浅粉
+        '#c7c7c7',  # 浅灰
+        '#dbdb8d',  # 浅黄绿
+        '#9edae5',  # 浅青
+    ]
+    
+    # 获取唯一标签（排序以保证一致性）
+    unique_labels = sorted(set(labels))
     n_clusters = len(unique_labels) - (1 if -1 in unique_labels else 0)
     
-    # 颜色映射
-    colors = plt.cm.tab10(np.linspace(0, 1, max(10, n_clusters + 1)))
-    
     # 绘制每个簇
-    for i, label in enumerate(unique_labels):
-        mask = labels == label
+    for label in unique_labels:
+        mask = np.array(labels) == label
         if label == -1:
-            # 噪声点用灰色
+            # 噪声点用灰色X标记
             plt.scatter(X[mask, 0], X[mask, 1], c='gray', s=marker_size/2, 
                        alpha=0.5, label='Noise', marker='x')
         else:
-            plt.scatter(X[mask, 0], X[mask, 1], c=[colors[label % len(colors)]], 
+            # 使用固定颜色（循环使用）
+            color = FIXED_COLORS[label % len(FIXED_COLORS)]
+            plt.scatter(X[mask, 0], X[mask, 1], c=color, 
                        s=marker_size, alpha=0.7, label=f'Cluster {label+1}',
                        edgecolors='white', linewidths=0.5)
     
@@ -127,16 +181,14 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
     if show_title:
         plt.title(title)
     
-    if show_legend and n_clusters <= 10:
-        plt.legend(loc='best', framealpha=0.9, fontsize=10)
+    if show_legend and n_clusters:
+       plt.legend(loc='best', framealpha=0.9, fontsize=10)
     
     plt.tight_layout()
-    plt.savefig(save_path, dpi=dpi, bbox_inches='tight', 
-                facecolor='white', edgecolor='none')
+    plt.savefig(save_path, dpi=dpi, bbox_inches='tight', facecolor='white')
     plt.close()
     
     print(f"  图表已保存: {save_path}")
-
 
 def plot_ground_truth(X, y_true, save_path, figsize=(8, 6), dpi=300, marker_size=30):
     """绘制真实标签图"""
@@ -150,10 +202,16 @@ def print_best_result(algorithm_name, best_params, best_metrics):
     print(f"{algorithm_name} 最佳结果")
     print(f"{'='*60}")
     print(f"最佳参数: {best_params}")
-    print(f"AMI: {best_metrics['AMI']:.4f}")
-    print(f"ARI: {best_metrics['ARI']:.4f}")
-    print(f"FMI: {best_metrics['FMI']:.4f}")
+    
+    # 有监督指标（如果有）
+    if best_metrics.get('ARI') is not None:
+        print(f"AMI: {best_metrics['AMI']:.4f}")
+        print(f"ARI: {best_metrics['ARI']:.4f}")
+        print(f"FMI: {best_metrics['FMI']:.4f}")
+    
+    # 无监督指标
     print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+    print(f"CH: {best_metrics['CH']:.2f}")
     print(f"簇数: {best_metrics['n_clusters']}, 噪声点: {best_metrics['n_noise']}")
     print(f"{'='*60}")
 
@@ -183,10 +241,16 @@ def save_best_result(algorithm_name, dataset_name, best_params, best_metrics, sa
                 f.write(f"  {key}: {value}\n")
         
         f.write("\n评估指标:\n")
-        f.write(f"  AMI: {best_metrics['AMI']:.4f}\n")
-        f.write(f"  ARI: {best_metrics['ARI']:.4f}\n")
-        f.write(f"  FMI: {best_metrics['FMI']:.4f}\n")
+        
+        # 有监督指标（如果有）
+        if best_metrics.get('ARI') is not None:
+            f.write(f"  AMI: {best_metrics['AMI']:.4f}\n")
+            f.write(f"  ARI: {best_metrics['ARI']:.4f}\n")
+            f.write(f"  FMI: {best_metrics['FMI']:.4f}\n")
+        
+        # 无监督指标
         f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+        f.write(f"  CH: {best_metrics['CH']:.2f}\n")
         f.write(f"  簇数: {best_metrics['n_clusters']}\n")
         f.write(f"  噪声点: {best_metrics['n_noise']}\n")
         f.write(f"{'='*60}\n")

@@ -26,7 +26,7 @@ print(f"  新target范围: [{target_new.min()}, {target_new.max()}]")
 print(f"  新簇数: {len(np.unique(target_new))}")
 
 # 保存为txt文件（空格分隔）
-output_file = 'data/complex9.txt'
+output_file = 'data/2d_3c.txt'
 with open(output_file, 'w') as f:
     for i in range(len(x)):
         f.write(f"{x[i]} {y[i]} {target_new[i]}\n")

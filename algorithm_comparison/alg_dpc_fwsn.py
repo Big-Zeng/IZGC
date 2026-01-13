@@ -24,13 +24,13 @@ except ImportError:
     print("警告: matlab_integration模块未找到，MATLAB算法将不可用")
 
 # ==================== 配置 ====================
-DATASET = "../data/Compound.csv"
+DATASET = "../data/complex8_1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'k': (5, 20, 2)  # 近邻数量: 从5到20，步长2
+    'k': (1, 50, 1)  # 近邻数量: 从5到20，步长2
 }
 
 # 优化目标: 'ARI', 'AMI', 'FMI', 'Silhouette'

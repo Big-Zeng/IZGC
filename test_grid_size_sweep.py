@@ -19,7 +19,7 @@ from clustering_metrics import ClusteringMetrics
 # ==================== 配置区域 ====================
 #DATASET = "data/jain.csv"
 DATASET = "data/2d_3c.csv"               # 数据集路径 (支持.csv或.mat)
-DATASET = "data/2d_3c.csv"               # 数据集路径 (支持.csv或.mat)
+
 # GRID_SIZE_START 和 GRID_SIZE_END 将自动根据数据范围计算
 # GRID_SIZE_START = 最短边 / 100
 # GRID_SIZE_END = 最短边 / 2

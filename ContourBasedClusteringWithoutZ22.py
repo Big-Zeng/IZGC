@@ -6,7 +6,14 @@ import matplotlib.patches as patches
 from shapely.geometry import Point, Polygon
 import matplotlib
 from shapely.geometry import Point, LineString
-matplotlib.use('TkAgg')  # 或 'Qt5Agg'（需安装PyQt5）
+# 只在未设置后端时才设置TkAgg
+if matplotlib.get_backend() == 'agg':
+    pass  # 保持Agg后端
+else:
+    try:
+        matplotlib.use('TkAgg')  # 或 'Qt5Agg'（需安装PyQt5）
+    except:
+        pass
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from sklearn.metrics import silhouette_score
@@ -16,7 +23,7 @@ plt.rcParams['font.sans-serif'] = ['SimHei']   # 黑体
 plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
 class ContourBasedClusteringWithoutZ:
     def __init__(self, actual_points, grid_size=1.0, max_buffer_distance=5, 
-                 manual_virtual_points=None, min_cluster_size=5):
+                 manual_virtual_points=None, min_cluster_size=5, interactive=True):
         """
         初始化聚类算法
 
@@ -27,6 +34,7 @@ class ContourBasedClusteringWithoutZ:
         manual_virtual_points -- 手动添加的虚拟点列表，格式为[(x, y), ...] 或 [(x, y, z), ...]
                                 如果提供，这些点将被添加到自动生成的虚拟点中
         min_cluster_size -- 最小簇大小阈值，小于此值的簇将被合并到最近的簇中 (默认5)
+        interactive -- 是否启用交互模式（显示图形），默认True，批量运行时设为False
         """
         self.actual_points = actual_points
         self.grid_size = grid_size
@@ -38,6 +46,7 @@ class ContourBasedClusteringWithoutZ:
         self.density_centers = []
         self.point_to_density_center = {}
         self.min_cluster_size = min_cluster_size  # 新增：最小簇大小阈值
+        self.interactive = interactive  # 新增：是否启用交互模式
 
         # 内部类定义
         class ContourArea:
@@ -195,7 +204,10 @@ class ContourBasedClusteringWithoutZ:
         cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
         # 阻塞显示，直到用户关闭窗口
-        plt.show()
+        if self.interactive:
+            plt.show()
+        else:
+            plt.close(fig)
 
         # 合并所有虚拟点（自动 + 交互式手动）
         self.virtual_points = virtual_points + self.manual_points
@@ -247,7 +259,9 @@ class ContourBasedClusteringWithoutZ:
         ax.set_ylabel("Y")
         ax.legend()
         plt.grid(True, linestyle="--", alpha=0.5)
-        plt.show()
+        if self.interactive:
+            plt.show()
+      
 
         return grid_count
 
@@ -324,7 +338,10 @@ class ContourBasedClusteringWithoutZ:
         ax.legend()
         plt.xlabel('X')
         plt.ylabel('Y')
-        plt.show()
+        if self.interactive:
+            plt.show()
+        else:
+            plt.close(fig)
 
         # 转换为多边形区域
         face_polygons = self.line_to_polygon(contour_set)
@@ -627,7 +644,10 @@ class ContourBasedClusteringWithoutZ:
         ax.set_ylabel('Y Coordinate')
         ax.grid(True, linestyle='--', alpha=0.7)
         plt.tight_layout()
-        plt.show()
+        if self.interactive:
+            plt.show()
+        else:
+            plt.close(fig)
 
     def calculate_inertia(self, X, labels):
         """计算簇内误差平方和（Inertia）"""

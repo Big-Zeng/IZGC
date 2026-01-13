@@ -3,6 +3,11 @@ ContourBasedClustering 等值线聚类算法
 支持参数循环优化
 """
 
+# 必须在导入ContourBasedClusteringWithoutZ22之前设置Agg后端
+# 因为该模块内部会设置TkAgg
+import matplotlib
+matplotlib.use('Agg')
+
 import numpy as np
 import sys
 import os
@@ -44,9 +49,13 @@ def generate_param_values(start, end, step):
 
 
 def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, density_radius):
+    #grid_size 保留三位小数,直接截取
+
+    grid_size = '%.3f' % grid_size
+    grid_size = float(grid_size)
     """运行等值线聚类"""
     from scipy.spatial import Voronoi
-
+    matplotlib.use('Agg')
     # 计算密度
     tree = cKDTree(X)
     density = np.array([len(tree.query_ball_point(p, density_radius)) for p in X])
@@ -59,6 +68,7 @@ def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, 
         combined_data,
         grid_size=grid_size,
         max_buffer_distance=max_buffer_distance,
+
     )
 
     # 执行聚类

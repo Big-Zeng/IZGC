@@ -1,0 +1,11 @@
+算法: K-means++
+数据集: spiral
+最佳参数: {'n_clusters': 3, 'n_init': 10, 'max_iter': 300}
+
+评估指标:
+  AMI: -0.0056
+  ARI: -0.0061
+  FMI: 0.3455
+  Silhouette: 0.3599
+  簇数: 3
+  噪声点: 0

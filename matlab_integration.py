@@ -149,62 +149,102 @@ class MatlabRunner:
     
     def _run_with_subprocess(self, data, n_clusters, k):
         """使用子进程运行MATLAB"""
-        # 创建临时文件保存数据
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            temp_data_file = f.name
-            np.savetxt(f, data, delimiter=',')
+        # 获取matlab_integration.py所在目录（项目根目录）
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        algorithm_dir = os.path.join(script_dir, 'compare', 'algorithm')
         
-        # 创建临时MATLAB脚本
+        # 确保目录存在
+        if not os.path.exists(algorithm_dir):
+            print(f"错误: 目录不存在 {algorithm_dir}")
+            return None, None
+        
+        # 临时文件放在algorithm目录下，避免中文路径问题
+        temp_data_file = os.path.join(algorithm_dir, 'temp_data.csv')
+        result_file = os.path.join(algorithm_dir, 'temp_result.mat')
+        temp_script_file = os.path.join(algorithm_dir, 'temp_script.m')
+        
+        # 保存数据
+        np.savetxt(temp_data_file, data, delimiter=',')
+        
+        # 创建临时MATLAB脚本（放在algorithm目录下）
         matlab_script = f"""
-        % 临时脚本
-        data = readmatrix('{temp_data_file.replace(os.sep, '/')}');
+% 临时脚本 - 在algorithm目录下运行
+try
+    % 读取数据
+    data = readmatrix('temp_data.csv');
+    
+    % 运行算法
+    [labels, ami, ari, fmi] = run_algorithm_pr_wrapper(data, {n_clusters}, {k});
+    
+    % 保存结果
+    save('temp_result.mat', 'labels', 'ami', 'ari', 'fmi');
+    
+    fprintf('MATLAB执行成功\\n');
+catch ME
+    fprintf('MATLAB错误: %s\\n', ME.message);
+    if ~isempty(ME.stack)
+        fprintf('错误位置: %s, 行 %d\\n', ME.stack(1).name, ME.stack(1).line);
+    end
+    % 保存错误信息
+    error_msg = ME.message;
+    save('temp_result.mat', 'error_msg');
+end
+
+quit;
+"""
         
-        % 添加路径
-        addpath('compare/algorithm');
-        
-        % 运行算法
-        [labels, ami, ari, fmi] = run_algorithm_pr_wrapper(data, {n_clusters}, {k});
-        
-        % 保存结果
-        save('temp_matlab_result.mat', 'labels', 'ami', 'ari', 'fmi');
-        
-        % 退出
-        quit;
-        """
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.m', delete=False) as f:
-            temp_script_file = f.name
+        with open(temp_script_file, 'w', encoding='utf-8') as f:
             f.write(matlab_script)
         
         try:
-            # 运行MATLAB
-            subprocess.run(['matlab', '-batch', f"run('{temp_script_file}')"], 
-                         check=True, capture_output=True)
+            # 在algorithm目录下运行MATLAB
+            result = subprocess.run(
+                ['matlab', '-batch', "run('temp_script.m')"], 
+                check=True, 
+                capture_output=True,
+                text=True,
+                cwd=algorithm_dir
+            )
+            
+            # 检查结果文件是否存在
+            if not os.path.exists(result_file):
+                print(f"MATLAB未生成结果文件")
+                print(f"MATLAB stdout: {result.stdout}")
+                print(f"MATLAB stderr: {result.stderr}")
+                return None, None
             
             # 读取结果
             from scipy.io import loadmat
-            result = loadmat('temp_matlab_result.mat')
+            mat_result = loadmat(result_file)
             
-            labels = result['labels'].flatten()
-            ami = float(result['ami'])
-            ari = float(result['ari'])
-            fmi = float(result['fmi'])
+            # 检查是否有错误
+            if 'error_msg' in mat_result:
+                print(f"MATLAB内部错误: {mat_result['error_msg']}")
+                return None, None
             
-            # 清理临时文件
-            os.remove(temp_data_file)
-            os.remove(temp_script_file)
-            os.remove('temp_matlab_result.mat')
+            labels = mat_result['labels'].flatten()
+            ami = float(mat_result['ami'])
+            ari = float(mat_result['ari'])
+            fmi = float(mat_result['fmi'])
             
             return labels, {'AMI': ami, 'ARI': ari, 'FMI': fmi}
             
-        except Exception as e:
+        except subprocess.CalledProcessError as e:
             print(f"子进程执行错误: {e}")
+            print(f"MATLAB stdout: {e.stdout}")
+            print(f"MATLAB stderr: {e.stderr}")
+        except Exception as e:
+            print(f"执行错误: {e}")
+        finally:
             # 清理临时文件
-            if os.path.exists(temp_data_file):
-                os.remove(temp_data_file)
-            if os.path.exists(temp_script_file):
-                os.remove(temp_script_file)
-            return None, None
+            for f in [temp_data_file, temp_script_file, result_file]:
+                if os.path.exists(f):
+                    try:
+                        os.remove(f)
+                    except:
+                        pass
+        
+        return None, None
     
     def close(self):
         """关闭引擎"""

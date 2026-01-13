@@ -13,15 +13,26 @@ import sys
 # 添加父目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from clustering_metrics import ClusteringMetrics
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
 
 
 def load_dataset(filepath):
     """加载数据集"""
     df = pd.read_csv(filepath)
     X = df[['x', 'y']].values.astype(float)
-    y_true = df['target'].values
+    # 检查是否有 target 列（真实标签）
+    if 'target' in df.columns:
+        y_true = df['target'].values
+    else:
+        y_true = None  # 无监督数据集
     return X, y_true
+
+
+def load_real_dataset(filepath):
+    """加载真实数据集（无标签）"""
+    df = pd.read_csv(filepath)
+    X = df[['x', 'y']].values.astype(float)
+    return X
 
 
 def normalize_coordinates(X):
@@ -54,28 +65,48 @@ def calculate_inertia(X, labels):
 
 
 def evaluate_clustering(y_true, y_pred, X):
-    """评估聚类结果"""
-    metrics = ClusteringMetrics.evaluate_all(y_true, y_pred)
+    """评估聚类结果（有监督指标 + 无监督指标）"""
+    # 无监督指标（始终计算）
+    n_clusters = len(set(y_pred)) - (1 if -1 in y_pred else 0)
     
     # 轮廓系数
-    if len(set(y_pred)) > 1:
+    if n_clusters > 1:
         mask = np.array(y_pred) != -1
-        if np.sum(mask) > 0 and len(np.unique(np.array(y_pred)[mask])) > 1:
+        if np.sum(mask) > 1 and len(np.unique(np.array(y_pred)[mask])) > 1:
             silhouette = silhouette_score(X[mask], np.array(y_pred)[mask])
+            ch_score = calinski_harabasz_score(X[mask], np.array(y_pred)[mask])
         else:
             silhouette = -1
+            ch_score = 0
     else:
         silhouette = -1
+        ch_score = 0
     
-    return {
-        'AMI': metrics['AMI'],
-        'ARI': metrics['ARI'],
-        'FMI': metrics['FMI'],
+    result = {
         'Silhouette': silhouette,
+        'CH': ch_score,  # Calinski-Harabasz 指数
         'Inertia': calculate_inertia(X, np.array(y_pred)),
-        'n_clusters': len(set(y_pred)) - (1 if -1 in y_pred else 0),
+        'n_clusters': n_clusters,
         'n_noise': list(y_pred).count(-1)
     }
+    
+    # 有监督指标（仅当有真实标签时计算）
+    if y_true is not None:
+        metrics = ClusteringMetrics.evaluate_all(y_true, y_pred)
+        result['AMI'] = metrics['AMI']
+        result['ARI'] = metrics['ARI']
+        result['FMI'] = metrics['FMI']
+    else:
+        result['AMI'] = None
+        result['ARI'] = None
+        result['FMI'] = None
+    
+    return result
+
+
+def evaluate_clustering_unsupervised(y_pred, X):
+    """仅使用无监督指标评估聚类结果"""
+    return evaluate_clustering(None, y_pred, X)
 
 
 def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300, 
@@ -171,10 +202,16 @@ def print_best_result(algorithm_name, best_params, best_metrics):
     print(f"{algorithm_name} 最佳结果")
     print(f"{'='*60}")
     print(f"最佳参数: {best_params}")
-    print(f"AMI: {best_metrics['AMI']:.4f}")
-    print(f"ARI: {best_metrics['ARI']:.4f}")
-    print(f"FMI: {best_metrics['FMI']:.4f}")
+    
+    # 有监督指标（如果有）
+    if best_metrics.get('ARI') is not None:
+        print(f"AMI: {best_metrics['AMI']:.4f}")
+        print(f"ARI: {best_metrics['ARI']:.4f}")
+        print(f"FMI: {best_metrics['FMI']:.4f}")
+    
+    # 无监督指标
     print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+    print(f"CH: {best_metrics['CH']:.2f}")
     print(f"簇数: {best_metrics['n_clusters']}, 噪声点: {best_metrics['n_noise']}")
     print(f"{'='*60}")
 
@@ -204,10 +241,16 @@ def save_best_result(algorithm_name, dataset_name, best_params, best_metrics, sa
                 f.write(f"  {key}: {value}\n")
         
         f.write("\n评估指标:\n")
-        f.write(f"  AMI: {best_metrics['AMI']:.4f}\n")
-        f.write(f"  ARI: {best_metrics['ARI']:.4f}\n")
-        f.write(f"  FMI: {best_metrics['FMI']:.4f}\n")
+        
+        # 有监督指标（如果有）
+        if best_metrics.get('ARI') is not None:
+            f.write(f"  AMI: {best_metrics['AMI']:.4f}\n")
+            f.write(f"  ARI: {best_metrics['ARI']:.4f}\n")
+            f.write(f"  FMI: {best_metrics['FMI']:.4f}\n")
+        
+        # 无监督指标
         f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+        f.write(f"  CH: {best_metrics['CH']:.2f}\n")
         f.write(f"  簇数: {best_metrics['n_clusters']}\n")
         f.write(f"  噪声点: {best_metrics['n_noise']}\n")
         f.write(f"{'='*60}\n")

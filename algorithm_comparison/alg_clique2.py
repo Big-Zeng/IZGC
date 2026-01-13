@@ -21,7 +21,7 @@ except ImportError:
     print("警告: pyclustering未安装，请运行: pip install pyclustering")
 
 # ==================== 配置 ====================
-DATASET = "../data/2d_3c.csv"
+DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 

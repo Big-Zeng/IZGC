@@ -14,7 +14,7 @@ from algorithm_comparison.utils import (
 )
 
 # ==================== 配置 ====================
-DATASET = "../data/2d_3c.csv"
+DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
@@ -72,6 +72,10 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     for i, values in enumerate(product(*param_values), 1):
         params = dict(zip(param_names, values))
         
+        # 显示进度（每20次或最后一次）
+        if i % 20 == 0 or i == total_combinations:
+            print(f"  进度: {i}/{total_combinations}, 当前最佳{optimize_metric}: {best_score:.4f}")
+        
         try:
             labels = run_dbscan(X, **params)
             metrics = evaluate_clustering(y_true, labels, X)
@@ -88,9 +92,6 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
                 best_params = params
                 best_labels = labels
                 best_metrics = metrics
-            
-            if i % 20 == 0 or i == total_combinations:
-                print(f"  进度: {i}/{total_combinations}, 当前最佳{optimize_metric}: {best_score:.4f}")
                 
         except Exception as e:
             pass

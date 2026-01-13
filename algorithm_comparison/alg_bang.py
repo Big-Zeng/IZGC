@@ -22,7 +22,7 @@ except ImportError:
     print("警告: pyclustering未安装，请运行: pip install pyclustering")
 
 # ==================== 配置 ====================
-DATASET = "../data/2d_3c.csv"
+DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
@@ -31,7 +31,7 @@ NORMALIZE = True
 # - levels: 网格层级数（决定网格精细程度）
 # - density_threshold: 密度阈值（相对值0-1）
 PARAM_RANGES = {
-    'levels': (4, 100, 1),                  # 网格层级：从3到15，步长1
+    'levels': (4, 50, 1),                  # 网格层级：从3到15，步长1
     'density_threshold': (0.01, 1, 0.05)  # 密度阈值：从0.0到0.3，步长0.05
 }
 

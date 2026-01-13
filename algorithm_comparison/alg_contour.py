@@ -17,13 +17,13 @@ from algorithm_comparison.utils import (
 )
 
 # ==================== 配置 ====================
-DATASET = "../data/jain.csv"
+DATASET = "../data/Aggregation.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (3.160, 3.170, 0.001),           # 从1.0到5.0，步长0.5
+    'grid_size': ( 1.491,  1.491, 0.001),           # 从1.0到5.0，步长0.5
     'max_buffer_distance': (0, 0, 1),        # 从0到5，步长1
     'min_cluster_size': (5, 5, 1),          # 从3到10，步长2
     'density_radius': (30, 30, 1)            # 从20到40，步长5

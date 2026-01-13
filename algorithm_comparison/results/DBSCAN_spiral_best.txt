@@ -1,0 +1,11 @@
+算法: DBSCAN
+数据集: spiral
+最佳参数: {'eps': 4.0, 'min_samples': 2}
+
+评估指标:
+  AMI: 1.0000
+  ARI: 1.0000
+  FMI: 1.0000
+  Silhouette: 0.0014
+  簇数: 3
+  噪声点: 0

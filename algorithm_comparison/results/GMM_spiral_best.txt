@@ -1,0 +1,11 @@
+算法: GMM
+数据集: spiral
+最佳参数: {'n_components': 3, 'covariance_type': 'diag', 'n_init': 10}
+
+评估指标:
+  AMI: -0.0015
+  ARI: -0.0014
+  FMI: 0.3738
+  Silhouette: 0.3603
+  簇数: 3
+  噪声点: 0

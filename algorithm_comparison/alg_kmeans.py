@@ -14,15 +14,15 @@ from algorithm_comparison.utils import (
 )
 
 # ==================== 配置 ====================
-DATASET = "../data/jain.csv"
+DATASET = "../data/2d_3c.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'n_clusters': (2, 2, 1),      # 簇数：从2到15，步长1
-    'n_init': (1, 50, 1),        # 初始化次数：从10到30，步长10
-    'max_iter': (300, 300, 1)    # 最大迭代：从300到500，步长100
+    'n_clusters': (3, 3, 1),      # 簇数：从2到15，步长1
+    'n_init': (10, 50, 1),        # 初始化次数：从10到50，步长10
+    'max_iter': (300, 500, 50)    # 最大迭代：从300到500，步长50
 }
 
 # 优化目标

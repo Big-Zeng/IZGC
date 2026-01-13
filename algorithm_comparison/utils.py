@@ -150,12 +150,11 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
     if show_title:
         plt.title(title)
     
-    if show_legend and n_clusters
+    if show_legend and n_clusters:
        plt.legend(loc='best', framealpha=0.9, fontsize=10)
     
     plt.tight_layout()
-    plt.savefig(save_path, dpi=dpi, bbox_inches='tight', 
-                facecolor='white', edgecolor=e')
+    plt.savefig(save_path, dpi=dpi, bbox_inches='tight', facecolor='white')
     plt.close()
     
     print(f"  图表已保存: {save_path}")

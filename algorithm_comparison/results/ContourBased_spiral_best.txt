@@ -1,0 +1,11 @@
+算法: ContourBased
+数据集: spiral
+最佳参数: {'grid_size': 2.46, 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': 30}
+
+评估指标:
+  AMI: 1.0000
+  ARI: 1.0000
+  FMI: 1.0000
+  Silhouette: 0.0014
+  簇数: 3
+  噪声点: 0

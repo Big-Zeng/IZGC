@@ -3,6 +3,10 @@
 自动进行参数优化，生成论文级别的图表
 """
 
+# 禁用matplotlib交互模式，加快绑定速度
+import matplotlib
+matplotlib.use('Agg')
+
 import numpy as np
 import pandas as pd
 import os
@@ -19,8 +23,9 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_contour import run_contour_clustering
 from algorithm_comparison.alg_kmeans import run_kmeans
 from algorithm_comparison.alg_dbscan import run_dbscan
-from algorithm_comparison.alg_clique import run_clique
-from algorithm_comparison.alg_sting import run_sting
+from algorithm_comparison.alg_clique2 import run_clique2
+from algorithm_comparison.alg_gmm import run_gmm, COVARIANCE_TYPES
+from algorithm_comparison.alg_bang import run_bang, PYCLUSTERING_AVAILABLE as BANG_AVAILABLE
 
 # 尝试导入MATLAB
 try:
@@ -29,41 +34,47 @@ except:
     MATLAB_AVAILABLE = False
 
 # ==================== 配置 ====================
-DATASET = "../data/Compound.csv"
+DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 OPTIMIZE_METRIC = 'ARI'
 
 # 各算法参数搜索范围 (start, end, step)
 CONTOUR_RANGES = {
-    'grid_size': (1.0, 5.0, 0.5),           # 从1.0到5.0，步长0.5
-    'max_buffer_distance': (0, 5, 1),        # 从0到5，步长1
-    'min_cluster_size': (3, 10, 2),          # 从3到10，步长2
-    'density_radius': (20, 40, 5)            # 从20到40，步长5
+    'grid_size': (0.65, 0.7, 0.001),           # 从1.0到5.0，步长0.5
+    'max_buffer_distance': (0, 0, 1),        # 从0到5，步长1
+    'min_cluster_size': (5, 5, 1),          # 从3到10，步长2
+    'density_radius': (30, 30, 1)            # 从20到40，步长5
 }
 
 KMEANS_RANGES = {
-    'n_clusters': (4, 10, 1),                # 从4到10，步长1
-    'n_init': (10, 30, 10)                   # 从10到30，步长10
+    'n_clusters': (15, 15, 1),  # 簇数：从2到15，步长1
+    'n_init': (10, 50, 1),  # 初始化次数：从10到50，步长10
+    'max_iter': (300, 500, 50)  # 最大迭代：从300到500，步长50
 }
 
 DBSCAN_RANGES = {
-    'eps': (2.0, 12.0, 2.0),                 # 从2.0到12.0，步长2.0
-    'min_samples': (3, 9, 2)                 # 从3到9，步长2
+    'eps': (1.0, 50, 1.0),  # 邻域半径：从1.0到50.0，步长1.0
+    'min_samples': (2, 50, 1)  # 最小样本数：从2到50，步长1
 }
 
 CLIQUE_RANGES = {
-    'grid_size': (6, 16, 2),                 # 从6到16，步长2
-    'density_threshold': (2, 8, 2)           # 从2到8，步长2
+    'intervals': (4, 100, 1),  # 网格划分数：从4到100，步长1
+    'density_threshold': (1, 50, 1)  # 密度阈值：从1到50，步长1
 }
 
-STING_RANGES = {
-    'grid_size': (6, 16, 2),                 # 从6到16，步长2
-    'density_threshold': (2, 8, 2)           # 从2到8，步长2
+GMM_RANGES = {
+    'n_components': (15, 15, 1),    # 簇数：从2到15，步长1
+    'n_init': (10, 50, 1)           # 初始化次数：从5到20，步长5
 }
 
 DPC_RANGES = {
-    'k': (5, 20, 2)                          # 从5到20，步长2
+    'k': (1, 50, 1)                          # 从5到20，步长2
+}
+
+BANG_RANGES = {
+    'levels': (4, 50, 1),                  # 网格层级：从4到100，步长1
+    'density_threshold': (0.01, 1, 0.05)    # 密度阈值：从0.01到1，步长0.05
 }
 
 RUN_MATLAB = True
@@ -214,7 +225,7 @@ def main():
     
     # 5. CLIQUE
     result = optimize_algorithm(
-        "CLIQUE", run_clique, X, y_true,
+        "CLIQUE", run_clique2, X, y_true,
         CLIQUE_RANGES, OPTIMIZE_METRIC
     )
     if result['labels'] is not None:
@@ -225,20 +236,76 @@ def main():
             f"{OUTPUT_DIR}/05_CLIQUE_{dataset_name}.png", dpi=300
         )
     
-    # 6. STING
-    result = optimize_algorithm(
-        "STING", run_sting, X, y_true,
-        STING_RANGES, OPTIMIZE_METRIC
-    )
-    if result['labels'] is not None:
-        results.append(result)
+    # 6. GMM (高斯混合模型)
+    print(f"\n{'='*60}")
+    print("优化 GMM")
+    print(f"{'='*60}")
+    
+    # GMM需要特殊处理covariance_type参数
+    gmm_param_grid = {}
+    for pname, (start, end, step) in GMM_RANGES.items():
+        gmm_param_grid[pname] = generate_param_values(start, end, step)
+        print(f"  {pname}: {start} -> {end}, 步长={step}, 共{len(gmm_param_grid[pname])}个值")
+    print(f"  covariance_type: {COVARIANCE_TYPES}")
+    
+    best_gmm_score = -np.inf
+    best_gmm_params = None
+    best_gmm_labels = None
+    best_gmm_metrics = None
+    
+    total_gmm = len(gmm_param_grid['n_components']) * len(gmm_param_grid['n_init']) * len(COVARIANCE_TYPES)
+    print(f"参数组合数: {total_gmm}")
+    
+    for n_components in gmm_param_grid['n_components']:
+        for n_init in gmm_param_grid['n_init']:
+            for cov_type in COVARIANCE_TYPES:
+                try:
+                    labels = run_gmm(X, n_components, cov_type, n_init)
+                    if labels is None:
+                        continue
+                    metrics = evaluate_clustering(y_true, labels, X)
+                    if metrics['n_clusters'] < 2:
+                        continue
+                    score = metrics[OPTIMIZE_METRIC]
+                    if score > best_gmm_score:
+                        best_gmm_score = score
+                        best_gmm_params = {'n_components': n_components, 'covariance_type': cov_type, 'n_init': n_init}
+                        best_gmm_labels = labels.copy()
+                        best_gmm_metrics = metrics.copy()
+                except:
+                    pass
+    
+    if best_gmm_params:
+        print(f"\n最佳参数: {best_gmm_params}")
+        print(f"最佳{OPTIMIZE_METRIC}: {best_gmm_score:.4f}")
+        results.append({
+            'name': 'GMM',
+            'params': best_gmm_params,
+            'labels': best_gmm_labels,
+            'metrics': best_gmm_metrics,
+            'time': 0
+        })
         plot_clustering_result(
-            X, result['labels'],
-            f"STING (ARI={result['metrics']['ARI']:.3f})",
-            f"{OUTPUT_DIR}/06_STING_{dataset_name}.png", dpi=300
+            X, best_gmm_labels,
+            f"GMM (ARI={best_gmm_metrics['ARI']:.3f})",
+            f"{OUTPUT_DIR}/06_GMM_{dataset_name}.png", dpi=300
         )
     
-    # 7. DPC-FWSN (MATLAB)
+    # 7. BANG
+    if BANG_AVAILABLE:
+        result = optimize_algorithm(
+            "BANG", run_bang, X, y_true,
+            BANG_RANGES, OPTIMIZE_METRIC
+        )
+        if result['labels'] is not None:
+            results.append(result)
+            plot_clustering_result(
+                X, result['labels'],
+                f"BANG (ARI={result['metrics']['ARI']:.3f})",
+                f"{OUTPUT_DIR}/07_BANG_{dataset_name}.png", dpi=300
+            )
+    
+    # 8. DPC-FWSN (MATLAB)
     if RUN_MATLAB and MATLAB_AVAILABLE:
         print(f"\n{'='*60}")
         print("优化 DPC-FWSN (MATLAB)")
@@ -291,7 +358,7 @@ def main():
                 plot_clustering_result(
                     X, best_labels,
                     f"DPC-FWSN (ARI={best_metrics['ARI']:.3f})",
-                    f"{OUTPUT_DIR}/07_DPC-FWSN_{dataset_name}.png", dpi=300
+                    f"{OUTPUT_DIR}/08_DPC-FWSN_{dataset_name}.png", dpi=300
                 )
         except Exception as e:
             print(f"DPC-FWSN失败: {e}")
@@ -331,6 +398,22 @@ def main():
     csv_path = f"{OUTPUT_DIR}/comparison_results_{dataset_name}.csv"
     df.to_csv(csv_path, index=False)
     print(f"\n结果已保存: {csv_path}")
+    
+    # 保存每个算法的最佳结果到txt
+    for r in results:
+        txt_path = f"{OUTPUT_DIR}/{r['name']}_{dataset_name}_best.txt"
+        with open(txt_path, 'w', encoding='utf-8') as f:
+            f.write(f"算法: {r['name']}\n")
+            f.write(f"数据集: {dataset_name}\n")
+            f.write(f"最佳参数: {r['params']}\n")
+            f.write(f"\n评估指标:\n")
+            f.write(f"  AMI: {r['metrics']['AMI']:.4f}\n")
+            f.write(f"  ARI: {r['metrics']['ARI']:.4f}\n")
+            f.write(f"  FMI: {r['metrics']['FMI']:.4f}\n")
+            f.write(f"  Silhouette: {r['metrics']['Silhouette']:.4f}\n")
+            f.write(f"  簇数: {r['metrics']['n_clusters']}\n")
+            f.write(f"  噪声点: {r['metrics']['n_noise']}\n")
+        print(f"  已保存: {txt_path}")
     
     print(f"\n图表已保存到: {OUTPUT_DIR}/")
     print("\n完成！")

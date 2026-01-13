@@ -1,0 +1,11 @@
+算法: BANG
+数据集: spiral
+最佳参数: {'levels': 10, 'density_threshold': 0.01}
+
+评估指标:
+  AMI: 0.6421
+  ARI: 0.7288
+  FMI: 0.8831
+  Silhouette: -0.0095
+  簇数: 6
+  噪声点: 12

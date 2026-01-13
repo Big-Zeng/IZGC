@@ -19,6 +19,7 @@ from clustering_metrics import ClusteringMetrics
 # ==================== 配置区域 ====================
 #DATASET = "data/jain.csv"
 DATASET = "data/2d_3c.csv"               # 数据集路径 (支持.csv或.mat)
+
 # GRID_SIZE_START 和 GRID_SIZE_END 将自动根据数据范围计算
 # GRID_SIZE_START = 最短边 / 100
 # GRID_SIZE_END = 最短边 / 2
@@ -174,8 +175,8 @@ def calculate_grid_size_range(X):
     # 计算grid_size范围
     # grid_size_start = min_edge / 90
     # grid_size_end = min_edge / 86
-    grid_size_start = 1
-    grid_size_end = 4.5
+    grid_size_start = 2
+    grid_size_end =2.5
     
     return grid_size_start, grid_size_end, min_edge
 

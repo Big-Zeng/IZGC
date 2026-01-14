@@ -13,7 +13,7 @@ import sys
 # 添加父目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from clustering_metrics import ClusteringMetrics
-from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 
 def load_dataset(filepath):
@@ -69,22 +69,26 @@ def evaluate_clustering(y_true, y_pred, X):
     # 无监督指标（始终计算）
     n_clusters = len(set(y_pred)) - (1 if -1 in y_pred else 0)
     
-    # 轮廓系数
+    # 轮廓系数、CH指数、DBI指数
     if n_clusters > 1:
         mask = np.array(y_pred) != -1
         if np.sum(mask) > 1 and len(np.unique(np.array(y_pred)[mask])) > 1:
             silhouette = silhouette_score(X[mask], np.array(y_pred)[mask])
             ch_score = calinski_harabasz_score(X[mask], np.array(y_pred)[mask])
+            dbi_score = davies_bouldin_score(X[mask], np.array(y_pred)[mask])
         else:
             silhouette = -1
             ch_score = 0
+            dbi_score = float('inf')  # DBI值越小越好，无效时设为无穷大
     else:
         silhouette = -1
         ch_score = 0
+        dbi_score = float('inf')
     
     result = {
         'Silhouette': silhouette,
         'CH': ch_score,  # Calinski-Harabasz 指数
+        'DBI': dbi_score,  # Davies-Bouldin 指数（值越小越好）
         'Inertia': calculate_inertia(X, np.array(y_pred)),
         'n_clusters': n_clusters,
         'n_noise': list(y_pred).count(-1)
@@ -212,6 +216,12 @@ def print_best_result(algorithm_name, best_params, best_metrics):
     # 无监督指标
     print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
     print(f"CH: {best_metrics['CH']:.2f}")
+    if 'DBI' in best_metrics:
+        dbi_val = best_metrics['DBI']
+        if dbi_val == float('inf'):
+            print(f"DBI: inf")
+        else:
+            print(f"DBI: {dbi_val:.4f}")
     print(f"簇数: {best_metrics['n_clusters']}, 噪声点: {best_metrics['n_noise']}")
     print(f"{'='*60}")
 
@@ -251,6 +261,12 @@ def save_best_result(algorithm_name, dataset_name, best_params, best_metrics, sa
         # 无监督指标
         f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
         f.write(f"  CH: {best_metrics['CH']:.2f}\n")
+        if 'DBI' in best_metrics:
+            dbi_val = best_metrics['DBI']
+            if dbi_val == float('inf'):
+                f.write(f"  DBI: inf\n")
+            else:
+                f.write(f"  DBI: {dbi_val:.4f}\n")
         f.write(f"  簇数: {best_metrics['n_clusters']}\n")
         f.write(f"  噪声点: {best_metrics['n_noise']}\n")
         f.write(f"{'='*60}\n")

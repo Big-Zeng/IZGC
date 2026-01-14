@@ -14,7 +14,7 @@ from algorithm_comparison.utils import (
 )
 
 # ==================== 配置 ====================
-DATASET = "../data/s1.csv"
+DATASET = "../data/real_data/长沙市_real.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 

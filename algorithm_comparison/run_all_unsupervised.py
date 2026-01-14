@@ -36,7 +36,7 @@ except:
 
 # ==================== 配置 ====================
 # 数据集路径（真实数据，无标签）
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/湘潭市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
@@ -81,7 +81,7 @@ DPC_RANGES = {
     'k': (1, 50, 1)  # 从1到50，步长1
 }
 
-RUN_MATLAB = True
+RUN_MATLAB = False
 # ==============================================
 
 
@@ -152,6 +152,12 @@ def optimize_algorithm_unsupervised(name, run_func, X, param_ranges, optimize_me
         print(f"\n最佳参数: {best_params}")
         print(f"最佳{optimize_metric}: {best_score:.4f}")
         print(f"CH: {best_metrics['CH']:.2f}")
+        if 'DBI' in best_metrics:
+            dbi_val = best_metrics['DBI']
+            if dbi_val == float('inf'):
+                print(f"DBI: inf")
+            else:
+                print(f"DBI: {dbi_val:.4f}")
         print(f"簇数: {best_metrics['n_clusters']}, 噪声: {best_metrics['n_noise']}")
         print(f"用时: {elapsed:.2f}s")
     else:
@@ -377,14 +383,15 @@ def main():
     print("算法对比汇总（无监督）")
     print("="*90)
     
-    header = f"{'算法':<15} {'Silhouette':<12} {'CH':<15} {'簇数':<8} {'噪声':<8}"
+    header = f"{'算法':<15} {'Silhouette':<12} {'CH':<15} {'DBI':<12} {'簇数':<8} {'噪声':<8}"
     print(header)
-    print("-"*90)
+    print("-"*110)
     
     for r in results:
         m = r['metrics']
+        dbi_str = 'inf' if m.get('DBI', float('inf')) == float('inf') else f"{m['DBI']:.4f}"
         print(f"{r['name']:<15} {m['Silhouette']:<12.4f} {m['CH']:<15.2f} "
-              f"{m['n_clusters']:<8} {m['n_noise']:<8}")
+              f"{dbi_str:<12} {m['n_clusters']:<8} {m['n_noise']:<8}")
     
     print("="*90)
     
@@ -397,6 +404,7 @@ def main():
             'Best_Params': str(r['params']),
             'Silhouette': m['Silhouette'],
             'CH': m['CH'],
+            'DBI': m.get('DBI', float('inf')),
             'n_clusters': m['n_clusters'],
             'n_noise': m['n_noise']
         })
@@ -416,6 +424,12 @@ def main():
             f.write(f"\n评估指标（无监督）:\n")
             f.write(f"  Silhouette: {r['metrics']['Silhouette']:.4f}\n")
             f.write(f"  CH: {r['metrics']['CH']:.2f}\n")
+            if 'DBI' in r['metrics']:
+                dbi_val = r['metrics']['DBI']
+                if dbi_val == float('inf'):
+                    f.write(f"  DBI: inf\n")
+                else:
+                    f.write(f"  DBI: {dbi_val:.4f}\n")
             f.write(f"  簇数: {r['metrics']['n_clusters']}\n")
             f.write(f"  噪声点: {r['metrics']['n_noise']}\n")
         print(f"  已保存: {txt_path}")

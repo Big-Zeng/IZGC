@@ -22,7 +22,7 @@ except ImportError:
     print("警告: pyclustering未安装，请运行: pip install pyclustering")
 
 # ==================== 配置 ====================
-DATASET = "../data/s1.csv"
+DATASET = "../data/jain.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 

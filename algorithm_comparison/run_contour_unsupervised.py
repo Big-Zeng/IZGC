@@ -22,19 +22,20 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_contour import run_contour_clustering
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/湘潭市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
 # 优化目标: 'Silhouette' 或 'CH'
-OPTIMIZE_METRIC = 'Silhouette'
+OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (0.5, 5, 0.001),
+    'grid_size': (3.5,4, 0.001),
     'max_buffer_distance': (0, 0, 1),
-    'min_cluster_size': (5, 5, 1),
-    'density_radius': (0.01, 0.01, 0.001)
+    'min_cluster_size': (1, 5, 1),
+    'density_radius': (30, 30, 0.001),
+
 }
 # ==============================================
 
@@ -96,7 +97,7 @@ def main():
         params = dict(zip(param_names, values))
         
         try:
-            labels = run_contour_clustering(X, **params)
+            labels = run_contour_clustering(X, **params,merge_small_clusters=False)
             if labels is None:
                 continue
             
@@ -135,7 +136,7 @@ def main():
         print(f"{'='*70}")
         print(f"最佳参数: {best_params}")
         print(f"最佳{OPTIMIZE_METRIC}: {best_score:.4f}")
-        print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+        print(f"Composite: {best_metrics['Composite']:.4f}")
         print(f"CH: {best_metrics['CH']:.2f}")
         if 'DBI' in best_metrics:
             dbi_val = best_metrics['DBI']
@@ -150,7 +151,7 @@ def main():
         # 保存图表
         plot_clustering_result(
             X, best_labels,
-            f"ContourBased (Sil={best_metrics['Silhouette']:.3f})",
+            f"ContourBased (Sil={best_metrics['Composite']:.3f})",
             f"{OUTPUT_DIR}/ContourBased_{dataset_name}.png", dpi=300
         )
         
@@ -161,7 +162,7 @@ def main():
             f.write(f"数据集: {dataset_name}\n")
             f.write(f"最佳参数: {best_params}\n")
             f.write(f"\n评估指标（无监督）:\n")
-            f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+            f.write(f"  Composite: {best_metrics['Composite']:.4f}\n")
             f.write(f"  CH: {best_metrics['CH']:.2f}\n")
             if 'DBI' in best_metrics:
                 dbi_val = best_metrics['DBI']
@@ -187,7 +188,7 @@ def main():
                     f.write(f"评估 #{idx}\n")
                     f.write(f"  参数: {result['params']}\n")
                     m = result['metrics']
-                    f.write(f"  Silhouette: {m['Silhouette']:.4f}\n")
+                    f.write(f"  Composite: {m['Composite']:.4f}\n")
                     f.write(f"  CH: {m['CH']:.2f}\n")
                     dbi_val = m.get('DBI', float('inf'))
                     if dbi_val == float('inf'):
@@ -211,7 +212,7 @@ def main():
                 print(f"\n第 {rank} 名:")
                 print(f"  参数: {result['params']}")
                 print(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}")
-                print(f"  Silhouette: {m['Silhouette']:.4f}, CH: {m['CH']:.2f}", end="")
+                print(f"  Composite: {m['Composite']:.4f}, CH: {m['CH']:.2f}", end="")
                 dbi_val = m.get('DBI', float('inf'))
                 if dbi_val != float('inf'):
                     print(f", DBI: {dbi_val:.4f}", end="")
@@ -230,7 +231,7 @@ def main():
                     f.write(f"第 {rank} 名\n")
                     f.write(f"  参数: {result['params']}\n")
                     f.write(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}\n")
-                    f.write(f"  Silhouette: {m['Silhouette']:.4f}\n")
+                    f.write(f"  Composite: {m['Composite']:.4f}\n")
                     f.write(f"  CH: {m['CH']:.2f}\n")
                     dbi_val = m.get('DBI', float('inf'))
                     if dbi_val == float('inf'):

@@ -22,12 +22,12 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_gmm import run_gmm, COVARIANCE_TYPES
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/湘潭市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Silhouette' 或 'CH'
-OPTIMIZE_METRIC = 'Silhouette'
+# 优化目标: 'Composite' 或 'CH'
+OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
@@ -48,92 +48,97 @@ def generate_param_values(start, end, step):
 def main():
     """主函数"""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    
+
     print("="*70)
     print("GMM 聚类算法 - 无监督版本")
     print(f"优化目标: {OPTIMIZE_METRIC}")
     print("="*70)
-    
+
     # 加载数据
     X, y_true = load_dataset(DATASET)
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
-    
+
     print(f"\n数据集: {dataset_name}")
     print(f"样本数: {len(X)}")
     if y_true is not None:
         print(f"真实簇数: {len(np.unique(y_true))}")
     else:
         print("无真实标签（无监督模式）")
-    
+
     if NORMALIZE:
         X = normalize_coordinates(X)
         print("✓ 坐标已归一化到[0, 100]")
-    
+
     # 生成参数值
     param_grid = {}
     for pname, (start, end, step) in PARAM_RANGES.items():
         param_grid[pname] = generate_param_values(start, end, step)
         print(f"  {pname}: {start} -> {end}, 步长={step}, 共{len(param_grid[pname])}个值")
-    
+
     best_score = -np.inf
     best_params = None
     best_labels = None
     best_metrics = None
     all_results = []  # 记录所有有效结果
-    
+
     param_names = list(param_grid.keys())
     param_values = list(param_grid.values())
-    total = int(np.prod([len(v) for v in param_values]))
-    
+    total = int(np.prod([len(v) for v in param_values])) * len(COVARIANCE_TYPES)
+
+    print(f"  covariance_type: {COVARIANCE_TYPES}")
     print(f"参数组合数: {total}")
     print(f"\n开始优化...")
-    
+
     start_time = time.time()
-    
-    for i, values in enumerate(product(*param_values), 1):
-        params = dict(zip(param_names, values))
-        
-        try:
-            labels = run_gmm(X, **params)
-            if labels is None:
-                continue
-            
-            metrics = evaluate_clustering_unsupervised(labels, X)
-            
-            if metrics['n_clusters'] < 2:
-                continue
-            
-            score = metrics[OPTIMIZE_METRIC]
-            
-            # 记录所有有效结果
-            result_record = {
-                'params': params.copy(),
-                'metrics': metrics.copy(),
-                'score': score
-            }
-            all_results.append(result_record)
-            
-            if score > best_score:
-                best_score = score
-                best_params = params.copy()
-                best_labels = labels.copy() if isinstance(labels, np.ndarray) else np.array(labels)
-                best_metrics = metrics.copy()
-                
-            if i % 20 == 0 or i == total:
-                print(f"  进度: {i}/{total}, 当前最佳{OPTIMIZE_METRIC}: {best_score:.4f}, 有效结果: {len(all_results)}")
-                
-        except Exception as e:
-            pass
-    
+    i = 0
+
+    for n_components in param_grid['n_components']:
+        for n_init in param_grid['n_init']:
+            for cov_type in COVARIANCE_TYPES:
+                i += 1
+                params = {'n_components': n_components, 'n_init': n_init, 'covariance_type': cov_type}
+
+                try:
+                    labels = run_gmm(X, n_components, cov_type, n_init)
+                    if labels is None:
+                        continue
+
+                    metrics = evaluate_clustering_unsupervised(labels, X)
+
+                    if metrics['n_clusters'] < 2:
+                        continue
+
+                    score = metrics[OPTIMIZE_METRIC]
+
+                    # 记录所有有效结果
+                    result_record = {
+                        'params': params.copy(),
+                        'metrics': metrics.copy(),
+                        'score': score
+                    }
+                    all_results.append(result_record)
+
+                    if score > best_score:
+                        best_score = score
+                        best_params = params.copy()
+                        best_labels = labels.copy() if isinstance(labels, np.ndarray) else np.array(labels)
+                        best_metrics = metrics.copy()
+
+                    if i % 20 == 0 or i == total:
+                        print(f"  进度: {i}/{total}, 当前最佳{OPTIMIZE_METRIC}: {best_score:.4f}, 有效结果: {len(all_results)}")
+
+                except Exception as e:
+                    pass
+
     elapsed = time.time() - start_time
-    
+
     if best_params:
         print(f"\n{'='*70}")
         print("最佳结果")
         print(f"{'='*70}")
         print(f"最佳参数: {best_params}")
         print(f"最佳{OPTIMIZE_METRIC}: {best_score:.4f}")
-        print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+        print(f"Composite: {best_metrics['Composite']:.4f}")
         print(f"CH: {best_metrics['CH']:.2f}")
         if 'DBI' in best_metrics:
             dbi_val = best_metrics['DBI']
@@ -144,14 +149,14 @@ def main():
         print(f"簇数: {best_metrics['n_clusters']}, 噪声: {best_metrics['n_noise']}")
         print(f"用时: {elapsed:.2f}s")
         print(f"总评估次数: {len(all_results)}")
-        
+
         # 保存图表
         plot_clustering_result(
             X, best_labels,
-            f"GMM (Sil={best_metrics['Silhouette']:.3f})",
+            f"GMM (Sil={best_metrics['Composite']:.3f})",
             f"{OUTPUT_DIR}/GMM_{dataset_name}.png", dpi=300
         )
-        
+
         # 保存最佳结果到txt
         txt_path = f"{OUTPUT_DIR}/GMM_{dataset_name}_best.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:
@@ -159,7 +164,7 @@ def main():
             f.write(f"数据集: {dataset_name}\n")
             f.write(f"最佳参数: {best_params}\n")
             f.write(f"\n评估指标（无监督）:\n")
-            f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+            f.write(f"  Composite: {best_metrics['Composite']:.4f}\n")
             f.write(f"  CH: {best_metrics['CH']:.2f}\n")
             if 'DBI' in best_metrics:
                 dbi_val = best_metrics['DBI']
@@ -170,7 +175,7 @@ def main():
             f.write(f"  簇数: {best_metrics['n_clusters']}\n")
             f.write(f"  噪声点: {best_metrics['n_noise']}\n")
         print(f"  已保存: {txt_path}")
-        
+
         # 保存所有评估结果
         if all_results:
             all_results_path = f"{OUTPUT_DIR}/GMM_{dataset_name}_all_results.txt"
@@ -180,12 +185,12 @@ def main():
                 f.write(f"优化目标: {OPTIMIZE_METRIC}\n")
                 f.write(f"总评估次数: {len(all_results)}\n")
                 f.write(f"{'='*100}\n\n")
-                
+
                 for idx, result in enumerate(all_results, 1):
                     f.write(f"评估 #{idx}\n")
                     f.write(f"  参数: {result['params']}\n")
                     m = result['metrics']
-                    f.write(f"  Silhouette: {m['Silhouette']:.4f}\n")
+                    f.write(f"  Composite: {m['Composite']:.4f}\n")
                     f.write(f"  CH: {m['CH']:.2f}\n")
                     dbi_val = m.get('DBI', float('inf'))
                     if dbi_val == float('inf'):
@@ -196,11 +201,11 @@ def main():
                     f.write(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}\n")
                     f.write(f"-" * 100 + "\n")
             print(f"  已保存所有结果: {all_results_path}")
-            
+
             # 排序并显示/保存前10名
             sorted_results = sorted(all_results, key=lambda x: x['score'], reverse=True)
             top10 = sorted_results[:10]
-            
+
             print(f"\n{'='*70}")
             print(f"排名前10的参数组合（按{OPTIMIZE_METRIC}排序）")
             print(f"{'='*70}")
@@ -209,12 +214,12 @@ def main():
                 print(f"\n第 {rank} 名:")
                 print(f"  参数: {result['params']}")
                 print(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}")
-                print(f"  Silhouette: {m['Silhouette']:.4f}, CH: {m['CH']:.2f}", end="")
+                print(f"  Composite: {m['Composite']:.4f}, CH: {m['CH']:.2f}", end="")
                 dbi_val = m.get('DBI', float('inf'))
                 if dbi_val != float('inf'):
                     print(f", DBI: {dbi_val:.4f}", end="")
                 print(f", 簇数: {m['n_clusters']}")
-            
+
             # 保存前10名到txt
             top10_path = f"{OUTPUT_DIR}/GMM_{dataset_name}_top10.txt"
             with open(top10_path, 'w', encoding='utf-8') as f:
@@ -222,13 +227,13 @@ def main():
                 f.write(f"数据集: {dataset_name}\n")
                 f.write(f"优化目标: {OPTIMIZE_METRIC}\n")
                 f.write(f"{'='*100}\n\n")
-                
+
                 for rank, result in enumerate(top10, 1):
                     m = result['metrics']
                     f.write(f"第 {rank} 名\n")
                     f.write(f"  参数: {result['params']}\n")
                     f.write(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}\n")
-                    f.write(f"  Silhouette: {m['Silhouette']:.4f}\n")
+                    f.write(f"  Composite: {m['Composite']:.4f}\n")
                     f.write(f"  CH: {m['CH']:.2f}\n")
                     dbi_val = m.get('DBI', float('inf'))
                     if dbi_val == float('inf'):

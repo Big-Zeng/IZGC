@@ -48,11 +48,13 @@ def generate_param_values(start, end, step):
         return list(np.arange(start, end + step/2, step))
 
 
-def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, density_radius):
+def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, density_radius,merge_small_clusters = True):
     #grid_size 保留三位小数,直接截取
 
     grid_size = '%.3f' % grid_size
     grid_size = float(grid_size)
+    print('grid_size:', grid_size)
+   
     """运行等值线聚类"""
     from scipy.spatial import Voronoi
     matplotlib.use('Agg')
@@ -68,6 +70,8 @@ def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, 
         combined_data,
         grid_size=grid_size,
         max_buffer_distance=max_buffer_distance,
+        min_cluster_size=min_cluster_size,
+        merge_small_clusters=merge_small_clusters
 
     )
 

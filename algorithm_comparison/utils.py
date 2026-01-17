@@ -64,6 +64,130 @@ def calculate_inertia(X, labels):
     return inertia
 
 
+def calculate_disco_score(X, labels, eps=None):
+    """
+    计算 DISCO 指标 (Density-based Internal Score for Clusterings with nOise)
+    
+    DISCO 是一种专为密度聚类设计的评估指标，扩展了轮廓系数以显式评估噪声点的质量。
+    
+    参数:
+        X: 数据点坐标 (n_samples, n_features)
+        labels: 聚类标签，-1 表示噪声点
+        eps: 密度连接的距离阈值，如果为 None，则自动估计
+    
+    返回:
+        disco_score: DISCO 分数，范围 [-1, 1]，越高越好
+        
+    参考文献:
+        Beer et al. (2025). "Internal Evaluation of Density-Based Clusterings with Noise"
+        arXiv:2503.00127
+    """
+    labels = np.array(labels)
+    n_samples = len(labels)
+    
+    # 处理边界情况
+    unique_labels = set(labels)
+    n_clusters = len(unique_labels) - (1 if -1 in unique_labels else 0)
+    
+    if n_clusters == 0:  # 全是噪声
+        return -1.0
+    if n_clusters == 1 and -1 not in unique_labels:  # 只有一个簇，无噪声
+        return 0.0
+    
+    # 自动估计 eps（如果未提供）
+    if eps is None:
+        # 使用最近邻距离的中位数作为 eps
+        from sklearn.neighbors import NearestNeighbors
+        nbrs = NearestNeighbors(n_neighbors=min(5, n_samples)).fit(X)
+        distances, _ = nbrs.kneighbors(X)
+        eps = np.median(distances[:, -1])
+    
+    # 计算距离矩阵（只计算一次以提高效率）
+    from scipy.spatial.distance import cdist
+    dist_matrix = cdist(X, X, metric='euclidean')
+    
+    disco_scores = []
+    
+    for i in range(n_samples):
+        label_i = labels[i]
+        
+        # 对于每个点，计算 DISCO 分数
+        if label_i == -1:
+            # 噪声点的评估：
+            # 如果该点与所有簇都不密度连接，则应该是噪声（正分）
+            # 如果该点与某个簇密度连接，则不应该是噪声（负分）
+            min_dist_to_cluster = float('inf')
+            for cluster_label in unique_labels:
+                if cluster_label == -1:
+                    continue
+                cluster_mask = labels == cluster_label
+                cluster_points = X[cluster_mask]
+                if len(cluster_points) > 0:
+                    # 计算到该簇的最小距离
+                    distances_to_cluster = dist_matrix[i, cluster_mask]
+                    min_dist_to_cluster = min(min_dist_to_cluster, np.min(distances_to_cluster))
+            
+            # 噪声点评分：如果远离所有簇（距离 > eps），则得正分
+            if min_dist_to_cluster > eps:
+                disco_i = 1.0  # 正确的噪声标签
+            else:
+                disco_i = -1.0  # 可能应该属于某个簇
+                
+        else:
+            # 簇内点的评估：类似轮廓系数，但使用密度连接的概念
+            same_cluster_mask = labels == label_i
+            same_cluster_points = X[same_cluster_mask]
+            
+            if len(same_cluster_points) <= 1:
+                disco_i = 0.0
+            else:
+                # a(i): 同簇内密度连接点的平均距离
+                distances_same = dist_matrix[i, same_cluster_mask]
+                # 只考虑密度连接的点（距离 <= eps）
+                density_connected_same = distances_same[distances_same <= eps]
+                if len(density_connected_same) > 1:
+                    a_i = np.mean(density_connected_same)
+                else:
+                    a_i = np.mean(distances_same)
+                
+                # b(i): 到最近的其他簇的平均距离
+                b_i = float('inf')
+                for other_label in unique_labels:
+                    if other_label == label_i or other_label == -1:
+                        continue
+                    other_cluster_mask = labels == other_label
+                    if np.sum(other_cluster_mask) > 0:
+                        distances_other = dist_matrix[i, other_cluster_mask]
+                        avg_dist_other = np.mean(distances_other)
+                        b_i = min(b_i, avg_dist_other)
+                
+                # 计算类似轮廓系数的分数
+                if b_i == float('inf'):
+                    disco_i = 0.0
+                else:
+                    disco_i = (b_i - a_i) / max(a_i, b_i)
+        
+        disco_scores.append(disco_i)
+    
+    # 返回平均 DISCO 分数
+    return np.mean(disco_scores)
+
+
+def sigmoid_penalty_score(silhouette_score, outlier_ratio, beta=0.1, alpha=60):
+    """
+    使用 Sigmoid 逻辑回归对轮廓系数进行噪声惩罚
+
+    参数:
+    silhouette_score: 原始轮廓系数 S
+    outlier_ratio: 噪声比例 R (0-1)
+    beta: 惩罚中心点（在此比例处分值减半）
+    alpha: 坡度（越大越接近阶跃函数）
+    """
+    # 计算惩罚系数 (Range: 0 to 1)
+    penalty_factor = 1 / (1 + np.exp(alpha * (outlier_ratio - beta)))
+
+    return silhouette_score * penalty_factor
+
 def evaluate_clustering(y_true, y_pred, X):
     """
     评估聚类结果（有监督指标 + 无监督指标）
@@ -98,19 +222,39 @@ def evaluate_clustering(y_true, y_pred, X):
             except:
                 pass
 
-    # 复合得分（论文严谨做法）
-    # Composite = Silhouette_core * (1 - Outlier_ratio)
-    # 这样既考虑聚类质量，又惩罚过多的噪声点
+    # 复合得分（归一化加权方案 - 最推荐）
+    # 先将轮廓系数从 [-1, 1] 平移缩放到 [0, 1] 区间，确保分数为正且物理意义明确
+    # Score = ((Silhouette_core + 1) / 2) × (1 - Outlier_Ratio)^α
+    # α参数说明:
+    #   - α = 1: 标准线性惩罚
+    #   - α = 2: 平方惩罚（推荐），更有效地抑制通过抛弃点来换取高分的算法
+    #           例如丢弃20%数据时，得分会乘以 0.8² = 0.64
+    alpha = 0.5  # 惩罚系数，使用平方惩罚
     if silhouette_core > -1:
-        composite_score = silhouette_core * (1 - outlier_ratio)
+        # 将轮廓系数归一化到 [0, 1]
+       # silhouette_normalized = (silhouette_core + 1) / 2
+        # 应用平方惩罚的噪声惩罚项
+        outlier_penalty = (1 - outlier_ratio) ** alpha
+        # composite_score =  silhouette_core * outlier_penalty
+        composite_score = sigmoid_penalty_score(silhouette_core, outlier_ratio)
     else:
         composite_score = -1
+
+    # 计算 DISCO 指标（密度感知的聚类评估，显式评估噪声质量）
+    disco_score = -1
+    try:
+        if n_clusters >= 1 and n_total > 1:
+            disco_score = calculate_disco_score(X, y_pred_array)
+    except Exception as e:
+        # 如果 DISCO 计算失败，保持默认值 -1
+        pass
 
     result = {
         'Silhouette_core': silhouette_core,  # 核心点轮廓系数
         'Silhouette': silhouette_core,       # 兼容旧代码（别名）
         'Outlier_ratio': outlier_ratio,      # 噪声点占比
         'Composite': composite_score,         # 复合得分（主要优化目标）
+        'DISCO': disco_score,                 # DISCO 指标（密度感知评估）
         'CH': ch_score,                       # Calinski-Harabasz 指数
         'DBI': dbi_score,                     # Davies-Bouldin 指数（越小越好）
         'Inertia': calculate_inertia(X, y_pred_array),
@@ -246,6 +390,8 @@ def print_best_result(algorithm_name, best_params, best_metrics):
         print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
 
     print(f"CH: {best_metrics['CH']:.2f}")
+    if 'DISCO' in best_metrics and best_metrics['DISCO'] != -1:
+        print(f"DISCO: {best_metrics['DISCO']:.4f} (密度感知评估)")
     if 'DBI' in best_metrics:
         dbi_val = best_metrics['DBI']
         if dbi_val == float('inf'):
@@ -297,6 +443,8 @@ def save_best_result(algorithm_name, dataset_name, best_params, best_metrics, sa
             f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
 
         f.write(f"  CH: {best_metrics['CH']:.2f}\n")
+        if 'DISCO' in best_metrics and best_metrics['DISCO'] != -1:
+            f.write(f"  DISCO: {best_metrics['DISCO']:.4f} (密度感知评估)\n")
         if 'DBI' in best_metrics:
             dbi_val = best_metrics['DBI']
             if dbi_val == float('inf'):

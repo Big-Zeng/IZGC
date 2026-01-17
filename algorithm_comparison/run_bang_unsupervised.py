@@ -22,7 +22,7 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_bang import run_bang
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/湘潭市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 

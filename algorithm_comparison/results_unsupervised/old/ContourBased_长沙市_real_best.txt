@@ -1,0 +1,10 @@
+算法: ContourBased
+数据集: 长沙市_real
+最佳参数: {'grid_size': np.float64(1.6939999999999236), 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': np.float64(30.0)}
+
+评估指标（无监督）:
+  Composite: 0.5530
+  CH: 692.01
+  DBI: 0.3951
+  簇数: 2
+  噪声点: 0

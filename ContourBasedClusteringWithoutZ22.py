@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 from shapely.geometry import Point, Polygon
 import matplotlib
 from shapely.geometry import Point, LineString
+
 # 只在未设置后端时才设置TkAgg
 if matplotlib.get_backend() == 'agg':
     pass  # 保持Agg后端
@@ -19,10 +20,12 @@ from scipy.interpolate import griddata
 from sklearn.metrics import silhouette_score
 from scipy.spatial import cKDTree
 
-plt.rcParams['font.sans-serif'] = ['SimHei']   # 黑体
-plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 黑体
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+
 class ContourBasedClusteringWithoutZ:
-    def __init__(self, actual_points, grid_size=1.0, max_buffer_distance=5, 
+    def __init__(self, actual_points, grid_size=1.0, max_buffer_distance=5,
                  manual_virtual_points=None, min_cluster_size=5, interactive=True,
                  merge_small_clusters=True):
         """
@@ -49,7 +52,7 @@ class ContourBasedClusteringWithoutZ:
         self.contour_areas = []
         self.density_centers = []
         self.point_to_density_center = {}
-        self.min_cluster_size = int(min_cluster_size)  # 确保是整数
+        self.min_cluster_size = int(min_cluster_size)  # 最小簇大小阈值
         self.interactive = interactive  # 是否启用交互模式
         self.merge_small_clusters_flag = merge_small_clusters  # 小簇处理方式
 
@@ -79,13 +82,13 @@ class ContourBasedClusteringWithoutZ:
     def add_manual_virtual_points(self, points):
         """
         手动添加虚拟点
-        
+
         参数:
         points -- 虚拟点列表，格式为[(x, y), ...] 或 [(x, y, z), ...]
         """
         if not points:
             return
-        
+
         for point in points:
             if len(point) == 2:
                 # 如果只提供 (x, y)，自动添加 z=0.0 和 id=-1
@@ -156,7 +159,7 @@ class ContourBasedClusteringWithoutZ:
         print(f"网格总数: {grid_count}, 自动虚拟点数: {auto_virtual_count}")
 
         fig, ax = plt.subplots(figsize=(10, 8))
-        
+
         # 绘制网格线
         for x in x_ticks:
             ax.axvline(x, color='gray', linestyle='--', linewidth=0.5)
@@ -197,8 +200,8 @@ class ContourBasedClusteringWithoutZ:
                 self.manual_points.append(new_point)
 
                 # 实时绘制新点
-                ax.scatter(new_x, new_y, c='green', s=60, marker='+', 
-                          label="_nolegend_", zorder=4)
+                ax.scatter(new_x, new_y, c='green', s=60, marker='+',
+                           label="_nolegend_", zorder=4)
                 ax.text(new_x, new_y, " 0", fontsize=8, color='green')
 
                 # 刷新画布
@@ -218,7 +221,8 @@ class ContourBasedClusteringWithoutZ:
         self.virtual_points = virtual_points + self.manual_points
 
         # 返回合并后的所有虚拟点以及网格刻度
-        print(f"交互结束。自动点: {auto_virtual_count}, 交互式手动点: {len(self.manual_points)}, 总虚拟点数: {len(self.virtual_points)}")
+        print(
+            f"交互结束。自动点: {auto_virtual_count}, 交互式手动点: {len(self.manual_points)}, 总虚拟点数: {len(self.virtual_points)}")
 
         return self.virtual_points, x_ticks, y_ticks
 
@@ -266,7 +270,6 @@ class ContourBasedClusteringWithoutZ:
         plt.grid(True, linestyle="--", alpha=0.5)
         if self.interactive:
             plt.show()
-      
 
         return grid_count
 
@@ -313,7 +316,7 @@ class ContourBasedClusteringWithoutZ:
         # 生成等值线
         fig, ax = plt.subplots()
         contour_set = ax.contour(X, Y, zi, levels=10, colors='black')
-        
+
         # 展示等值线图
         ax.set_title('Contour Map with Actual and Virtual Points')
 
@@ -327,19 +330,19 @@ class ContourBasedClusteringWithoutZ:
             # 区分自动虚拟点和交互式手动点
             auto_points = [p for p in self.virtual_points if p[3] == -1]
             manual_points = [p for p in self.virtual_points if p[3] == -2]
-            
+
             if auto_points:
                 auto_vx = [p[0] for p in auto_points]
                 auto_vy = [p[1] for p in auto_points]
-                ax.scatter(auto_vx, auto_vy, c='blue', s=30, marker='x', 
-                          label="Auto Virtual Points", zorder=2)
-            
+                ax.scatter(auto_vx, auto_vy, c='blue', s=30, marker='x',
+                           label="Auto Virtual Points", zorder=2)
+
             if manual_points:
                 manual_vx = [p[0] for p in manual_points]
                 manual_vy = [p[1] for p in manual_points]
-                ax.scatter(manual_vx, manual_vy, c='green', s=50, marker='+', 
-                          label="Manual Virtual Points", zorder=2)
-        
+                ax.scatter(manual_vx, manual_vy, c='green', s=50, marker='+',
+                           label="Manual Virtual Points", zorder=2)
+
         ax.legend()
         plt.xlabel('X')
         plt.ylabel('Y')
@@ -435,46 +438,46 @@ class ContourBasedClusteringWithoutZ:
         """
         将无归属的点分配到最近的簇中
         对于没有被分配到任何簇的点，找到距离它最近的簇中的点，然后将该点分配给该簇
-        
+
         返回:
         assigned_count: 被分配的无归属点数量
         """
         if not self.density_centers:
             print("警告: 没有密度中心，无法分配无归属点")
             return 0
-        
+
         # 找出所有已分配的点
         assigned_points = set(self.point_to_density_center.keys())
-        
+
         # 找出所有未分配的点
-        unassigned_points = [point for point in self.actual_points 
-                            if point not in assigned_points]
-        
+        unassigned_points = [point for point in self.actual_points
+                             if point not in assigned_points]
+
         if not unassigned_points:
             print("所有点都已分配，无需处理无归属点")
             return 0
-        
+
         print(f"\n发现 {len(unassigned_points)} 个无归属点")
-        
+
         # 获取所有簇及其包含的点
         cluster_points_map = {}
         for center in self.density_centers:
-            cluster_points = [point for point, centers in self.point_to_density_center.items() 
-                             if center in centers]
+            cluster_points = [point for point, centers in self.point_to_density_center.items()
+                              if center in centers]
             if cluster_points:  # 只考虑非空簇
                 cluster_points_map[center] = cluster_points
-        
+
         if not cluster_points_map:
             print("警告: 没有非空簇可以分配无归属点")
             return 0
-        
+
         assigned_count = 0
-        
+
         # 对每个无归属点，找到最近的簇
         for unassigned_point in unassigned_points:
             min_dist = float('inf')
             nearest_center = None
-            
+
             # 遍历所有簇，找到距离该点最近的簇中的点
             for center, cluster_points in cluster_points_map.items():
                 # 计算该点到簇中所有点的最小距离
@@ -483,15 +486,15 @@ class ContourBasedClusteringWithoutZ:
                     if dist < min_dist:
                         min_dist = dist
                         nearest_center = center
-            
+
             if nearest_center is None:
                 print(f"  警告: 点 {unassigned_point[:2]} 找不到合适的簇，保持未分配")
                 continue
-            
+
             # 将该点分配给最近的簇
             self.point_to_density_center[unassigned_point] = [nearest_center]
             assigned_count += 1
-        
+
         print(f"已将 {assigned_count} 个无归属点分配到最近的簇中")
         return assigned_count
 
@@ -500,66 +503,66 @@ class ContourBasedClusteringWithoutZ:
         合并小簇：将点数小于min_cluster_size的簇合并到最近的大簇中
         注意：只能合并到点数 >= min_cluster_size 的簇中
         合并规则：小簇中的每个点，找到距离它最近的大簇中的点，然后将该点分配给该大簇
-        
+
         返回:
         merged_count: 被合并的小簇数量
         """
         if not self.point_to_density_center or not self.density_centers:
             print("警告: 没有聚类结果，无法合并小簇")
             return 0
-        
+
         # 统计每个密度中心的点数（初始统计）
         center_point_counts = {}
         for center in self.density_centers:
-            count = sum(1 for point, centers in self.point_to_density_center.items() 
-                       if center in centers)
+            count = sum(1 for point, centers in self.point_to_density_center.items()
+                        if center in centers)
             center_point_counts[center] = count
-        
+
         # 找出小簇（点数 < min_cluster_size）
-        small_clusters = [center for center, count in center_point_counts.items() 
-                         if count < self.min_cluster_size and count > 0]
-        
+        small_clusters = [center for center, count in center_point_counts.items()
+                          if count < self.min_cluster_size and count > 0]
+
         if not small_clusters:
             print(f"没有小于 {self.min_cluster_size} 个点的簇，无需合并")
             return 0
-        
+
         print(f"\n发现 {len(small_clusters)} 个小簇（点数 < {self.min_cluster_size}）")
-        
+
         # 找出大簇（点数 >= min_cluster_size）及其包含的点
         large_clusters = {}
         for center, count in center_point_counts.items():
             if count >= self.min_cluster_size:
                 # 获取该大簇中的所有点
-                cluster_points = [point for point, centers in self.point_to_density_center.items() 
-                                 if center in centers]
+                cluster_points = [point for point, centers in self.point_to_density_center.items()
+                                  if center in centers]
                 large_clusters[center] = cluster_points
-        
+
         if not large_clusters:
             print(f"警告: 没有点数 >= {self.min_cluster_size} 的簇可以合并，保持原样")
             return 0
-        
+
         print(f"找到 {len(large_clusters)} 个大簇（点数 >= {self.min_cluster_size}）可用于合并")
-        
+
         merged_count = 0
         total_reassigned_points = 0
-        
+
         # 对每个小簇，将其中的每个点分配给最近的大簇
         for small_center in small_clusters:
             # 获取小簇中的所有点
-            small_cluster_points = [point for point, centers in self.point_to_density_center.items() 
-                                   if small_center in centers]
-            
+            small_cluster_points = [point for point, centers in self.point_to_density_center.items()
+                                    if small_center in centers]
+
             if not small_cluster_points:
                 continue
-            
+
             print(f"\n  处理小簇 (中心: {small_center.center}, 点数: {len(small_cluster_points)})")
-            
+
             # 对小簇中的每个点，找到最近的大簇
             reassigned_points = 0
             for small_point in small_cluster_points:
                 min_dist = float('inf')
                 nearest_large_center = None
-                
+
                 # 遍历所有大簇，找到距离该点最近的大簇中的点
                 for large_center, large_points in large_clusters.items():
                     # 计算该点到大簇中所有点的最小距离
@@ -568,20 +571,20 @@ class ContourBasedClusteringWithoutZ:
                         if dist < min_dist:
                             min_dist = dist
                             nearest_large_center = large_center
-                
+
                 if nearest_large_center is None:
                     print(f"    警告: 点 {small_point[:2]} 找不到合适的大簇，保持不变")
                     continue
-                
+
                 # 将该点重新分配给最近的大簇
                 self.point_to_density_center[small_point] = [nearest_large_center]
                 reassigned_points += 1
-            
+
             if reassigned_points > 0:
                 print(f"    已将 {reassigned_points} 个点重新分配到最近的大簇")
                 merged_count += 1
                 total_reassigned_points += reassigned_points
-        
+
         print(f"\n共处理了 {merged_count} 个小簇，重新分配了 {total_reassigned_points} 个点")
         return merged_count
 
@@ -589,50 +592,50 @@ class ContourBasedClusteringWithoutZ:
         """
         将小簇标记为噪声：将点数小于min_cluster_size的簇中的点从聚类结果中移除
         这些点在get_predicted_labels()中会被标记为-1（噪声点）
-        
+
         返回:
         noise_count: 被标记为噪声的点数量
         """
         if not self.point_to_density_center or not self.density_centers:
             print("警告: 没有聚类结果，无法标记噪声点")
             return 0
-        
+
         # 统计每个密度中心的点数
         center_point_counts = {}
         for center in self.density_centers:
-            count = sum(1 for point, centers in self.point_to_density_center.items() 
-                       if center in centers)
+            count = sum(1 for point, centers in self.point_to_density_center.items()
+                        if center in centers)
             center_point_counts[center] = count
-        
+
         # 找出小簇（点数 < min_cluster_size）
-        small_clusters = [center for center, count in center_point_counts.items() 
-                         if count < self.min_cluster_size and count > 0]
-        
+        small_clusters = [center for center, count in center_point_counts.items()
+                          if self.min_cluster_size > count > 0]
+
         if not small_clusters:
             print(f"没有小于 {self.min_cluster_size} 个点的簇，无需标记噪声")
             return 0
-        
+
         print(f"\n发现 {len(small_clusters)} 个小簇（点数 < {self.min_cluster_size}），将标记为噪声")
-        
+
         noise_count = 0
-        
+
         # 对每个小簇，将其中的点从聚类结果中移除（标记为噪声）
         for small_center in small_clusters:
             # 获取小簇中的所有点
-            small_cluster_points = [point for point, centers in self.point_to_density_center.items() 
-                                   if small_center in centers]
-            
+            small_cluster_points = [point for point, centers in self.point_to_density_center.items()
+                                    if small_center in centers]
+
             if not small_cluster_points:
                 continue
-            
+
             print(f"  小簇 (中心: {small_center.center}, 点数: {len(small_cluster_points)}) -> 标记为噪声")
-            
+
             # 从聚类结果中移除这些点（它们将在get_predicted_labels中被标记为-1）
             for point in small_cluster_points:
                 if point in self.point_to_density_center:
                     del self.point_to_density_center[point]
                     noise_count += 1
-        
+
         print(f"\n共将 {noise_count} 个点标记为噪声")
         return noise_count
 
@@ -642,14 +645,14 @@ class ContourBasedClusteringWithoutZ:
             return
 
         fig, ax = plt.subplots(figsize=(10, 8))
-        colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'magenta', 
-                 'brown', 'pink', 'gray', 'olive', 'navy']
+        colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'magenta',
+                  'brown', 'pink', 'gray', 'olive', 'navy']
 
         # 统计每个中心的点数
         center_point_counts = {}
         for center in self.density_centers:
-            count = sum(1 for point, centers in self.point_to_density_center.items() 
-                       if center in centers)
+            count = sum(1 for point, centers in self.point_to_density_center.items()
+                        if center in centers)
             center_point_counts[center] = count
 
         # 绘制密度中心和缓冲区
@@ -657,7 +660,7 @@ class ContourBasedClusteringWithoutZ:
             point_count = center_point_counts.get(center, 0)
             if point_count == 0:
                 continue  # 跳过没有点的簇
-            
+
             color = colors[i % len(colors)]
 
             # 绘制原始区域
@@ -674,11 +677,11 @@ class ContourBasedClusteringWithoutZ:
             for point, centers in self.point_to_density_center.items():
                 if center in centers:
                     ax.plot(point[0], point[1], 'o', color=color, markersize=6)
-            
+
             # 标注簇的点数
-            ax.text(center.center[0], center.center[1], f'n={point_count}', 
-                   fontsize=10, ha='center', va='center',
-                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7))
+            ax.text(center.center[0], center.center[1], f'n={point_count}',
+                    fontsize=10, ha='center', va='center',
+                    bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7))
 
         # 绘制未分配的点
         all_assigned = {point for point in self.point_to_density_center}
@@ -694,7 +697,7 @@ class ContourBasedClusteringWithoutZ:
             title += f' (min_cluster_size={self.min_cluster_size})'
         if unassigned_count > 0:
             title += f'\n未分配点: {unassigned_count}'
-        
+
         ax.set_title(title)
         ax.set_xlabel('X Coordinate')
         ax.set_ylabel('Y Coordinate')
@@ -751,7 +754,7 @@ class ContourBasedClusteringWithoutZ:
                 final_clusters_hashable[point] = tuple(region_list)
             else:
                 final_clusters_hashable[point] = tuple(id(item) for item in region_list)
-        
+
         coordinates = [point[:2] for point in final_clusters_hashable.keys()]
         regions = sorted(set(final_clusters_hashable.values()))
         region_to_label = {region: i for i, region in enumerate(regions)}
@@ -759,7 +762,7 @@ class ContourBasedClusteringWithoutZ:
 
         X = np.array(coordinates)
         labels_np = np.array(labels)
-        
+
         if len(regions) > 1:
             score = silhouette_score(X, labels_np, metric='euclidean')
         else:
@@ -777,22 +780,29 @@ class ContourBasedClusteringWithoutZ:
         self.generate_contour_areas()
         self.get_density_centers()
         self.assign_points_to_centers()
-        
-        # 处理小簇
-        if self.min_cluster_size > 1:
-            if self.merge_small_clusters_flag:
-                # True: 将小簇合并到最近的大簇
-                self.merge_small_clusters()
-                # 合并后分配无归属点到最近的簇
-                self.assign_unassigned_points()
-            else:
-                # False: 将小簇中的点标记为噪声点
-                self.mark_small_clusters_as_noise()
-                # 注意：噪声模式下不分配无归属点，它们也会被标记为噪声
-        else:
-            # 如果min_cluster_size <= 1，只分配无归属点
-            self.assign_unassigned_points()
-        
+
+
+        if self.merge_small_clusters_flag: #True: 将小簇合并到最近的大簇
+            self.merge_small_clusters()
+            self.assign_points_to_centers()
+        else: # False: 将小簇中的点标记为噪声点
+            self.mark_small_clusters_as_noise()
+
+        # # 处理小簇
+        # if self.min_cluster_size > 1:
+        #     if self.merge_small_clusters_flag:
+        #         # True: 将小簇合并到最近的大簇
+        #         self.merge_small_clusters()
+        #         # 合并后分配无归属点到最近的簇
+        #         self.assign_unassigned_points()
+        #     else:
+        #         # False: 将小簇中的点标记为噪声点
+        #         self.mark_small_clusters_as_noise()
+        #         # 注意：噪声模式下不分配无归属点，它们也会被标记为噪声
+        # else:
+        #     # 如果min_cluster_size <= 1，只分配无归属点
+        #     self.assign_unassigned_points()
+
         return self.point_to_density_center
 
     def get_cluster_report(self):
@@ -817,7 +827,6 @@ class ContourBasedClusteringWithoutZ:
         return self.point_to_density_center
 
 
-
 # 示例用法
 if __name__ == "__main__":
     # 实际点数据 (x, y, 货物量, 客户ID)
@@ -836,65 +845,65 @@ if __name__ == "__main__":
         (15.5, 15.2, 1.2, 11),
         (16.0, 15.5, 0.8, 12),
     ]
-    
+
     # 手动添加虚拟点（可选）
     manual_virtual_points = [
         (5.0, 5.0),
         (6.0, 6.0, 0.5),
         (7.0, 7.0, 0.3, -2),
     ]
-    
-    print("="*60)
+
+    print("=" * 60)
     print("示例1: merge_small_clusters=True (小簇合并到大簇)")
-    print("="*60)
-    
+    print("=" * 60)
+
     # 创建聚类实例（设置最小簇大小为5，小簇合并到大簇）
     cluster1 = ContourBasedClusteringWithoutZ(
-        actual_points, 
+        actual_points,
         grid_size=1.0,
         max_buffer_distance=5,
         manual_virtual_points=manual_virtual_points,
         min_cluster_size=5,
         merge_small_clusters=True  # 小簇合并到大簇
     )
-    
+
     # 执行聚类
     clusters1 = cluster1.perform_clustering()
     labels1 = cluster1.get_predicted_labels()
     print(f"标签: {labels1}")
     print(f"噪声点数: {labels1.count(-1)}")
-    
+
     # 可视化结果
     cluster1.visualize_clusters()
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("示例2: merge_small_clusters=False (小簇标记为噪声)")
-    print("="*60)
-    
+    print("=" * 60)
+
     # 创建聚类实例（设置最小簇大小为5，小簇标记为噪声）
     cluster2 = ContourBasedClusteringWithoutZ(
-        actual_points, 
+        actual_points,
         grid_size=1.0,
         max_buffer_distance=5,
         manual_virtual_points=manual_virtual_points,
         min_cluster_size=5,
         merge_small_clusters=False  # 小簇标记为噪声点
     )
-    
+
     # 执行聚类
     clusters2 = cluster2.perform_clustering()
     labels2 = cluster2.get_predicted_labels()
     print(f"标签: {labels2}")
     print(f"噪声点数: {labels2.count(-1)}")
-    
+
     # 可视化结果
     cluster2.visualize_clusters()
-    
+
     # 获取聚类报告
     report = cluster2.get_cluster_report()
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("聚类报告 (merge_small_clusters=False)")
-    print("="*60)
+    print("=" * 60)
     for center, data in report.items():
         print(f"\n簇中心位于 {center}:")
         print(f"  点数: {data['point_count']}")
@@ -902,4 +911,4 @@ if __name__ == "__main__":
         print("  包含的点:")
         for point in data['points']:
             print(f"    客户 {point[3]} 位于 ({point[0]}, {point[1]}) 货物量 {point[2]}")
-    print("="*60)
+    print("=" * 60)

@@ -40,8 +40,8 @@ DATASET = "../data/real_data/湘潭市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Silhouette' 或 'CH'
-OPTIMIZE_METRIC = 'Silhouette'
+# 优化目标: 'Composite' (复合得分), 'Silhouette_core', 'CH'
+OPTIMIZE_METRIC = 'Composite'
 
 # 各算法参数搜索范围 (start, end, step)
 CONTOUR_RANGES = {
@@ -322,7 +322,10 @@ def main():
         print("优化 DPC-FWSN (MATLAB) - 无监督")
         print(f"{'='*60}")
         
+        # 参数搜索范围
+        n_clusters_values = generate_param_values(2, 20, 1)
         k_values = generate_param_values(*DPC_RANGES['k'])
+        print(f"  n_clusters: 2 -> 20, 步长=1, 共{len(n_clusters_values)}个值")
         print(f"  k: {DPC_RANGES['k'][0]} -> {DPC_RANGES['k'][1]}, 步长={DPC_RANGES['k'][2]}, 共{len(k_values)}个值")
         
         try:
@@ -334,35 +337,39 @@ def main():
             best_labels = None
             best_metrics = None
             
-            # 无监督模式：假设簇数为数据量的平方根
-            n_clusters = max(2, int(np.sqrt(len(X) / 10)))
-            # 创建假的标签用于MATLAB接口
-            fake_labels = np.zeros(len(X))
-            data_with_labels = np.column_stack([X, fake_labels])
+            total_combinations = len(n_clusters_values) * len(k_values)
+            iteration = 0
             
-            for k in k_values:
-                try:
-                    labels, _ = matlab_runner.run_algorithm_pr(
-                        data_with_labels, n_clusters, k
-                    )
-                    if labels is not None:
-                        eval_metrics = evaluate_clustering_unsupervised(labels, X)
-                        if eval_metrics['n_clusters'] < 2:
-                            continue
-                        score = eval_metrics[OPTIMIZE_METRIC]
-                        print(f"  k={k}: {OPTIMIZE_METRIC}={score:.4f}")
+            for n_clusters in n_clusters_values:
+                for k in k_values:
+                    iteration += 1
+                    try:
+                        # 使用无监督版本的MATLAB函数（仅传入坐标）
+                        labels = matlab_runner.run_algorithm_pr_unsupervised(X, n_clusters, k)
                         
-                        if score > best_score:
-                            best_score = score
-                            best_params = {'k': k}
-                            best_labels = labels.copy()
-                            best_metrics = eval_metrics.copy()
-                except Exception as e:
-                    print(f"  k={k}: 失败 - {e}")
+                        if labels is not None:
+                            eval_metrics = evaluate_clustering_unsupervised(labels, X)
+                            if eval_metrics['n_clusters'] < 2:
+                                continue
+                            score = eval_metrics[OPTIMIZE_METRIC]
+                            
+                            if score > best_score:
+                                best_score = score
+                                best_params = {'n_clusters': n_clusters, 'k': k}
+                                best_labels = labels.copy()
+                                best_metrics = eval_metrics.copy()
+                            
+                            if iteration % 50 == 0 or iteration == total_combinations:
+                                print(f"  进度: {iteration}/{total_combinations}, 当前最佳{OPTIMIZE_METRIC}: {best_score:.4f}")
+                    except Exception as e:
+                        if iteration % 50 == 0:
+                            print(f"  n_clusters={n_clusters}, k={k}: 失败 - {str(e)[:50]}")
             
             matlab_runner.close()
             
             if best_labels is not None:
+                print(f"\n最佳参数: {best_params}")
+                print(f"最佳{OPTIMIZE_METRIC}: {best_score:.4f}")
                 results.append({
                     'name': 'DPC-FWSN',
                     'params': best_params,
@@ -372,28 +379,28 @@ def main():
                 })
                 plot_clustering_result(
                     X, best_labels,
-                    f"DPC-FWSN (Sil={best_metrics['Silhouette']:.3f})",
+                    f"DPC-FWSN (Composite={best_metrics['Composite']:.3f})",
                     f"{OUTPUT_DIR}/07_DPC-FWSN_{dataset_name}.png", dpi=300
                 )
         except Exception as e:
             print(f"DPC-FWSN失败: {e}")
     
     # 打印汇总
-    print("\n" + "="*90)
-    print("算法对比汇总（无监督）")
-    print("="*90)
+    print("\n" + "="*100)
+    print("算法对比汇总（无监督 - 复合评估）")
+    print("="*100)
     
-    header = f"{'算法':<15} {'Silhouette':<12} {'CH':<15} {'DBI':<12} {'簇数':<8} {'噪声':<8}"
+    header = f"{'算法':<15} {'Composite':<12} {'Sil_core':<12} {'Outlier%':<10} {'CH':<15} {'簇数':<8} {'噪声':<8}"
     print(header)
-    print("-"*110)
+    print("-"*100)
     
     for r in results:
         m = r['metrics']
-        dbi_str = 'inf' if m.get('DBI', float('inf')) == float('inf') else f"{m['DBI']:.4f}"
-        print(f"{r['name']:<15} {m['Silhouette']:<12.4f} {m['CH']:<15.2f} "
-              f"{dbi_str:<12} {m['n_clusters']:<8} {m['n_noise']:<8}")
+        outlier_pct = m['Outlier_ratio'] * 100
+        print(f"{r['name']:<15} {m['Composite']:<12.4f} {m['Silhouette_core']:<12.4f} "
+              f"{outlier_pct:<10.2f} {m['CH']:<15.2f} {m['n_clusters']:<8} {m['n_noise']:<8}")
     
-    print("="*90)
+    print("="*100)
     
     # 保存结果到CSV
     csv_data = []
@@ -402,7 +409,9 @@ def main():
         csv_data.append({
             'Algorithm': r['name'],
             'Best_Params': str(r['params']),
-            'Silhouette': m['Silhouette'],
+            'Composite': m['Composite'],
+            'Silhouette_core': m['Silhouette_core'],
+            'Outlier_ratio': m['Outlier_ratio'],
             'CH': m['CH'],
             'DBI': m.get('DBI', float('inf')),
             'n_clusters': m['n_clusters'],
@@ -421,15 +430,17 @@ def main():
             f.write(f"算法: {r['name']}\n")
             f.write(f"数据集: {dataset_name}\n")
             f.write(f"最佳参数: {r['params']}\n")
-            f.write(f"\n评估指标（无监督）:\n")
-            f.write(f"  Silhouette: {r['metrics']['Silhouette']:.4f}\n")
+            f.write(f"\n评估指标（无监督 - 复合评估）:\n")
+            f.write(f"  Composite: {r['metrics']['Composite']:.4f} (主要指标)\n")
+            f.write(f"    ├─ Silhouette_core: {r['metrics']['Silhouette_core']:.4f}\n")
+            f.write(f"    └─ Outlier_ratio: {r['metrics']['Outlier_ratio']:.4f}\n")
             f.write(f"  CH: {r['metrics']['CH']:.2f}\n")
             if 'DBI' in r['metrics']:
                 dbi_val = r['metrics']['DBI']
                 if dbi_val == float('inf'):
                     f.write(f"  DBI: inf\n")
                 else:
-                    f.write(f"  DBI: {dbi_val:.4f}\n")
+                    f.write(f"  DBI: {dbi_val:.4f} (越小越好)\n")
             f.write(f"  簇数: {r['metrics']['n_clusters']}\n")
             f.write(f"  噪声点: {r['metrics']['n_noise']}\n")
         print(f"  已保存: {txt_path}")

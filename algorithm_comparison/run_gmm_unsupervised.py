@@ -26,8 +26,8 @@ DATASET = "../data/real_data/长沙市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Silhouette' 或 'CH'
-OPTIMIZE_METRIC = 'Silhouette'
+# 优化目标: 'Composite' 或 'CH'
+OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
@@ -83,47 +83,52 @@ def main():
     
     param_names = list(param_grid.keys())
     param_values = list(param_grid.values())
-    total = int(np.prod([len(v) for v in param_values]))
+    total = int(np.prod([len(v) for v in param_values])) * len(COVARIANCE_TYPES)
     
+    print(f"  covariance_type: {COVARIANCE_TYPES}")
     print(f"参数组合数: {total}")
     print(f"\n开始优化...")
     
     start_time = time.time()
+    i = 0
     
-    for i, values in enumerate(product(*param_values), 1):
-        params = dict(zip(param_names, values))
-        
-        try:
-            labels = run_gmm(X, **params)
-            if labels is None:
-                continue
-            
-            metrics = evaluate_clustering_unsupervised(labels, X)
-            
-            if metrics['n_clusters'] < 2:
-                continue
-            
-            score = metrics[OPTIMIZE_METRIC]
-            
-            # 记录所有有效结果
-            result_record = {
-                'params': params.copy(),
-                'metrics': metrics.copy(),
-                'score': score
-            }
-            all_results.append(result_record)
-            
-            if score > best_score:
-                best_score = score
-                best_params = params.copy()
-                best_labels = labels.copy() if isinstance(labels, np.ndarray) else np.array(labels)
-                best_metrics = metrics.copy()
+    for n_components in param_grid['n_components']:
+        for n_init in param_grid['n_init']:
+            for cov_type in COVARIANCE_TYPES:
+                i += 1
+                params = {'n_components': n_components, 'n_init': n_init, 'covariance_type': cov_type}
                 
-            if i % 20 == 0 or i == total:
-                print(f"  进度: {i}/{total}, 当前最佳{OPTIMIZE_METRIC}: {best_score:.4f}, 有效结果: {len(all_results)}")
-                
-        except Exception as e:
-            pass
+                try:
+                    labels = run_gmm(X, n_components, cov_type, n_init)
+                    if labels is None:
+                        continue
+                    
+                    metrics = evaluate_clustering_unsupervised(labels, X)
+                    
+                    if metrics['n_clusters'] < 2:
+                        continue
+                    
+                    score = metrics[OPTIMIZE_METRIC]
+                    
+                    # 记录所有有效结果
+                    result_record = {
+                        'params': params.copy(),
+                        'metrics': metrics.copy(),
+                        'score': score
+                    }
+                    all_results.append(result_record)
+                    
+                    if score > best_score:
+                        best_score = score
+                        best_params = params.copy()
+                        best_labels = labels.copy() if isinstance(labels, np.ndarray) else np.array(labels)
+                        best_metrics = metrics.copy()
+                        
+                    if i % 20 == 0 or i == total:
+                        print(f"  进度: {i}/{total}, 当前最佳{OPTIMIZE_METRIC}: {best_score:.4f}, 有效结果: {len(all_results)}")
+                        
+                except Exception as e:
+                    pass
     
     elapsed = time.time() - start_time
     
@@ -133,7 +138,7 @@ def main():
         print(f"{'='*70}")
         print(f"最佳参数: {best_params}")
         print(f"最佳{OPTIMIZE_METRIC}: {best_score:.4f}")
-        print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+        print(f"Composite: {best_metrics['Composite']:.4f}")
         print(f"CH: {best_metrics['CH']:.2f}")
         if 'DBI' in best_metrics:
             dbi_val = best_metrics['DBI']
@@ -148,7 +153,7 @@ def main():
         # 保存图表
         plot_clustering_result(
             X, best_labels,
-            f"GMM (Sil={best_metrics['Silhouette']:.3f})",
+            f"GMM (Sil={best_metrics['Composite']:.3f})",
             f"{OUTPUT_DIR}/GMM_{dataset_name}.png", dpi=300
         )
         
@@ -159,7 +164,7 @@ def main():
             f.write(f"数据集: {dataset_name}\n")
             f.write(f"最佳参数: {best_params}\n")
             f.write(f"\n评估指标（无监督）:\n")
-            f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+            f.write(f"  Composite: {best_metrics['Composite']:.4f}\n")
             f.write(f"  CH: {best_metrics['CH']:.2f}\n")
             if 'DBI' in best_metrics:
                 dbi_val = best_metrics['DBI']
@@ -185,7 +190,7 @@ def main():
                     f.write(f"评估 #{idx}\n")
                     f.write(f"  参数: {result['params']}\n")
                     m = result['metrics']
-                    f.write(f"  Silhouette: {m['Silhouette']:.4f}\n")
+                    f.write(f"  Composite: {m['Composite']:.4f}\n")
                     f.write(f"  CH: {m['CH']:.2f}\n")
                     dbi_val = m.get('DBI', float('inf'))
                     if dbi_val == float('inf'):
@@ -209,7 +214,7 @@ def main():
                 print(f"\n第 {rank} 名:")
                 print(f"  参数: {result['params']}")
                 print(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}")
-                print(f"  Silhouette: {m['Silhouette']:.4f}, CH: {m['CH']:.2f}", end="")
+                print(f"  Composite: {m['Composite']:.4f}, CH: {m['CH']:.2f}", end="")
                 dbi_val = m.get('DBI', float('inf'))
                 if dbi_val != float('inf'):
                     print(f", DBI: {dbi_val:.4f}", end="")
@@ -228,7 +233,7 @@ def main():
                     f.write(f"第 {rank} 名\n")
                     f.write(f"  参数: {result['params']}\n")
                     f.write(f"  {OPTIMIZE_METRIC}: {result['score']:.4f}\n")
-                    f.write(f"  Silhouette: {m['Silhouette']:.4f}\n")
+                    f.write(f"  Composite: {m['Composite']:.4f}\n")
                     f.write(f"  CH: {m['CH']:.2f}\n")
                     dbi_val = m.get('DBI', float('inf'))
                     if dbi_val == float('inf'):

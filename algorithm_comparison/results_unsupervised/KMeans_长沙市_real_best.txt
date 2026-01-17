@@ -1,10 +1,10 @@
 算法: KMeans
 数据集: 长沙市_real
-最佳参数: {'n_clusters': 20, 'n_init': 10, 'max_iter': 300}
+最佳参数: {'n_clusters': 2, 'n_init': 10, 'max_iter': 300}
 
 评估指标（无监督）:
-  Silhouette: 0.4254
-  CH: 3035.16
-  DBI: 0.7443
-  簇数: 20
+  Composite: 0.4574
+  CH: 2562.58
+  DBI: 0.8518
+  簇数: 2
   噪声点: 0

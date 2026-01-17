@@ -13,7 +13,7 @@ import sys
 # 添加父目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from clustering_metrics import ClusteringMetrics
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score, davies_bouldin_score
 
 
 def load_dataset(filepath):
@@ -65,33 +65,57 @@ def calculate_inertia(X, labels):
 
 
 def evaluate_clustering(y_true, y_pred, X):
-    """评估聚类结果（有监督指标 + 无监督指标）"""
-    # 无监督指标（始终计算）
-    n_clusters = len(set(y_pred)) - (1 if -1 in y_pred else 0)
+    """
+    评估聚类结果（有监督指标 + 无监督指标）
     
-    # 轮廓系数、CH指数、DBI指数
-    if n_clusters > 1:
-        mask = np.array(y_pred) != -1
-        if np.sum(mask) > 1 and len(np.unique(np.array(y_pred)[mask])) > 1:
-            silhouette = silhouette_score(X[mask], np.array(y_pred)[mask])
-            ch_score = calinski_harabasz_score(X[mask], np.array(y_pred)[mask])
-            dbi_score = davies_bouldin_score(X[mask], np.array(y_pred)[mask])
-        else:
-            silhouette = -1
-            ch_score = 0
-            dbi_score = float('inf')  # DBI值越小越好，无效时设为无穷大
+    使用加权复合评估方法（论文严谨做法）：
+    - Silhouette_core: 仅对非噪声点计算轮廓系数（聚类质量）
+    - Outlier_ratio: 噪声点占比（覆盖率）
+    - Composite: 加权复合得分 = Silhouette_core * (1 - Outlier_ratio)
+    """
+    y_pred_array = np.array(y_pred)
+    n_total = len(y_pred_array)
+    n_clusters = len(set(y_pred)) - (1 if -1 in y_pred else 0)
+    n_noise = int(np.sum(y_pred_array == -1))
+    
+    # 核心点（非噪声点）
+    mask_core = y_pred_array != -1
+    n_core = int(np.sum(mask_core))
+    outlier_ratio = n_noise / n_total if n_total > 0 else 1.0
+    
+    # 轮廓系数（仅对核心点计算）
+    silhouette_core = -1
+    ch_score = 0
+    dbi_score = float('inf')
+    
+    if n_clusters > 1 and n_core > 1:
+        unique_core_labels = np.unique(y_pred_array[mask_core])
+        if len(unique_core_labels) > 1:
+            try:
+                silhouette_core = silhouette_score(X[mask_core], y_pred_array[mask_core])
+                ch_score = calinski_harabasz_score(X[mask_core], y_pred_array[mask_core])
+                dbi_score = davies_bouldin_score(X[mask_core], y_pred_array[mask_core])
+            except:
+                pass
+    
+    # 复合得分（论文严谨做法）
+    # Composite = Silhouette_core * (1 - Outlier_ratio)
+    # 这样既考虑聚类质量，又惩罚过多的噪声点
+    if silhouette_core > -1:
+        composite_score = silhouette_core * (1 - outlier_ratio)
     else:
-        silhouette = -1
-        ch_score = 0
-        dbi_score = float('inf')
+        composite_score = -1
     
     result = {
-        'Silhouette': silhouette,
-        'CH': ch_score,  # Calinski-Harabasz 指数
-        'DBI': dbi_score,  # Davies-Bouldin 指数（值越小越好）
-        'Inertia': calculate_inertia(X, np.array(y_pred)),
+        'Silhouette_core': silhouette_core,  # 核心点轮廓系数
+        'Silhouette': silhouette_core,       # 兼容旧代码（别名）
+        'Outlier_ratio': outlier_ratio,      # 噪声点占比
+        'Composite': composite_score,         # 复合得分（主要优化目标）
+        'CH': ch_score,                       # Calinski-Harabasz 指数
+        'DBI': dbi_score,                     # Davies-Bouldin 指数（越小越好）
+        'Inertia': calculate_inertia(X, y_pred_array),
         'n_clusters': n_clusters,
-        'n_noise': list(y_pred).count(-1)
+        'n_noise': n_noise
     }
     
     # 有监督指标（仅当有真实标签时计算）
@@ -213,15 +237,21 @@ def print_best_result(algorithm_name, best_params, best_metrics):
         print(f"ARI: {best_metrics['ARI']:.4f}")
         print(f"FMI: {best_metrics['FMI']:.4f}")
     
-    # 无监督指标
-    print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+    # 无监督指标（复合评估）
+    if 'Composite' in best_metrics:
+        print(f"Composite: {best_metrics['Composite']:.4f} (主要指标)")
+        print(f"  ├─ Silhouette_core: {best_metrics['Silhouette_core']:.4f}")
+        print(f"  └─ Outlier_ratio: {best_metrics['Outlier_ratio']:.4f}")
+    elif 'Silhouette' in best_metrics:
+        print(f"Silhouette: {best_metrics['Silhouette']:.4f}")
+    
     print(f"CH: {best_metrics['CH']:.2f}")
     if 'DBI' in best_metrics:
         dbi_val = best_metrics['DBI']
         if dbi_val == float('inf'):
             print(f"DBI: inf")
         else:
-            print(f"DBI: {dbi_val:.4f}")
+            print(f"DBI: {dbi_val:.4f} (越小越好)")
     print(f"簇数: {best_metrics['n_clusters']}, 噪声点: {best_metrics['n_noise']}")
     print(f"{'='*60}")
 
@@ -259,14 +289,20 @@ def save_best_result(algorithm_name, dataset_name, best_params, best_metrics, sa
             f.write(f"  FMI: {best_metrics['FMI']:.4f}\n")
         
         # 无监督指标
-        f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+        if 'Composite' in best_metrics:
+            f.write(f"  Composite: {best_metrics['Composite']:.4f} (主要指标)\n")
+            f.write(f"    ├─ Silhouette_core: {best_metrics['Silhouette_core']:.4f}\n")
+            f.write(f"    └─ Outlier_ratio: {best_metrics['Outlier_ratio']:.4f}\n")
+        elif 'Silhouette' in best_metrics:
+            f.write(f"  Silhouette: {best_metrics['Silhouette']:.4f}\n")
+        
         f.write(f"  CH: {best_metrics['CH']:.2f}\n")
         if 'DBI' in best_metrics:
             dbi_val = best_metrics['DBI']
             if dbi_val == float('inf'):
                 f.write(f"  DBI: inf\n")
             else:
-                f.write(f"  DBI: {dbi_val:.4f}\n")
+                f.write(f"  DBI: {dbi_val:.4f} (越小越好)\n")
         f.write(f"  簇数: {best_metrics['n_clusters']}\n")
         f.write(f"  噪声点: {best_metrics['n_noise']}\n")
         f.write(f"{'='*60}\n")

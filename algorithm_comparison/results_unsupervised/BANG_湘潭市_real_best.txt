@@ -1,0 +1,12 @@
+算法: BANG
+数据集: 湘潭市_real
+最佳参数: {'levels': 10, 'density_threshold': 0.01}
+
+评估指标（无监督 - 复合评估）:
+  Composite: 0.5923 (主要指标)
+    ├─ Silhouette_core: 0.6008
+    └─ Outlier_ratio: 0.0293
+  CH: 1043.56
+  DBI: 0.2392 (越小越好)
+  簇数: 6
+  噪声点: 32

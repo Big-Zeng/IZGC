@@ -1,0 +1,12 @@
+算法: DBSCAN
+数据集: 湘潭市_real
+最佳参数: {'eps': 12.0, 'min_samples': 37}
+
+评估指标（无监督 - 复合评估）:
+  Composite: 0.7655 (主要指标)
+    ├─ Silhouette_core: 0.7726
+    └─ Outlier_ratio: 0.0220
+  CH: 4926.98
+  DBI: 0.2288 (越小越好)
+  簇数: 2
+  噪声点: 24

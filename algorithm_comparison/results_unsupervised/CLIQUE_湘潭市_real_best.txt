@@ -1,0 +1,12 @@
+算法: CLIQUE
+数据集: 湘潭市_real
+最佳参数: {'intervals': 7, 'density_threshold': 12}
+
+评估指标（无监督 - 复合评估）:
+  Composite: 0.7586 (主要指标)
+    ├─ Silhouette_core: 0.7729
+    └─ Outlier_ratio: 0.0339
+  CH: 4752.25
+  DBI: 0.2218 (越小越好)
+  簇数: 2
+  噪声点: 37

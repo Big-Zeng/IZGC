@@ -1,0 +1,12 @@
+算法: K-means++
+数据集: 湘潭市_real
+最佳参数: {'n_clusters': 2, 'n_init': 10, 'max_iter': 300}
+
+评估指标（无监督 - 复合评估）:
+  Composite: 0.7656 (主要指标)
+    ├─ Silhouette_core: 0.7675
+    └─ Outlier_ratio: 0.0000
+  CH: 5284.16
+  DBI: 0.3279 (越小越好)
+  簇数: 2
+  噪声点: 0

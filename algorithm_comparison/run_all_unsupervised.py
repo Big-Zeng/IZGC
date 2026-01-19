@@ -45,10 +45,11 @@ OPTIMIZE_METRIC = 'Composite'
 
 # 各算法参数搜索范围 (start, end, step)
 CONTOUR_RANGES = {
-    'grid_size': (0.5, 5, 0.001),
+    'grid_size': (1, 5, 0.001),
     'max_buffer_distance': (0, 0, 1),
     'min_cluster_size': (5, 5, 1),
-    'density_radius': (0.01, 0.01, 0.001)
+    'density_radius': (30, 30, 0.001),
+    'merge_small_clusters': (False, False, 1)
 }
 
 KMEANS_RANGES = {

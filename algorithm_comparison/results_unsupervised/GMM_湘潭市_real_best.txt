@@ -1,0 +1,12 @@
+算法: GMM
+数据集: 湘潭市_real
+最佳参数: {'n_components': 2, 'covariance_type': 'tied', 'n_init': 10}
+
+评估指标（无监督 - 复合评估）:
+  Composite: 0.7657 (主要指标)
+    ├─ Silhouette_core: 0.7675
+    └─ Outlier_ratio: 0.0000
+  CH: 5267.27
+  DBI: 0.3246 (越小越好)
+  簇数: 2
+  噪声点: 0

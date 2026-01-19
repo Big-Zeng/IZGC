@@ -784,7 +784,7 @@ class ContourBasedClusteringWithoutZ:
 
         if self.merge_small_clusters_flag: #True: 将小簇合并到最近的大簇
             self.merge_small_clusters()
-            self.assign_points_to_centers()
+            self.assign_unassigned_points()
         else: # False: 将小簇中的点标记为噪声点
             self.mark_small_clusters_as_noise()
 

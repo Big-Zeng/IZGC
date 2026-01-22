@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>交互式聚类分析 - 支持零值点（Leaflet版）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet EasyPrint CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easyprint@2.1.9/dist/easyPrint.css" />
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; font-family: "Microsoft YaHei", Arial, sans-serif; overflow: hidden; }
+        #container { display: flex; width: 100%; height: 100%; }
+        #sidebar { width: 380px; background: #f5f5f5; padding: 15px; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 1000; }
+        #map { flex: 1; position: relative; }
+        h2 { color: #333; margin-bottom: 15px; font-size: 18px; }
+        .section { background: white; padding: 12px; margin-bottom: 12px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h3 { color: #555; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .param-item { margin-bottom: 10px; }
+        .param-item label { display: block; color: #666; font-size: 12px; margin-bottom: 3px; }
+        .param-item input, .param-item select { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 12px; }
+        .param-value { display: inline-block; margin-left: 8px; color: #007bff; font-weight: bold; font-size: 12px; }
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; margin-bottom: 8px; transition: all 0.3s; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #1e7e34; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #545b62; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .mode-indicator { padding: 8px; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; }
+        .mode-normal { background: #e3f2fd; color: #1565c0; }
+        .mode-draw-line { background: #fff3e0; color: #e65100; }
+        .zero-points-list { max-height: 150px; overflow-y: auto; font-size: 11px; }
+        .zero-point-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: #f8f9fa; margin: 2px 0; border-radius: 3px; }
+        .zero-point-item button { padding: 2px 6px; font-size: 10px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; }
+        .metric-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 12px; }
+        .metric-value { font-weight: bold; }
+        .metric-value.good { color: #28a745; }
+        .status { padding: 8px; background: #e8f5e9; border-radius: 3px; font-size: 12px; margin-top: 10px; }
+        .error { background: #ffebee; color: #c62828; }
+        .legend { position: absolute; bottom: 30px; right: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); max-height: 300px; overflow-y: auto; font-size: 12px; }
+        .legend h4 { margin: 0 0 8px 0; font-size: 13px; }
+        .legend-item { margin: 4px 0; }
+        .legend-color { display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: middle; border-radius: 50%; }
+        .checkbox-item { display: flex; align-items: center; margin: 5px 0; }
+        .checkbox-item input { margin-right: 8px; }
+        .line-info { background: #e8f5e9; padding: 8px; border-radius: 3px; margin: 8px 0; font-size: 11px; }
+        .leaflet-container { cursor: default; }
+        .leaflet-container.draw-mode { cursor: crosshair !important; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="sidebar">
+            <h2>🎯 交互式聚类分析（Leaflet版）</h2>
+
+            <!-- 数据加载 -->
+            <div class="section">
+                <h3>📂 数据加载</h3>
+                <div class="param-item">
+                    <label>选择数据集</label>
+                    <select id="dataset-select">
+                        <option value="长沙市">长沙市</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="loadData()">加载数据</button>
+                <div id="data-status" class="status" style="display:none;"></div>
+            </div>
+            
+            <!-- 零值点模式 -->
+            <div class="section">
+                <h3>🎯 零值点管理（画线模式）</h3>
+                <div id="mode-indicator" class="mode-indicator mode-normal">普通模式 - 点击查看信息</div>
+                <button class="btn btn-warning" id="btn-toggle-mode" onclick="toggleDrawLineMode()">切换到画线模式</button>
+                
+                <div class="param-item" style="margin-top: 10px;">
+                    <label>线上点间距（米）<span class="param-value" id="point-spacing-value">50</span></label>
+                    <input type="range" id="point-spacing" min="10" max="500" step="10" value="50">
+                </div>
+                
+                <div id="line-info" class="line-info" style="display:none;">
+                    <div>当前线段: <span id="current-line-points">0</span> 个顶点</div>
+                    <div>预计生成: <span id="estimated-points">0</span> 个零值点</div>
+                </div>
+                
+                <div style="display: flex; gap: 5px; margin-top: 8px;">
+                    <button class="btn btn-success" style="flex:1;" id="btn-finish-line" onclick="finishCurrentLine()" disabled>✓ 完成当前线</button>
+                    <button class="btn btn-secondary" style="flex:1;" id="btn-cancel-line" onclick="cancelCurrentLine()" disabled>✗ 取消</button>
+                </div>
+                
+                <div style="margin: 10px 0;">
+                    <span>零值点数量: <strong id="zero-count">0</strong></span>
+                </div>
+                <div id="zero-points-list" class="zero-points-list"></div>
+                <div style="display: flex; gap: 5px; margin-top: 8px;">
+                    <button class="btn btn-success" style="flex:1;" onclick="saveZeroPoints()">💾 保存</button>
+                    <button class="btn btn-danger" style="flex:1;" onclick="clearZeroPoints()">🗑️ 清空</button>
+                </div>
+            </div>
+            
+            <!-- 聚类参数 -->
+            <div class="section">
+                <h3>⚙️ 聚类参数</h3>
+                <div class="param-item">
+                    <label>网格大小 (grid_size) <span class="param-value" id="grid-size-value">1.899</span></label>
+                    <input type="range" id="grid-size" min="0.001" max="5" step="0.001" value="1.899">
+                </div>
+                <div class="param-item">
+                    <label>最大缓冲距离 <span class="param-value" id="buffer-value">0</span></label>
+                    <input type="range" id="buffer-distance" min="0" max="20" step="1" value="0">
+                </div>
+                <div class="param-item">
+                    <label>最小簇大小 <span class="param-value" id="min-cluster-value">5</span></label>
+                    <input type="range" id="min-cluster-size" min="1" max="50" step="1" value="5">
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="merge-small">
+                    <label for="merge-small">小簇合并到大簇（否则标记为噪声）</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="use-zero-points" checked>
+                    <label for="use-zero-points">使用零值点参与聚类计算</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="show-zero-points" checked onchange="toggleZeroPointsDisplay()">
+                    <label for="show-zero-points">在地图上显示零值点</label>
+                </div>
+                <button class="btn btn-primary" id="btn-cluster" onclick="performClustering()">🚀 开始聚类</button>
+            </div>
+            
+            <!-- 聚类结果 -->
+            <div class="section" id="results-section" style="display:none;">
+                <h3>📊 聚类结果</h3>
+                <div id="results-content"></div>
+            </div>
+            
+            <!-- 导出功能 -->
+            <div class="section">
+                <h3>📷 导出图片</h3>
+                <div class="param-item">
+                    <label>图片质量/缩放倍数</label>
+                    <select id="export-scale">
+                        <option value="1">1x (标准 ~96dpi)</option>
+                        <option value="2">2x (高清 ~192dpi)</option>
+                        <option value="3" selected>3x (超高清 ~288dpi)</option>
+                        <option value="4">4x (极高清 ~384dpi)</option>
+                    </select>
+                </div>
+                <div class="param-item">
+                    <label>图片格式</label>
+                    <select id="export-format">
+                        <option value="png" selected>PNG (无损)</option>
+                        <option value="jpeg">JPEG (较小)</option>
+                    </select>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="export-include-legend" checked>
+                    <label for="export-include-legend">包含图例</label>
+                </div>
+                <p style="font-size:11px;color:#666;margin:8px 0;">提示：先调整地图到想要的视野范围，再点击导出。3x约等于300dpi打印质量。</p>
+                <button class="btn btn-success" onclick="exportHighQualityImage()">📥 导出高清图片</button>
+                <div id="export-status" class="status" style="display:none;"></div>
+            </div>
+        </div>
+        <div id="map"></div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- html2canvas 用于高质量截图 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        // 全局变量
+        let map = null;
+        let dataPoints = [];
+        let zeroPoints = [];
+        let currentMarkers = [];
+        let currentPolygons = [];
+        let zeroMarkers = [];
+        let isDrawLineMode = false;
+        let currentDataset = '长沙市';
+        
+        // 画线相关变量
+        let currentLinePoints = [];
+        let currentLineLayer = null;
+        let currentLineMarkers = [];
+        let previewPointsLayer = null;
+        
+        // ========== 坐标转换：BD-09 -> WGS-84 ==========
+        const PI = Math.PI;
+        const X_PI = PI * 3000.0 / 180.0;
+        const A = 6378245.0;  // 长半轴
+        const EE = 0.00669342162296594323;  // 扁率
+        
+        // BD-09 转 GCJ-02
+        function bd09ToGcj02(bdLng, bdLat) {
+            const x = bdLng - 0.0065;
+            const y = bdLat - 0.006;
+            const z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * X_PI);
+            const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * X_PI);
+            const gcjLng = z * Math.cos(theta);
+            const gcjLat = z * Math.sin(theta);
+            return [gcjLng, gcjLat];
+        }
+        
+        // GCJ-02 转 WGS-84
+        function gcj02ToWgs84(gcjLng, gcjLat) {
+            if (outOfChina(gcjLng, gcjLat)) {
+                return [gcjLng, gcjLat];
+            }
+            let dLat = transformLat(gcjLng - 105.0, gcjLat - 35.0);
+            let dLng = transformLng(gcjLng - 105.0, gcjLat - 35.0);
+            const radLat = gcjLat / 180.0 * PI;
+            let magic = Math.sin(radLat);
+            magic = 1 - EE * magic * magic;
+            const sqrtMagic = Math.sqrt(magic);
+            dLat = (dLat * 180.0) / ((A * (1 - EE)) / (magic * sqrtMagic) * PI);
+            dLng = (dLng * 180.0) / (A / sqrtMagic * Math.cos(radLat) * PI);
+            const wgsLat = gcjLat - dLat;
+            const wgsLng = gcjLng - dLng;
+            return [wgsLng, wgsLat];
+        }
+        
+        function transformLat(lng, lat) {
+            let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(lat * PI) + 40.0 * Math.sin(lat / 3.0 * PI)) * 2.0 / 3.0;
+            ret += (160.0 * Math.sin(lat / 12.0 * PI) + 320 * Math.sin(lat * PI / 30.0)) * 2.0 / 3.0;
+            return ret;
+        }
+        
+        function transformLng(lng, lat) {
+            let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(lng * PI) + 40.0 * Math.sin(lng / 3.0 * PI)) * 2.0 / 3.0;
+            ret += (150.0 * Math.sin(lng / 12.0 * PI) + 300.0 * Math.sin(lng / 30.0 * PI)) * 2.0 / 3.0;
+            return ret;
+        }
+        
+        function outOfChina(lng, lat) {
+            return !(lng > 73.66 && lng < 135.05 && lat > 3.86 && lat < 53.55);
+        }
+        
+        // BD-09 直接转 WGS-84
+        function bd09ToWgs84(bdLng, bdLat) {
+            const gcj = bd09ToGcj02(bdLng, bdLat);
+            return gcj02ToWgs84(gcj[0], gcj[1]);
+        }
+        
+        // WGS-84 转 BD-09 (用于画线时保存原始坐标)
+        function wgs84ToBd09(wgsLng, wgsLat) {
+            const gcj = wgs84ToGcj02(wgsLng, wgsLat);
+            return gcj02ToBd09(gcj[0], gcj[1]);
+        }
+        
+        function wgs84ToGcj02(wgsLng, wgsLat) {
+            if (outOfChina(wgsLng, wgsLat)) {
+                return [wgsLng, wgsLat];
+            }
+            let dLat = transformLat(wgsLng - 105.0, wgsLat - 35.0);
+            let dLng = transformLng(wgsLng - 105.0, wgsLat - 35.0);
+            const radLat = wgsLat / 180.0 * PI;
+            let magic = Math.sin(radLat);
+            magic = 1 - EE * magic * magic;
+            const sqrtMagic = Math.sqrt(magic);
+            dLat = (dLat * 180.0) / ((A * (1 - EE)) / (magic * sqrtMagic) * PI);
+            dLng = (dLng * 180.0) / (A / sqrtMagic * Math.cos(radLat) * PI);
+            return [wgsLng + dLng, wgsLat + dLat];
+        }
+        
+        function gcj02ToBd09(gcjLng, gcjLat) {
+            const z = Math.sqrt(gcjLng * gcjLng + gcjLat * gcjLat) + 0.00002 * Math.sin(gcjLat * X_PI);
+            const theta = Math.atan2(gcjLat, gcjLng) + 0.000003 * Math.cos(gcjLng * X_PI);
+            const bdLng = z * Math.cos(theta) + 0.0065;
+            const bdLat = z * Math.sin(theta) + 0.006;
+            return [bdLng, bdLat];
+        }
+        // ========== 坐标转换结束 ==========
+        
+        // 初始化地图
+        function initMap() {
+            map = L.map('map', {
+                preferCanvas: true  // 使用Canvas渲染，更适合截图
+            }).setView([28.2, 112.97], 11);
+            
+            // 添加OpenStreetMap瓦片层
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 18
+            }).addTo(map);
+            
+            // 地图点击事件
+            map.on('click', function(e) {
+                if (isDrawLineMode) {
+                    addLinePoint(e.latlng.lng, e.latlng.lat);
+                }
+            });
+            
+            // 双击完成画线
+            map.on('dblclick', function(e) {
+                if (isDrawLineMode && currentLinePoints.length >= 2) {
+                    finishCurrentLine();
+                    L.DomEvent.stopPropagation(e);
+                }
+            });
+            
+            console.log('Leaflet地图初始化完成');
+        }
+        
+        // 加载数据集列表
+        async function loadDatasets() {
+            try {
+                const response = await fetch('http://localhost:5001/api/datasets');
+                const data = await response.json();
+                if (data.success) {
+                    const select = document.getElementById('dataset-select');
+                    select.innerHTML = '';
+                    data.datasets.forEach(ds => {
+                        const option = document.createElement('option');
+                        option.value = ds;
+                        option.textContent = ds;
+                        if (ds === '长沙市') option.selected = true;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('加载数据集列表失败:', e);
+            }
+        }
+        
+        // 加载数据
+        async function loadData() {
+            const dataset = document.getElementById('dataset-select').value;
+            const statusDiv = document.getElementById('data-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = '加载中...';
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/load_data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dataset: dataset })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    dataPoints = data.points;
+                    zeroPoints = data.zero_points || [];
+                    currentDataset = dataset;
+                    
+                    statusDiv.textContent = '✓ 已加载 ' + data.count + ' 个数据点, ' + data.zero_count + ' 个零值点';
+                    
+                    displayDataPoints();
+                    displayZeroPoints();
+                    updateZeroPointsList();
+                    
+                    // 调整地图视野 (转换后的WGS-84坐标)
+                    if (dataPoints.length > 0) {
+                        const wgsPoints = dataPoints.map(p => {
+                            const wgs = bd09ToWgs84(p[0], p[1]);
+                            return [wgs[1], wgs[0]];
+                        });
+                        const bounds = L.latLngBounds(wgsPoints);
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    }
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '加载失败: ' + data.error;
+                }
+            } catch (e) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '加载失败: ' + e.message;
+            }
+        }
+
+        // 显示数据点 (BD-09坐标转WGS-84后显示)
+        function displayDataPoints(labels = null) {
+            // 清除现有标记
+            currentMarkers.forEach(m => map.removeLayer(m));
+            currentMarkers = [];
+            currentPolygons.forEach(p => map.removeLayer(p));
+            currentPolygons = [];
+            
+            let clusterColors = {};
+            if (labels) {
+                const uniqueLabels = [...new Set(labels)].filter(l => l !== -1);
+                uniqueLabels.forEach((label, index) => {
+                    const hue = (index * 360 / uniqueLabels.length) % 360;
+                    clusterColors[label] = 'hsl(' + hue + ', 70%, 50%)';
+                });
+                clusterColors[-1] = '#888888';
+            }
+            
+            dataPoints.forEach((point, index) => {
+                const label = labels ? labels[index] : 0;
+                const color = labels ? (clusterColors[label] || '#888888') : '#000000';  // 未聚类时黑色
+                
+                // BD-09 转 WGS-84
+                const wgs = bd09ToWgs84(point[0], point[1]);
+                
+                const marker = L.circleMarker([wgs[1], wgs[0]], {
+                    radius: 2,
+                    fillColor: color,
+                    color: 'white',
+                    weight: 0.5,
+                    opacity: 0.8,
+                    fillOpacity: 0.9
+                }).addTo(map);
+                
+                const clusterLabel = labels ? (label === -1 ? '噪声点' : '簇 ' + label) : '未聚类';
+                marker.bindPopup('<b>数据点 #' + index + '</b><br>BD-09: (' + point[0].toFixed(6) + ', ' + point[1].toFixed(6) + ')<br>聚类: ' + clusterLabel);
+                
+                currentMarkers.push(marker);
+            });
+            
+            if (labels) updateLegend(clusterColors, labels);
+        }
+
+        // 显示零值点 (BD-09坐标转WGS-84后显示)
+        function displayZeroPoints() {
+            zeroMarkers.forEach(m => map.removeLayer(m));
+            zeroMarkers = [];
+            
+            zeroPoints.forEach((point, index) => {
+                // BD-09 转 WGS-84
+                const wgs = bd09ToWgs84(point[0], point[1]);
+                
+                const marker = L.circleMarker([wgs[1], wgs[0]], {
+                    radius: 2,
+                    fillColor: '#FFFF00',      // 深黄色 (Goldenrod)
+                    color: '#FFFF00',          // 更深的边框
+                    weight: 0.5,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }).addTo(map);
+                
+                marker.bindPopup('<b>零值点 #' + index + '</b><br>BD-09: (' + point[0].toFixed(6) + ', ' + point[1].toFixed(6) + ')<br><button onclick="removeZeroPointByIndex(' + index + ')">删除</button>');
+                
+                zeroMarkers.push(marker);
+            });
+            
+            document.getElementById('zero-count').textContent = zeroPoints.length;
+        }
+        
+        // 更新零值点列表
+        function updateZeroPointsList() {
+            const listDiv = document.getElementById('zero-points-list');
+            if (zeroPoints.length === 0) {
+                listDiv.innerHTML = '<div style="color:#999;text-align:center;padding:10px;">暂无零值点</div>';
+                return;
+            }
+            
+            let html = '';
+            zeroPoints.forEach((p, i) => {
+                html += '<div class="zero-point-item"><span>#' + i + ': (' + p[0].toFixed(4) + ', ' + p[1].toFixed(4) + ')</span><button onclick="removeZeroPointByIndex(' + i + ')">×</button></div>';
+            });
+            listDiv.innerHTML = html;
+        }
+        
+        // 切换画线模式
+        function toggleDrawLineMode() {
+            isDrawLineMode = !isDrawLineMode;
+            const indicator = document.getElementById('mode-indicator');
+            const btn = document.getElementById('btn-toggle-mode');
+            const lineInfo = document.getElementById('line-info');
+            const mapContainer = document.getElementById('map');
+            
+            if (isDrawLineMode) {
+                indicator.className = 'mode-indicator mode-draw-line';
+                indicator.textContent = '🖊️ 画线模式 - 点击添加顶点，双击完成';
+                btn.textContent = '切换到普通模式';
+                btn.className = 'btn btn-primary';
+                lineInfo.style.display = 'block';
+                mapContainer.classList.add('draw-mode');
+                map.doubleClickZoom.disable();
+            } else {
+                indicator.className = 'mode-indicator mode-normal';
+                indicator.textContent = '普通模式 - 点击查看信息';
+                btn.textContent = '切换到画线模式';
+                btn.className = 'btn btn-warning';
+                lineInfo.style.display = 'none';
+                mapContainer.classList.remove('draw-mode');
+                map.doubleClickZoom.enable();
+                cancelCurrentLine();
+            }
+        }
+
+        // 添加线的顶点 (地图点击返回WGS-84，转换为BD-09保存)
+        function addLinePoint(lng, lat) {
+            // WGS-84 转 BD-09 保存
+            const bd = wgs84ToBd09(lng, lat);
+            currentLinePoints.push(bd);
+            
+            // 显示用WGS-84坐标
+            const marker = L.circleMarker([lat, lng], {
+                radius: 8,
+                fillColor: '#FF6347',
+                color: '#FF4500',
+                weight: 3,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map);
+            currentLineMarkers.push(marker);
+            
+            // 更新线
+            updateCurrentLine();
+            updatePreviewPoints();
+            
+            // 更新按钮状态
+            document.getElementById('btn-finish-line').disabled = currentLinePoints.length < 2;
+            document.getElementById('btn-cancel-line').disabled = currentLinePoints.length === 0;
+            document.getElementById('current-line-points').textContent = currentLinePoints.length;
+        }
+        
+        // 更新当前线的显示 (BD-09转WGS-84显示)
+        function updateCurrentLine() {
+            if (currentLineLayer) {
+                map.removeLayer(currentLineLayer);
+            }
+            
+            if (currentLinePoints.length >= 2) {
+                const latlngs = currentLinePoints.map(p => {
+                    const wgs = bd09ToWgs84(p[0], p[1]);
+                    return [wgs[1], wgs[0]];
+                });
+                currentLineLayer = L.polyline(latlngs, {
+                    color: '#FF4500',
+                    weight: 3,
+                    opacity: 0.8,
+                    dashArray: '10, 5'
+                }).addTo(map);
+            }
+        }
+        
+        // 计算两点之间的距离（米）- 使用WGS-84坐标计算
+        function calculateDistance(p1, p2) {
+            // p1, p2 是BD-09坐标，转换为WGS-84计算距离
+            const wgs1 = bd09ToWgs84(p1[0], p1[1]);
+            const wgs2 = bd09ToWgs84(p2[0], p2[1]);
+            const latlng1 = L.latLng(wgs1[1], wgs1[0]);
+            const latlng2 = L.latLng(wgs2[1], wgs2[0]);
+            return latlng1.distanceTo(latlng2);
+        }
+        
+        // 在线段上生成等间距的点
+        function generatePointsOnLine(linePoints, spacing) {
+            if (linePoints.length < 2) return [];
+            
+            const generatedPoints = [];
+            
+            for (let i = 0; i < linePoints.length - 1; i++) {
+                const p1 = linePoints[i];
+                const p2 = linePoints[i + 1];
+                const segmentDistance = calculateDistance(p1, p2);
+                
+                if (segmentDistance <= 0) continue;
+                
+                const numPoints = Math.floor(segmentDistance / spacing);
+                
+                for (let j = 0; j <= numPoints; j++) {
+                    const t = j / Math.max(numPoints, 1);
+                    const lng = p1[0] + (p2[0] - p1[0]) * t;
+                    const lat = p1[1] + (p2[1] - p1[1]) * t;
+                    
+                    if (j === 0 && i > 0) continue;
+                    
+                    generatedPoints.push([lng, lat]);
+                }
+            }
+            
+            const lastPoint = linePoints[linePoints.length - 1];
+            const lastGenerated = generatedPoints[generatedPoints.length - 1];
+            if (!lastGenerated || 
+                Math.abs(lastGenerated[0] - lastPoint[0]) > 0.0001 || 
+                Math.abs(lastGenerated[1] - lastPoint[1]) > 0.0001) {
+                generatedPoints.push(lastPoint);
+            }
+            
+            return generatedPoints;
+        }
+        
+        // 更新预览点 (BD-09转WGS-84显示)
+        function updatePreviewPoints() {
+            if (previewPointsLayer) {
+                map.removeLayer(previewPointsLayer);
+            }
+            
+            if (currentLinePoints.length < 2) {
+                document.getElementById('estimated-points').textContent = '0';
+                return;
+            }
+            
+            const spacing = parseInt(document.getElementById('point-spacing').value);
+            const points = generatePointsOnLine(currentLinePoints, spacing);
+            
+            const previewMarkers = points.map(p => {
+                // BD-09 转 WGS-84 显示
+                const wgs = bd09ToWgs84(p[0], p[1]);
+                return L.circleMarker([wgs[1], wgs[0]], {
+                    radius: 2,
+                    fillColor: '#DAA520',
+                    color: '#DAA520',
+                    weight: 1,
+                    opacity: 0.5,
+                    fillOpacity: 0.3
+                });
+            });
+            
+            previewPointsLayer = L.layerGroup(previewMarkers).addTo(map);
+            document.getElementById('estimated-points').textContent = points.length;
+        }
+
+        // 完成当前线，生成零值点
+        async function finishCurrentLine() {
+            if (currentLinePoints.length < 2) return;
+            
+            const spacing = parseInt(document.getElementById('point-spacing').value);
+            const newPoints = generatePointsOnLine(currentLinePoints, spacing);
+            
+            if (newPoints.length === 0) {
+                alert('没有生成任何零值点');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/add_zero_points_batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        points: newPoints,
+                        auto_save: true
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    zeroPoints = data.zero_points;
+                    displayZeroPoints();
+                    updateZeroPointsList();
+                    console.log('已批量添加 ' + data.added_count + ' 个零值点');
+                } else {
+                    alert('批量添加零值点失败: ' + data.error);
+                }
+            } catch (e) {
+                console.error('批量添加零值点失败:', e);
+                alert('批量添加零值点失败: ' + e.message);
+            }
+            
+            clearCurrentLineOverlays();
+        }
+        
+        // 取消当前线
+        function cancelCurrentLine() {
+            clearCurrentLineOverlays();
+        }
+        
+        // 清除当前线的所有覆盖物
+        function clearCurrentLineOverlays() {
+            if (currentLineLayer) {
+                map.removeLayer(currentLineLayer);
+                currentLineLayer = null;
+            }
+            
+            currentLineMarkers.forEach(m => map.removeLayer(m));
+            currentLineMarkers = [];
+            
+            if (previewPointsLayer) {
+                map.removeLayer(previewPointsLayer);
+                previewPointsLayer = null;
+            }
+            
+            currentLinePoints = [];
+            
+            document.getElementById('current-line-points').textContent = '0';
+            document.getElementById('estimated-points').textContent = '0';
+            document.getElementById('btn-finish-line').disabled = true;
+            document.getElementById('btn-cancel-line').disabled = true;
+        }
+
+        // 通过索引删除零值点
+        async function removeZeroPointByIndex(index) {
+            try {
+                const response = await fetch('http://localhost:5001/api/remove_zero_point', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index: index })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    zeroPoints = data.zero_points;
+                    displayZeroPoints();
+                    updateZeroPointsList();
+                    map.closePopup();
+                }
+            } catch (e) {
+                console.error('删除零值点失败:', e);
+            }
+        }
+        
+        // 清空零值点
+        async function clearZeroPoints() {
+            if (!confirm('确定要清空所有零值点吗？')) return;
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/clear_zero_points', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    zeroPoints = [];
+                    displayZeroPoints();
+                    updateZeroPointsList();
+                }
+            } catch (e) {
+                console.error('清空零值点失败:', e);
+            }
+        }
+        
+        // 保存零值点
+        async function saveZeroPoints() {
+            try {
+                const response = await fetch('http://localhost:5001/api/save_zero_points', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✓ 零值点已保存到: ' + data.file);
+                } else {
+                    alert('保存失败: ' + data.error);
+                }
+            } catch (e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+        
+        // 执行聚类
+        async function performClustering() {
+            if (dataPoints.length === 0) {
+                alert('请先加载数据');
+                return;
+            }
+            
+            const btn = document.getElementById('btn-cluster');
+            btn.disabled = true;
+            btn.textContent = '聚类中...';
+            
+            const useZeroPoints = document.getElementById('use-zero-points').checked;
+            
+            const params = {
+                grid_size: parseFloat(document.getElementById('grid-size').value),
+                max_buffer_distance: parseInt(document.getElementById('buffer-distance').value),
+                min_cluster_size: parseInt(document.getElementById('min-cluster-size').value),
+                merge_small_clusters: document.getElementById('merge-small').checked,
+                use_zero_points: useZeroPoints
+            };
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/cluster', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.lastClusteringLabels = data.labels;
+                    window.lastContourPolygons = data.contour_polygons;
+                    
+                    displayDataPoints(data.labels);
+                    displayContourPolygons(data.contour_polygons, data.labels);
+                    if (document.getElementById('show-zero-points').checked) {
+                        displayZeroPoints();
+                    }
+                    displayResults(data);
+                } else {
+                    alert('聚类失败: ' + data.error);
+                }
+            } catch (e) {
+                alert('聚类失败: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 开始聚类';
+            }
+        }
+        
+        // 显示等值线多边形 (BD-09转WGS-84显示)
+        function displayContourPolygons(polygons, labels) {
+            if (!polygons || polygons.length === 0) return;
+            
+            const uniqueLabels = [...new Set(labels)].filter(l => l !== -1);
+            const clusterColors = {};
+            uniqueLabels.forEach((label, index) => {
+                const hue = (index * 360 / uniqueLabels.length) % 360;
+                clusterColors[label] = {
+                    fill: 'hsl(' + hue + ', 70%, 50%)',
+                    stroke: 'hsl(' + hue + ', 80%, 30%)'  // 深色边框
+                };
+            });
+            
+            polygons.forEach(contourData => {
+                const clusterId = contourData.cluster_id;
+                const polygon = contourData.polygon;
+                const colors = clusterColors[clusterId] || { fill: '#888888', stroke: '#444444' };
+                
+                // BD-09 转 WGS-84，Leaflet使用 [lat, lng] 格式
+                const latlngs = polygon.map(coord => {
+                    const wgs = bd09ToWgs84(coord[0], coord[1]);
+                    return [wgs[1], wgs[0]];
+                });
+                
+                const leafletPolygon = L.polygon(latlngs, {
+                    color: colors.stroke,      // 深色边框
+                    weight: 3,                 // 加粗边框
+                    opacity: 1,
+                    fill: false                // 不填充，只显示边界
+                }).addTo(map);
+                
+                leafletPolygon.bindPopup('<b>簇 ' + clusterId + '</b><br>点数: ' + contourData.point_count);
+                
+                currentPolygons.push(leafletPolygon);
+            });
+        }
+        
+        // 显示结果
+        function displayResults(data) {
+            const section = document.getElementById('results-section');
+            section.style.display = 'block';
+            
+            let html = '<div class="metric-item"><span>簇数</span><span class="metric-value">' + data.n_clusters + '</span></div>';
+            html += '<div class="metric-item"><span>噪声点</span><span class="metric-value">' + data.n_noise + '</span></div>';
+            html += '<div class="metric-item"><span>数据点</span><span class="metric-value">' + data.n_points + '</span></div>';
+            html += '<div class="metric-item"><span>零值点</span><span class="metric-value">' + data.n_zero_points + '</span></div>';
+            
+            if (data.metrics && data.metrics.silhouette_score !== undefined) {
+                const sil = data.metrics.silhouette_score;
+                const silClass = sil > 0.5 ? 'good' : '';
+                html += '<div class="metric-item"><span>轮廓系数</span><span class="metric-value ' + silClass + '">' + sil.toFixed(4) + '</span></div>';
+                html += '<div class="metric-item"><span>CH指数</span><span class="metric-value">' + data.metrics.calinski_harabasz_score.toFixed(2) + '</span></div>';
+                html += '<div class="metric-item"><span>DB指数</span><span class="metric-value">' + data.metrics.davies_bouldin_score.toFixed(4) + '</span></div>';
+            }
+            
+            document.getElementById('results-content').innerHTML = html;
+        }
+        
+        // 更新图例
+        function updateLegend(clusterColors, labels) {
+            const oldLegend = document.querySelector('.legend');
+            if (oldLegend) oldLegend.remove();
+            
+            const clusterCounts = {};
+            labels.forEach(label => {
+                if (label !== -1) clusterCounts[label] = (clusterCounts[label] || 0) + 1;
+            });
+            const noiseCount = labels.filter(l => l === -1).length;
+            
+            const legend = document.createElement('div');
+            legend.className = 'legend';
+            legend.innerHTML = '<h4>图例</h4>';
+            
+            Object.keys(clusterCounts).sort((a, b) => a - b).forEach(label => {
+                legend.innerHTML += '<div class="legend-item"><span class="legend-color" style="background:' + clusterColors[label] + ';"></span>簇 ' + label + ' (' + clusterCounts[label] + ')</div>';
+            });
+            
+            if (noiseCount > 0) {
+                legend.innerHTML += '<div class="legend-item"><span class="legend-color" style="background:#888;"></span>噪声 (' + noiseCount + ')</div>';
+            }
+            
+            legend.innerHTML += '<div class="legend-item"><span class="legend-color" style="background:#DAA520;border:2px solid #8B6914;"></span>零值点 (' + zeroPoints.length + ')</div>';
+            
+            document.getElementById('map').appendChild(legend);
+        }
+        
+        // 切换零值点显示
+        function toggleZeroPointsDisplay() {
+            const show = document.getElementById('show-zero-points').checked;
+            if (show) {
+                displayZeroPoints();
+            } else {
+                zeroMarkers.forEach(m => map.removeLayer(m));
+                zeroMarkers = [];
+            }
+        }
+        
+        // 获取所有数据点的边界
+        function getAllPointsBounds() {
+            let allPoints = [...dataPoints];
+            
+            if (document.getElementById('show-zero-points').checked) {
+                allPoints = allPoints.concat(zeroPoints);
+            }
+            
+            if (allPoints.length === 0) return null;
+            
+            return L.latLngBounds(allPoints.map(p => [p[1], p[0]]));
+        }
+        
+        // 高质量截图导出 (使用 html2canvas) - 当前视野范围
+        async function exportHighQualityImage() {
+            const statusDiv = document.getElementById('export-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = '正在生成高清图片...';
+            
+            try {
+                const scale = parseInt(document.getElementById('export-scale').value);
+                const format = document.getElementById('export-format').value;
+                const includeLegend = document.getElementById('export-include-legend').checked;
+                
+                // 隐藏侧边栏
+                const sidebar = document.getElementById('sidebar');
+                sidebar.style.display = 'none';
+                
+                // 处理图例
+                const legend = document.querySelector('.legend');
+                if (legend && !includeLegend) {
+                    legend.style.display = 'none';
+                }
+                
+                // 等待DOM更新
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // 使用html2canvas截图
+                const mapContainer = document.getElementById('map');
+                const canvas = await html2canvas(mapContainer, {
+                    scale: scale,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    imageTimeout: 15000
+                });
+                
+                // 恢复界面
+                sidebar.style.display = '';
+                if (legend && !includeLegend) {
+                    legend.style.display = '';
+                }
+                
+                // 生成下载
+                const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+                const quality = format === 'jpeg' ? 0.95 : 1.0;
+                const dataUrl = canvas.toDataURL(mimeType, quality);
+                
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+                link.download = 'clustering_leaflet_' + currentDataset + '_' + scale + 'x_' + timestamp + '.' + format;
+                link.href = dataUrl;
+                link.click();
+                
+                statusDiv.textContent = '✓ 已导出 ' + canvas.width + 'x' + canvas.height + ' 像素 (' + scale + 'x)';
+                
+            } catch (e) {
+                console.error('截图失败:', e);
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '截图失败: ' + e.message;
+                document.getElementById('sidebar').style.display = '';
+            }
+        }
+        
+        // 参数滑块事件
+        document.getElementById('grid-size').addEventListener('input', function(e) {
+            document.getElementById('grid-size-value').textContent = e.target.value;
+        });
+        document.getElementById('buffer-distance').addEventListener('input', function(e) {
+            document.getElementById('buffer-value').textContent = e.target.value;
+        });
+        document.getElementById('min-cluster-size').addEventListener('input', function(e) {
+            document.getElementById('min-cluster-value').textContent = e.target.value;
+        });
+        document.getElementById('point-spacing').addEventListener('input', function(e) {
+            document.getElementById('point-spacing-value').textContent = e.target.value;
+            updatePreviewPoints();
+        });
+        
+        // 页面加载
+        window.onload = function() {
+            initMap();
+            loadDatasets();
+        };
+    </script>
+</body>
+</html>

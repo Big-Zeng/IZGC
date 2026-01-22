@@ -5,17 +5,17 @@ ContourBasedClustering 稳定性分析摘要
 样本数: 373
 真实簇数: 2
 
-grid_size 扫描范围: 0.500 -> 5.000, 步长=0.100
+grid_size 扫描范围: 0.500 -> 5.000, 步长=0.001
 固定参数: {'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': 30, 'merge_small_clusters': True}
 
-有效评估次数: 34/46
+有效评估次数: 3009/4501
 
 ARI 统计:
-  最大值: 0.9913 (grid_size=3.300)
-  最小值: 0.0016 (grid_size=0.500)
-  平均值: 0.5906
-  标准差: 0.3910
-  中位数: 0.8587
+  最大值: 1.0000 (grid_size=2.826)
+  最小值: -0.0128 (grid_size=0.506)
+  平均值: 0.6165
+  标准差: 0.3638
+  中位数: 0.8512
 
-ARI > 0.9 的 grid_size 范围: 2.500 ~ 3.500 (10 个值)
-ARI > 0.8 的 grid_size 范围: 1.600 ~ 3.500 (19 个值)
+ARI > 0.9 的 grid_size 范围: 1.827 ~ 3.906 (1102 个值)
+ARI > 0.8 的 grid_size 范围: 1.388 ~ 3.906 (1700 个值)

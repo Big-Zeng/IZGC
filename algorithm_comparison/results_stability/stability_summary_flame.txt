@@ -1,0 +1,21 @@
+ContourBasedClustering 稳定性分析摘要
+============================================================
+
+数据集: flame
+样本数: 240
+真实簇数: 2
+
+grid_size 扫描范围: 0.500 -> 5.000, 步长=0.001
+固定参数: {'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': 30, 'merge_small_clusters': True}
+
+有效评估次数: 2181/4501
+
+ARI 统计:
+  最大值: 1.0000 (grid_size=2.796)
+  最小值: -0.0464 (grid_size=2.735)
+  平均值: 0.2929
+  标准差: 0.3166
+  中位数: 0.2633
+
+ARI > 0.9 的 grid_size 范围: 2.182 ~ 3.327 (218 个值)
+ARI > 0.8 的 grid_size 范围: 2.146 ~ 3.327 (244 个值)

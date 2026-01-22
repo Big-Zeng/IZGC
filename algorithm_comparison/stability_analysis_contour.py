@@ -38,7 +38,7 @@ from clustering_metrics import ClusteringMetrics
 
 # ==================== 配置 ====================
 # 数据集路径（需要有真实标签）
-DATASET = "../data/Jain.csv"
+DATASET = "../data/flame.csv"
 OUTPUT_DIR = "results_stability"
 NORMALIZE = True
 

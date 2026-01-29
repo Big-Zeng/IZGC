@@ -22,17 +22,17 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_clique2 import run_clique2
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/常德市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Silhouette' 或 'CH'
+# 优化目标: 'Composite' 或 'CH'
 OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'intervals': (4, 100, 1),  # 网格划分数：从4到100，步长1
-    'density_threshold': (1, 50, 1)  # 密度阈值：从1到50，步长1
+       'intervals': (4, 100, 1),  # 网格划分数：从4到100，步长1
+       'density_threshold': (1, 50, 1)  # 密度阈值：从1到50，步长1
 }
 # ==============================================
 

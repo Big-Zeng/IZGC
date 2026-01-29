@@ -22,11 +22,11 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_kmeans import run_kmeans
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/常德市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Silhouette' 或 'CH'
+# 优化目标: 'Composite' 或 'CH'
 OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)

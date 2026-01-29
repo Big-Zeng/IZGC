@@ -36,7 +36,7 @@ except:
 
 # ==================== 配置 ====================
 # 数据集路径（真实数据，无标签）
-DATASET = "../data/real_data/湘潭市_real.csv"
+DATASET = "../data/real_data/衡阳市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
@@ -79,7 +79,7 @@ BANG_RANGES = {
 }
 
 DPC_RANGES = {
-    'k': (1, 50, 1)  # 从1到50，步长1
+    'k': (2, 50, 1)  # 从1到50，步长1
 }
 
 RUN_MATLAB = False

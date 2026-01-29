@@ -167,13 +167,13 @@ class ContourBasedClusteringWithoutZ:
             ax.axhline(y, color='gray', linestyle='--', linewidth=0.5)
 
         # 绘制实际点
-        ax.scatter(x_coords, y_coords, c='red', s=50, label="实际点", zorder=3)
+        ax.scatter(x_coords, y_coords, c='red', s=20, label="实际点", zorder=3)
         ax.set_aspect('equal')
         # 绘制自动生成的虚拟点
         if virtual_points:
             auto_vx = [p[0] for p in virtual_points]
             auto_vy = [p[1] for p in virtual_points]
-            ax.scatter(auto_vx, auto_vy, c='blue', s=30, marker='x', label="自动虚拟点", zorder=2)
+            ax.scatter(auto_vx, auto_vy, c='blue', s=10, marker='x', label="自动虚拟点", zorder=2)
 
         # 设置标题和说明
         ax.set_title(
@@ -200,9 +200,9 @@ class ContourBasedClusteringWithoutZ:
                 self.manual_points.append(new_point)
 
                 # 实时绘制新点
-                ax.scatter(new_x, new_y, c='green', s=60, marker='+',
+                ax.scatter(new_x, new_y, c='green', s=30, marker='+',
                            label="_nolegend_", zorder=4)
-                ax.text(new_x, new_y, " 0", fontsize=8, color='green')
+                ax.text(new_x, new_y, " 0", fontsize=6, color='green')
 
                 # 刷新画布
                 fig.canvas.draw()
@@ -262,7 +262,7 @@ class ContourBasedClusteringWithoutZ:
             ax.axhline(y, color='gray', linestyle='--', linewidth=0.5)
 
         # 绘制实际点
-        ax.scatter(x_coords, y_coords, c='red', s=50, label="Actual Points")
+        ax.scatter(x_coords, y_coords, c='red', s=15, label="Actual Points")
         ax.set_title(f"网格显示 (总数: {grid_count})")
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
@@ -314,38 +314,43 @@ class ContourBasedClusteringWithoutZ:
         zi = np.nan_to_num(zi, nan=0)
 
         # 生成等值线
-        fig, ax = plt.subplots()
+        # 增加图片尺寸，设置 dpi 以清晰显示
+        fig, ax = plt.subplots(figsize=(12, 10))
+        ax.set_aspect('equal')  # 保持横纵比例一致
         contour_set = ax.contour(X, Y, zi, levels=10, colors='black')
 
         # 展示等值线图
-        ax.set_title('Contour Map with Actual and Virtual Points')
+        # ax.set_title('Contour Map with Actual and Virtual Points')
 
         # 绘制实际点
         x_coords = [p[0] for p in self.actual_points]
         y_coords = [p[1] for p in self.actual_points]
-        ax.scatter(x_coords, y_coords, c='red', s=50, label="Actual Points", zorder=3)
+        ax.scatter(x_coords, y_coords, c='red', s=15, zorder=4)
 
         # 绘制虚拟点
-        if self.virtual_points:
-            # 区分自动虚拟点和交互式手动点
-            auto_points = [p for p in self.virtual_points if p[3] == -1]
-            manual_points = [p for p in self.virtual_points if p[3] == -2]
+        # if self.virtual_points:
+        #     # 区分自动虚拟点和交互式手动点
+        #     auto_points = [p for p in self.virtual_points if p[3] == -1]
+        #     manual_points = [p for p in self.virtual_points if p[3] == -2]
+        #
+        #     if auto_points:
+        #         auto_vx = [p[0] for p in auto_points]
+        #         auto_vy = [p[1] for p in auto_points]
+        #         ax.scatter(auto_vx, auto_vy, c='blue', s=30, marker='x',
+        #                    label="Auto Virtual Points", zorder=2)
+        #
+        #     if manual_points:
+        #         manual_vx = [p[0] for p in manual_points]
+        #         manual_vy = [p[1] for p in manual_points]
+        #         ax.scatter(manual_vx, manual_vy, c='green', s=50, marker='+',
+        #                    label="Manual Virtual Points", zorder=2)
 
-            if auto_points:
-                auto_vx = [p[0] for p in auto_points]
-                auto_vy = [p[1] for p in auto_points]
-                ax.scatter(auto_vx, auto_vy, c='blue', s=30, marker='x',
-                           label="Auto Virtual Points", zorder=2)
+        # ax.legend()
+        plt.xlabel('X Coordinates')
+        plt.ylabel('Y Coordinates')
+        # 保存图片
+        plt.savefig('contour_areas.png', dpi=300)
 
-            if manual_points:
-                manual_vx = [p[0] for p in manual_points]
-                manual_vy = [p[1] for p in manual_points]
-                ax.scatter(manual_vx, manual_vy, c='green', s=50, marker='+',
-                           label="Manual Virtual Points", zorder=2)
-
-        ax.legend()
-        plt.xlabel('X')
-        plt.ylabel('Y')
         if self.interactive:
             plt.show()
         else:
@@ -644,7 +649,8 @@ class ContourBasedClusteringWithoutZ:
         if not self.density_centers:
             return
 
-        fig, ax = plt.subplots(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=(12, 10))
+        ax.set_aspect('equal')  # 保持横纵比例一致
         colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'magenta',
                   'brown', 'pink', 'gray', 'olive', 'navy']
 
@@ -676,7 +682,7 @@ class ContourBasedClusteringWithoutZ:
             # 绘制属于该中心的实际点
             for point, centers in self.point_to_density_center.items():
                 if center in centers:
-                    ax.plot(point[0], point[1], 'o', color=color, markersize=6)
+                    ax.plot(point[0], point[1], 'o', color=color, markersize=3)
 
             # 标注簇的点数
             ax.text(center.center[0], center.center[1], f'n={point_count}',
@@ -688,7 +694,7 @@ class ContourBasedClusteringWithoutZ:
         unassigned_count = 0
         for point in self.actual_points:
             if point not in all_assigned:
-                ax.plot(point[0], point[1], 'ko', markersize=6)
+                ax.plot(point[0], point[1], 'ko', markersize=3)
                 unassigned_count += 1
 
         # 设置图形属性
@@ -703,6 +709,9 @@ class ContourBasedClusteringWithoutZ:
         ax.set_ylabel('Y Coordinate')
         ax.grid(True, linestyle='--', alpha=0.7)
         plt.tight_layout()
+        # 保存图片
+        plt.savefig('cluster_result.png', dpi=300)
+
         if self.interactive:
             plt.show()
         else:

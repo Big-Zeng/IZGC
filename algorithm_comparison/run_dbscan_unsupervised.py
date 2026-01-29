@@ -22,7 +22,7 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_dbscan import run_dbscan
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/常德市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
@@ -31,8 +31,8 @@ OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'eps': (1.0, 50, 1.0),
-    'min_samples': (2, 50, 1)
+    'eps': (1.0, 50, 1.0),  # 邻域半径：从1.0到50.0，步长1.0
+    'min_samples': (2, 50, 1)  # 最小样本数：从2到50，步长1
 }
 # ==============================================
 

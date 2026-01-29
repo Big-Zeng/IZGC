@@ -31,10 +31,11 @@ OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (4.778, 4.778, 0.001),
+    'grid_size': (1,2, 0.001),
     'max_buffer_distance': (0, 0, 1),
     'min_cluster_size': (5, 5, 1),
-    'density_radius': (30, 30, 0.001)
+    'density_radius': (30, 30, 0.001),
+
 }
 # ==============================================
 

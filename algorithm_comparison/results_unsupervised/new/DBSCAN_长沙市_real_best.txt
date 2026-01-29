@@ -1,0 +1,10 @@
+算法: DBSCAN
+数据集: 长沙市_real
+最佳参数: {'eps': np.float64(7.0), 'min_samples': 44}
+
+评估指标（无监督）:
+  Composite: 0.5616
+  CH: 640.10
+  DBI: 0.3552
+  簇数: 2
+  噪声点: 61

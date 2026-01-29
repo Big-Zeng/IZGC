@@ -1,0 +1,10 @@
+算法: BANG
+数据集: 益阳市_real
+最佳参数: {'levels': 7, 'density_threshold': np.float64(0.01)}
+
+评估指标（无监督）:
+  Composite: 0.8562
+  CH: 4671.87
+  DBI: 0.1512
+  簇数: 3
+  噪声点: 14

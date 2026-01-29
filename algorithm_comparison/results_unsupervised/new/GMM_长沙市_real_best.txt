@@ -1,0 +1,10 @@
+算法: GMM
+数据集: 长沙市_real
+最佳参数: {'n_components': 2, 'n_init': 10, 'covariance_type': 'spherical'}
+
+评估指标（无监督）:
+  Composite: 0.4583
+  CH: 2523.46
+  DBI: 0.8430
+  簇数: 2
+  噪声点: 0

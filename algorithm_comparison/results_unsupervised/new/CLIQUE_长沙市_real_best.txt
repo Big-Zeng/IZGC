@@ -1,0 +1,10 @@
+算法: CLIQUE
+数据集: 长沙市_real
+最佳参数: {'intervals': 17, 'density_threshold': 3}
+
+评估指标（无监督）:
+  Composite: 0.5604
+  CH: 679.15
+  DBI: 0.3766
+  簇数: 2
+  噪声点: 51

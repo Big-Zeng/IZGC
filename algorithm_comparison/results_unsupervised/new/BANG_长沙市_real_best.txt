@@ -1,0 +1,10 @@
+算法: BANG
+数据集: 长沙市_real
+最佳参数: {'levels': 19, 'density_threshold': np.float64(0.01)}
+
+评估指标（无监督）:
+  Composite: 0.4759
+  CH: 22713.66
+  DBI: 0.2215
+  簇数: 1207
+  噪声点: 17

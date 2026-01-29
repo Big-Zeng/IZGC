@@ -1,0 +1,10 @@
+算法: ContourBased
+数据集: 常德市_real
+最佳参数: {'grid_size': np.float64(3.8009999999998016), 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': np.float64(30.0)}
+
+评估指标（无监督）:
+  Composite: 0.8384
+  CH: 539.30
+  DBI: 0.1504
+  簇数: 2
+  噪声点: 10

@@ -1,0 +1,10 @@
+算法: CLIQUE
+数据集: 常德市_real
+最佳参数: {'intervals': 5, 'density_threshold': 4}
+
+评估指标（无监督）:
+  Composite: 0.8355
+  CH: 484.73
+  DBI: 0.1530
+  簇数: 2
+  噪声点: 9

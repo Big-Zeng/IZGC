@@ -1,0 +1,10 @@
+算法: KMeans
+数据集: 株洲市_real
+最佳参数: {'n_clusters': 2, 'n_init': 10, 'max_iter': 300}
+
+评估指标（无监督）:
+  Composite: 0.8404
+  CH: 4144.03
+  DBI: 0.1638
+  簇数: 2
+  噪声点: 0

@@ -1,0 +1,10 @@
+算法: GMM
+数据集: 益阳市_real
+最佳参数: {'n_components': 4, 'n_init': 10, 'covariance_type': 'tied'}
+
+评估指标（无监督）:
+  Composite: 0.8470
+  CH: 2462.53
+  DBI: 0.2647
+  簇数: 4
+  噪声点: 0

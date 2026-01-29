@@ -1,0 +1,10 @@
+算法: ContourBased
+数据集: 益阳市_real
+最佳参数: {'grid_size': np.float64(2.714999999999811), 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': np.float64(30.0)}
+
+评估指标（无监督）:
+  Composite: 0.8588
+  CH: 4704.21
+  DBI: 0.1544
+  簇数: 3
+  噪声点: 11

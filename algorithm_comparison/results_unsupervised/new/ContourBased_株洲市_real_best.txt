@@ -1,0 +1,10 @@
+算法: ContourBased
+数据集: 株洲市_real
+最佳参数: {'grid_size': np.float64(2.244999999999973), 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': np.float64(30.0)}
+
+评估指标（无监督）:
+  Composite: 0.8455
+  CH: 4571.84
+  DBI: 0.1471
+  簇数: 2
+  噪声点: 15

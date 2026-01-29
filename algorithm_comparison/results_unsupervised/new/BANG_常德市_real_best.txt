@@ -1,0 +1,10 @@
+算法: BANG
+数据集: 常德市_real
+最佳参数: {'levels': 8, 'density_threshold': np.float64(0.01)}
+
+评估指标（无监督）:
+  Composite: 0.6034
+  CH: 88.99
+  DBI: 0.2770
+  簇数: 2
+  噪声点: 27

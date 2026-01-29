@@ -1,0 +1,10 @@
+算法: GMM
+数据集: 常德市_real
+最佳参数: {'n_components': 2, 'n_init': 10, 'covariance_type': 'tied'}
+
+评估指标（无监督）:
+  Composite: 0.8200
+  CH: 569.56
+  DBI: 0.2860
+  簇数: 2
+  噪声点: 0

@@ -1,0 +1,10 @@
+算法: CLIQUE
+数据集: 株洲市_real
+最佳参数: {'intervals': 8, 'density_threshold': 5}
+
+评估指标（无监督）:
+  Composite: 0.8458
+  CH: 4739.23
+  DBI: 0.1453
+  簇数: 2
+  噪声点: 24

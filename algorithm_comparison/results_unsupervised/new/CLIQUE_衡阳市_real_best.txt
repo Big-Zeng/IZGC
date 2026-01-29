@@ -1,0 +1,10 @@
+算法: CLIQUE
+数据集: 衡阳市_real
+最佳参数: {'intervals': 7, 'density_threshold': 4}
+
+评估指标（无监督）:
+  Composite: 0.5910
+  CH: 453.19
+  DBI: 0.3798
+  簇数: 2
+  噪声点: 25

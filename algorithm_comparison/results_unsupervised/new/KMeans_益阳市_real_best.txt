@@ -1,0 +1,10 @@
+算法: KMeans
+数据集: 益阳市_real
+最佳参数: {'n_clusters': 4, 'n_init': 10, 'max_iter': 300}
+
+评估指标（无监督）:
+  Composite: 0.8493
+  CH: 2521.57
+  DBI: 0.2606
+  簇数: 4
+  噪声点: 0

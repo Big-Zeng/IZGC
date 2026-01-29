@@ -1,0 +1,10 @@
+算法: CLIQUE
+数据集: 益阳市_real
+最佳参数: {'intervals': 7, 'density_threshold': 2}
+
+评估指标（无监督）:
+  Composite: 0.8596
+  CH: 3437.08
+  DBI: 0.1681
+  簇数: 4
+  噪声点: 11

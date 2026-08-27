@@ -297,7 +297,7 @@ class ClusteringMetrics:
         return fmi
     
     @staticmethod
-    def evaluate_all(true_labels, pred_labels, use_sklearn_fmi=False):
+    def evaluate_all(true_labels, pred_labels, use_sklearn_fmi=True):
         """
         计算所有评估指标
         

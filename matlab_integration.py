@@ -375,9 +375,9 @@ quit;
                 return None, None
             
             labels = mat_result['labels'].flatten()
-            ami = float(mat_result['ami'])
-            ari = float(mat_result['ari'])
-            fmi = float(mat_result['fmi'])
+            ami = float(mat_result['ami'][0, 0])
+            ari = float(mat_result['ari'][0, 0])
+            fmi = float(mat_result['fmi'][0, 0])
             
             return labels, {'AMI': ami, 'ARI': ari, 'FMI': fmi}
             

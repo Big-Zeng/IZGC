@@ -1,0 +1,12 @@
+======================================================================
+Overlap Experiment - Parameter Calibration Results
+Dataset: d=6.0, sigma=1.0, overlap=0.0027
+Seed: 20260825
+Optimization target: ARI
+======================================================================
+
+[IZGC]
+  Best ARI: 0.9920
+  Best Params: {'grid_size': np.float64(1.4), 'R': 20, 'theta': 10}
+  Time: 20988.0s
+

@@ -24,7 +24,7 @@ except ImportError:
     print("警告: matlab_integration模块未找到，MATLAB算法将不可用")
 
 # ==================== 配置 ====================
-DATASET = "../data/complex8_1.csv"
+DATASET = "../data/spiral.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 

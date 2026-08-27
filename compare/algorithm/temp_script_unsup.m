@@ -1,14 +1,14 @@
 
-% 临时脚本 - 在algorithm目录下运行
+% 临时脚本 - 无监督版本
 try
-    % 读取数据
-    data = readmatrix('temp_data.csv');
+    % 读取数据（仅坐标）
+    data = readmatrix('temp_data_unsup.csv');
     
-    % 运行算法
-    [labels, ami, ari, fmi] = run_algorithm_pr_wrapper(data, 10, 8);
+    % 运行无监督算法
+    labels = run_algorithm_pr_unsupervised(data, 3, 4);
     
     % 保存结果
-    save('temp_result.mat', 'labels', 'ami', 'ari', 'fmi');
+    save('temp_result_unsup.mat', 'labels');
     
     fprintf('MATLAB执行成功\n');
 catch ME
@@ -18,7 +18,7 @@ catch ME
     end
     % 保存错误信息
     error_msg = ME.message;
-    save('temp_result.mat', 'error_msg');
+    save('temp_result_unsup.mat', 'error_msg');
 end
 
 quit;

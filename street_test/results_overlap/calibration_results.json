@@ -1,0 +1,53 @@
+{
+  "IZGC": {
+    "params": {
+      "grid_size": 2.0,
+      "R": 30,
+      "theta": 5
+    },
+    "best_ari": 0.996
+  },
+  "K-means++": {
+    "params": {
+      "n_clusters": 2,
+      "n_init": 10,
+      "max_iter": 300
+    },
+    "best_ari": 0.996
+  },
+  "GMM": {
+    "params": {
+      "n_components": 2,
+      "covariance_type": "full",
+      "n_init": 5
+    },
+    "best_ari": 0.996
+  },
+  "DBSCAN": {
+    "params": {
+      "eps": 4.0,
+      "min_samples": 2
+    },
+    "best_ari": 0.99
+  },
+  "CLIQUE": {
+    "params": {
+      "intervals": 15,
+      "density_threshold": 1
+    },
+    "best_ari": 0.98
+  },
+  "BANG": {
+    "params": {
+      "levels": 10,
+      "density_threshold": 0.01
+    },
+    "best_ari": 0.97
+  },
+  "DPC-FWSN": {
+    "params": {
+      "k": 4
+    },
+    "best_ari": 0.99
+  }
+}

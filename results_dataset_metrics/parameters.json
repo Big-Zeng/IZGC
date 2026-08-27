@@ -1,0 +1,130 @@
+{
+  "IZGC": {
+    "Jain": {
+      "grid_size": 2.826,
+      "R": 30.0,
+      "theta": 5
+    },
+    "Ring": {
+      "grid_size": 3.043,
+      "R": 30.0,
+      "theta": 5
+    },
+    "Cth": {
+      "grid_size": 2.004,
+      "R": 30.0,
+      "theta": 5
+    },
+    "Ls": {
+      "grid_size": 2.17,
+      "R": 30.0,
+      "theta": 5
+    },
+    "LineBlobs": {
+      "grid_size": 2.923,
+      "R": 30.0,
+      "theta": 5
+    },
+    "3c": {
+      "grid_size": 1.742,
+      "R": 30.0,
+      "theta": 5
+    }
+  },
+  "CLIQUE": {
+    "Jain": {
+      "intervals": 14,
+      "density_threshold": 1
+    },
+    "Ring": {
+      "intervals": 14,
+      "density_threshold": 1
+    },
+    "Cth": {
+      "intervals": 17,
+      "density_threshold": 1
+    },
+    "Ls": {
+      "intervals": 22,
+      "density_threshold": 1
+    },
+    "LineBlobs": {
+      "intervals": 10,
+      "density_threshold": 1
+    },
+    "3c": {
+      "intervals": 21,
+      "density_threshold": 1
+    }
+  },
+  "BANG": {
+    "Jain": {
+      "levels": 11,
+      "density_threshold": 0.01
+    },
+    "Ring": {
+      "levels": 11,
+      "density_threshold": 0.01
+    },
+    "Cth": {
+      "levels": 11,
+      "density_threshold": 0.01
+    },
+    "Ls": {
+      "levels": 11,
+      "density_threshold": 0.01
+    },
+    "LineBlobs": {
+      "levels": 9,
+      "density_threshold": 0.01
+    },
+    "3c": {
+      "levels": 11,
+      "density_threshold": 0.01
+    }
+  },
+  "DBSCAN": {
+    "Jain": {
+      "eps": 8.0,
+      "min_samples": 2
+    },
+    "Ring": {
+      "eps": 6.0,
+      "min_samples": 2
+    },
+    "Cth": {
+      "eps": 5.0,
+      "min_samples": 2
+    },
+    "Ls": {
+      "eps": 5.0,
+      "min_samples": 2
+    },
+    "LineBlobs": {
+      "eps": 7.0,
+      "min_samples": 2
+    },
+    "3c": {
+      "eps": 4.0,
+      "min_samples": 2
+    }
+  },
+  "GMM": {
+    "n_init": 1,
+    "n_components": "auto (=true K)"
+  },
+  "DPC-FWSN": {
+    "Jain": 4,
+    "Ring": 20,
+    "Cth": 13,
+    "Ls": 15,
+    "LineBlobs": 21,
+    "3c": 66
+  },
+  "K-means++": {
+    "n_init": 20,
+    "max_iter": 300,
+    "n_clusters": "auto (=true K)"
+  },
+  "random_seed": 42
+}

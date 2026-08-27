@@ -1,0 +1,674 @@
+[
+  {
+    "dataset": "Jain",
+    "algorithm": "IZGC",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Jain",
+    "algorithm": "K-means++",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 0.4916,
+      "ARI": 0.5767,
+      "FMI": 0.82,
+      "Macro_F1": 0.8636,
+      "Macro_Jaccard": 0.7634,
+      "Completeness": 0.4926,
+      "V_measure": 0.5274
+    }
+  },
+  {
+    "dataset": "Jain",
+    "algorithm": "CLIQUE",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 0.6174,
+      "ARI": 0.8711,
+      "FMI": 0.9475,
+      "Macro_F1": 0.8948,
+      "Macro_Jaccard": 0.8224,
+      "Completeness": 0.62,
+      "V_measure": 0.7453
+    }
+  },
+  {
+    "dataset": "Jain",
+    "algorithm": "BANG",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 13,
+    "metrics": {
+      "AMI": 0.4977,
+      "ARI": 0.8692,
+      "FMI": 0.9466,
+      "Macro_F1": 0.8044,
+      "Macro_Jaccard": 0.7162,
+      "Completeness": 0.5071,
+      "V_measure": 0.6639
+    }
+  },
+  {
+    "dataset": "Jain",
+    "algorithm": "DBSCAN",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.865,
+      "ARI": 0.9758,
+      "FMI": 0.9906,
+      "Macro_F1": 0.9757,
+      "Macro_Jaccard": 0.9536,
+      "Completeness": 0.8659,
+      "V_measure": 0.9281
+    }
+  },
+  {
+    "dataset": "Jain",
+    "algorithm": "GMM",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 0.1918,
+      "ARI": -0.0045,
+      "FMI": 0.5858,
+      "Macro_F1": 0.5802,
+      "Macro_Jaccard": 0.4091,
+      "Completeness": 0.1935,
+      "V_measure": 0.2024
+    }
+  },
+  {
+    "dataset": "Jain",
+    "algorithm": "DPC-FWSN",
+    "n": 373,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "IZGC",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "K-means++",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": -0.0012,
+      "ARI": -0.0014,
+      "FMI": 0.5257,
+      "Macro_F1": 0.4894,
+      "Macro_Jaccard": 0.3286,
+      "Completeness": 0.0,
+      "V_measure": 0.0
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "CLIQUE",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 0.8571,
+      "ARI": 0.9493,
+      "FMI": 0.9771,
+      "Macro_F1": 0.9899,
+      "Macro_Jaccard": 0.98,
+      "Completeness": 0.8574,
+      "V_measure": 0.9153
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "BANG",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 0.7182,
+      "ARI": 0.875,
+      "FMI": 0.9419,
+      "Macro_F1": 0.9799,
+      "Macro_Jaccard": 0.9612,
+      "Completeness": 0.7201,
+      "V_measure": 0.8344
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "DBSCAN",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "GMM",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": -0.0012,
+      "ARI": -0.0015,
+      "FMI": 0.5257,
+      "Macro_F1": 0.4873,
+      "Macro_Jaccard": 0.3269,
+      "Completeness": 0.0,
+      "V_measure": 0.0
+    }
+  },
+  {
+    "dataset": "Ring",
+    "algorithm": "DPC-FWSN",
+    "n": 600,
+    "true_k": 2,
+    "pred_k": 2,
+    "metrics": {
+      "AMI": -0.0013,
+      "ARI": 0.0005,
+      "FMI": 0.5952,
+      "Macro_F1": 0.497,
+      "Macro_Jaccard": 0.3588,
+      "Completeness": 0.0,
+      "V_measure": 0.0
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "IZGC",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "K-means++",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 0.5516,
+      "ARI": 0.3928,
+      "FMI": 0.5662,
+      "Macro_F1": 0.6697,
+      "Macro_Jaccard": 0.5347,
+      "Completeness": 0.574,
+      "V_measure": 0.5634
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "CLIQUE",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 0.8792,
+      "ARI": 0.9347,
+      "FMI": 0.953,
+      "Macro_F1": 0.9791,
+      "Macro_Jaccard": 0.9591,
+      "Completeness": 0.8797,
+      "V_measure": 0.9167
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "BANG",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.7869,
+      "ARI": 0.789,
+      "FMI": 0.8602,
+      "Macro_F1": 0.6715,
+      "Macro_Jaccard": 0.6273,
+      "Completeness": 0.9433,
+      "V_measure": 0.8585
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "DBSCAN",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "GMM",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 0.5194,
+      "ARI": 0.3558,
+      "FMI": 0.5522,
+      "Macro_F1": 0.4686,
+      "Macro_Jaccard": 0.3463,
+      "Completeness": 0.5692,
+      "V_measure": 0.5441
+    }
+  },
+  {
+    "dataset": "Cth",
+    "algorithm": "DPC-FWSN",
+    "n": 1016,
+    "true_k": 4,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "IZGC",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "K-means++",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 0.4801,
+      "ARI": 0.3033,
+      "FMI": 0.4735,
+      "Macro_F1": 0.4581,
+      "Macro_Jaccard": 0.3188,
+      "Completeness": 0.4823,
+      "V_measure": 0.536
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "CLIQUE",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 0.9219,
+      "ARI": 0.9614,
+      "FMI": 0.973,
+      "Macro_F1": 0.9884,
+      "Macro_Jaccard": 0.977,
+      "Completeness": 0.9224,
+      "V_measure": 0.9489
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "BANG",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 0.9905,
+      "ARI": 0.9977,
+      "FMI": 0.9984,
+      "Macro_F1": 0.9982,
+      "Macro_Jaccard": 0.9965,
+      "Completeness": 0.9906,
+      "V_measure": 0.9947
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "DBSCAN",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "GMM",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 0.5953,
+      "ARI": 0.3865,
+      "FMI": 0.5457,
+      "Macro_F1": 0.3093,
+      "Macro_Jaccard": 0.2252,
+      "Completeness": 0.597,
+      "V_measure": 0.65
+    }
+  },
+  {
+    "dataset": "Ls",
+    "algorithm": "DPC-FWSN",
+    "n": 1741,
+    "true_k": 6,
+    "pred_k": 6,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "IZGC",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "K-means++",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.5828,
+      "ARI": 0.4875,
+      "FMI": 0.665,
+      "Macro_F1": 0.7982,
+      "Macro_Jaccard": 0.6692,
+      "Completeness": 0.5858,
+      "V_measure": 0.5873
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "CLIQUE",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.9417,
+      "ARI": 0.9713,
+      "FMI": 0.9813,
+      "Macro_F1": 0.9943,
+      "Macro_Jaccard": 0.9887,
+      "Completeness": 0.9423,
+      "V_measure": 0.9703
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "BANG",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 5,
+    "metrics": {
+      "AMI": 0.6345,
+      "ARI": 0.6545,
+      "FMI": 0.7697,
+      "Macro_F1": 0.8572,
+      "Macro_Jaccard": 0.7978,
+      "Completeness": 0.6388,
+      "V_measure": 0.7753
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "DBSCAN",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "GMM",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.5792,
+      "ARI": 0.481,
+      "FMI": 0.6611,
+      "Macro_F1": 0.7942,
+      "Macro_Jaccard": 0.664,
+      "Completeness": 0.5822,
+      "V_measure": 0.5832
+    }
+  },
+  {
+    "dataset": "LineBlobs",
+    "algorithm": "DPC-FWSN",
+    "n": 266,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 1.0,
+      "ARI": 1.0,
+      "FMI": 1.0,
+      "Macro_F1": 1.0,
+      "Macro_Jaccard": 1.0,
+      "Completeness": 1.0,
+      "V_measure": 1.0
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "IZGC",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 4,
+    "metrics": {
+      "AMI": 0.9122,
+      "ARI": 0.9772,
+      "FMI": 0.9867,
+      "Macro_F1": 0.9372,
+      "Macro_Jaccard": 0.8932,
+      "Completeness": 0.9126,
+      "V_measure": 0.9412
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "K-means++",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.6357,
+      "ARI": 0.6313,
+      "FMI": 0.7727,
+      "Macro_F1": 0.7777,
+      "Macro_Jaccard": 0.671,
+      "Completeness": 0.6367,
+      "V_measure": 0.6798
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "CLIQUE",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 10,
+    "metrics": {
+      "AMI": 0.6221,
+      "ARI": 0.83,
+      "FMI": 0.8984,
+      "Macro_F1": 0.747,
+      "Macro_Jaccard": 0.6653,
+      "Completeness": 0.6267,
+      "V_measure": 0.7164
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "BANG",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 8,
+    "metrics": {
+      "AMI": 0.0213,
+      "ARI": 0.0238,
+      "FMI": 0.6207,
+      "Macro_F1": 0.2412,
+      "Macro_Jaccard": 0.1766,
+      "Completeness": 0.1177,
+      "V_measure": 0.0511
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "DBSCAN",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 13,
+    "metrics": {
+      "AMI": 0.6532,
+      "ARI": 0.7769,
+      "FMI": 0.8736,
+      "Macro_F1": 0.7163,
+      "Macro_Jaccard": 0.6402,
+      "Completeness": 0.6596,
+      "V_measure": 0.7051
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "GMM",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.9578,
+      "ARI": 0.9822,
+      "FMI": 0.9896,
+      "Macro_F1": 0.9885,
+      "Macro_Jaccard": 0.9775,
+      "Completeness": 0.9594,
+      "V_measure": 0.9587
+    }
+  },
+  {
+    "dataset": "3c",
+    "algorithm": "DPC-FWSN",
+    "n": 715,
+    "true_k": 3,
+    "pred_k": 3,
+    "metrics": {
+      "AMI": 0.7459,
+      "ARI": 0.7709,
+      "FMI": 0.8614,
+      "Macro_F1": 0.8598,
+      "Macro_Jaccard": 0.7755,
+      "Completeness": 0.7465,
+      "V_measure": 0.7863
+    }
+  }
+]

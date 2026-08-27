@@ -1,0 +1,31 @@
+{
+  "random_seed": 20260824,
+  "R": 30.0,
+  "theta": 5,
+  "delta_g_star": 2.46,
+  "max_buffer_distance": 0,
+  "canonical_range": 100.0,
+  "noise_levels": [
+    0.0,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5
+  ],
+  "spiral_csv_path": "data/spiral.csv",
+  "clique_intervals": 15,
+  "clique_density_threshold": 1,
+  "bang_levels": 10,
+  "bang_density_threshold": 0.01,
+  "dbscan_eps": 4.0,
+  "dbscan_min_samples": 2,
+  "gmm_n_components": 3,
+  "dpc_k": 4,
+  "n_repeats": 30
+}

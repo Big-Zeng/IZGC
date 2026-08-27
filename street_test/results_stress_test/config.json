@@ -1,0 +1,44 @@
+{
+  "n_repeats": 30,
+  "random_seed": 20260824,
+  "R": 30.0,
+  "theta": 5,
+  "delta_g_star": 2.25,
+  "is_noise_enabled": true,
+  "canonical_range": 100.0,
+  "noise_levels": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.4
+  ],
+  "overlap_levels": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "density_ratios": [
+    1,
+    2,
+    4,
+    8,
+    12,
+    16
+  ],
+  "ring_gaps": [
+    14.0,
+    10.0,
+    7.0,
+    5.0,
+    3.0,
+    1.5
+  ],
+  "spiral_points_per_cluster": 300,
+  "blob_base_points": 500,
+  "ring_points_per_cluster": 350
+}

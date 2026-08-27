@@ -1,0 +1,11 @@
+{
+  "IZGC": {
+    "params": {
+      "grid_size": 1.4,
+      "R": 20,
+      "theta": 10
+    },
+    "best_ari": 0.992,
+    "time_s": 20988.0
+  }
+}

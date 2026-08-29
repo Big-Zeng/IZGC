@@ -191,7 +191,7 @@ if __name__ == "__main__":
         plot_clustering_result(
             X, best_labels,
             f'ContourBased (ARI={best_metrics["ARI"]:.3f})',
-            save_path, dpi=300
+            save_path, dpi=600
         )
 
         # 保存最佳结果到txt

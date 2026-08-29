@@ -110,21 +110,21 @@ def plot_sobol_results(sobol_results, output_dir):
         # Add value labels on bars
         for bar, val in zip(bars1, Si['S1']):
             if val > 0.05:
-                ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02, 
-                       f'{val:.2f}', ha='center', va='bottom', fontsize=9)
+                ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
+                       f'{val:.2f}', ha='center', va='bottom', fontsize=15)
         
-        ax.set_ylabel('Sensitivity Index', fontsize=11)
+        ax.set_ylabel('Sensitivity Index', fontsize=15)
         ax.set_title(f'{metric_name}', fontsize=13, fontweight='bold')
         ax.set_xticks(x)
-        ax.set_xticklabels(param_labels, fontsize=12)
-        ax.legend(loc='upper right', fontsize=9)
+        ax.set_xticklabels(param_labels, fontsize=15)
+        ax.legend(loc='upper right', fontsize=14)
         ax.grid(axis='y', alpha=0.3, linestyle='--')
-        ax.set_ylim(bottom=0, top=max(max(Si['ST']) * 1.3, 0.5))
+        ax.set_ylim(bottom=0, top=max(max(Si['ST']) * 1.5, 0.5))
     
     # plt.suptitle('Sobol Sensitivity Analysis for Contour-Based Clustering',
     #              fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
-    plt.savefig(f"{output_dir}/sobol_sensitivity_symbols.png", dpi=300, bbox_inches='tight')
+    plt.savefig(f"{output_dir}/sobol_sensitivity_symbols.png", dpi=600, bbox_inches='tight')
     print(f"\nSaved: {output_dir}/sobol_sensitivity_symbols.png")
     plt.close(fig)
 
@@ -155,8 +155,8 @@ def plot_parameter_effects(results_df, output_dir):
                 x_line = np.linspace(x.min(), x.max(), 100)
                 ax.plot(x_line, p(x_line), 'r-', linewidth=2, alpha=0.8)
             
-            ax.set_xlabel(param_label, fontsize=12)
-            ax.set_ylabel(metric_label, fontsize=10)
+            ax.set_xlabel(param_label, fontsize=15)
+            ax.set_ylabel(metric_label, fontsize=15)
             ax.grid(alpha=0.3, linestyle='--')
             
             # Add correlation coefficient
@@ -168,7 +168,7 @@ def plot_parameter_effects(results_df, output_dir):
     
     # plt.suptitle('Parameter Effects on Clustering Metrics', fontsize=14, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(f"{output_dir}/parameter_effects_symbols.png", dpi=300, bbox_inches='tight')
+    plt.savefig(f"{output_dir}/parameter_effects_symbols.png", dpi=600, bbox_inches='tight')
     print(f"Saved: {output_dir}/parameter_effects_symbols.png")
     plt.close(fig)
 
@@ -190,9 +190,9 @@ def plot_heatmap_table(sobol_results, output_dir):
     # S1 heatmap
     im1 = axes[0].imshow(s1_data, cmap='YlOrRd', aspect='auto', vmin=0, vmax=1)
     axes[0].set_xticks(range(len(metrics)))
-    axes[0].set_xticklabels(metrics, fontsize=11)
+    axes[0].set_xticklabels(metrics, fontsize=15)
     axes[0].set_yticks(range(len(params)))
-    axes[0].set_yticklabels(param_labels, fontsize=12)
+    axes[0].set_yticklabels(param_labels, fontsize=15)
     axes[0].set_title('First-order Sensitivity ($S_1$)', fontweight='bold', fontsize=12)
     
     for i in range(len(params)):
@@ -219,7 +219,7 @@ def plot_heatmap_table(sobol_results, output_dir):
     
     plt.suptitle('Sobol Sensitivity Indices Heatmap', fontsize=14, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(f"{output_dir}/sensitivity_heatmap_symbols.png", dpi=300, bbox_inches='tight')
+    plt.savefig(f"{output_dir}/sensitivity_heatmap_symbols.png", dpi=600, bbox_inches='tight')
     print(f"Saved: {output_dir}/sensitivity_heatmap_symbols.png")
     plt.close(fig)
 

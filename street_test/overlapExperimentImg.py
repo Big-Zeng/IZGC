@@ -190,7 +190,7 @@ def plot_overlap_2x3():
         # ----------------------------------------------------
 
         ax.set_title(
-            rf"$d={d:.0f}$, Overlap={overlap:.1%}",
+            rf"$d={d:.0f}$, Overlap={overlap:.2%}",
             fontsize=15,
             pad=6,
         )

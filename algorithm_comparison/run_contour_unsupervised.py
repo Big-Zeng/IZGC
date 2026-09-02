@@ -22,7 +22,7 @@ from algorithm_comparison.utils import (
 from algorithm_comparison.alg_contour import run_contour_clustering
 
 # ==================== 配置 ====================
-DATASET = "../data/real_data/长沙市_real.csv"
+DATASET = "../data/real_data/衡阳市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
@@ -31,7 +31,7 @@ OPTIMIZE_METRIC = 'Composite'
 
 # 参数搜索范围 (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (3, 4, 0.001),
+    'grid_size': (4.778, 4.778, 0.001),
     'max_buffer_distance': (0, 0, 1),
     'min_cluster_size': (5, 5, 1),
     'density_radius': (30, 30, 0.001)

@@ -185,7 +185,7 @@ DPC_K = {
     "Cth":         13,
     "Ls":          15,
     "LineBlobs":   21,
-    "3c":          66,
+    "3c":          34,
     # 第二组
     "Flame":       44,
     "Spiral":      4,

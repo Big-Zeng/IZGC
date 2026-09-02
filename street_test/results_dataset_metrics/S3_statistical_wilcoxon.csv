@@ -1,0 +1,8 @@
+Metric,Second-best,Statistic,p-value,Significant
+AMI,DBSCAN,0.0,0.015625,Yes
+ARI,DBSCAN,0.0,0.015625,Yes
+FMI,DBSCAN,0.0,0.015625,Yes
+Macro_F1,DBSCAN,0.0,0.015625,Yes
+Macro_Jaccard,DBSCAN,0.0,0.015625,Yes
+Completeness,DBSCAN,0.0,0.015625,Yes
+V_measure,DBSCAN,0.0,0.015625,Yes

@@ -1,0 +1,26 @@
+
+\begin{table}[ht]
+\centering
+\caption{
+Wilcoxon signed-rank test between IZGC and dataset-wise second-best-performing algorithms.
+}
+\label{
+tab:S3_wilcoxon
+}
+
+\begin{tabular}{cccccc}
+\toprule
+Metric & Comparison & Competitors & Statistic & p_value & Significant\\
+
+\midrule
+AMI & IZGC vs Dataset-wise Second-best & DBSCAN,DPC-FWSN,GMM & 4.0 & 0.875 & No\\
+ARI & IZGC vs Dataset-wise Second-best & BANG,DBSCAN,DPC-FWSN,GMM & 5.0 & 1.0 & No\\
+FMI & IZGC vs Dataset-wise Second-best & BANG,DBSCAN,DPC-FWSN,GMM & 5.0 & 1.0 & No\\
+Macro_F1 & IZGC vs Dataset-wise Second-best & BANG,DBSCAN,DPC-FWSN,GMM & 5.0 & 1.0 & No\\
+Macro_Jaccard & IZGC vs Dataset-wise Second-best & BANG,DBSCAN,DPC-FWSN,GMM & 4.0 & 0.875 & No\\
+Completeness & IZGC vs Dataset-wise Second-best & DBSCAN,DPC-FWSN,GMM & 3.0 & 0.625 & No\\
+V_measure & IZGC vs Dataset-wise Second-best & DBSCAN,DPC-FWSN,GMM & 5.0 & 1.0 & No\\
+
+\bottomrule
+\end{tabular}
+\end{table}

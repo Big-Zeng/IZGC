@@ -24,7 +24,7 @@ except ImportError:
     print("警告: matlab_integration模块未找到，MATLAB算法将不可用")
 
 # ==================== 配置 ====================
-DATASET = "../data/spiral.csv"
+DATASET = "../data/2d_3c.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
@@ -141,8 +141,9 @@ if __name__ == "__main__":
         print("  1. 已安装MATLAB")
         print("  2. 已安装MATLAB Engine for Python")
         exit(1)
-    
+
     X, y_true = load_dataset(DATASET)
+    y_true=y_true+1
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
     
     print(f"\n数据集: {dataset_name}")

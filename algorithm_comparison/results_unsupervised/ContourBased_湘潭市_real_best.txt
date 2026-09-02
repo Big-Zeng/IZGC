@@ -1,12 +1,10 @@
 算法: ContourBased
 数据集: 湘潭市_real
-最佳参数: {'grid_size': 3.7559999999996965, 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': 30.0, 'merge_small_clusters': 0}
+最佳参数: {'grid_size': np.float64(3.756), 'max_buffer_distance': 0, 'min_cluster_size': 5, 'density_radius': np.float64(30.0)}
 
-评估指标（无监督 - 复合评估）:
-  Composite: 0.7700 (主要指标)
-    ├─ Silhouette_core: 0.7739
-    └─ Outlier_ratio: 0.0119
+评估指标（无监督）:
+  Composite: 0.7700
   CH: 5635.44
-  DBI: 0.2857 (越小越好)
+  DBI: 0.2857
   簇数: 2
   噪声点: 13

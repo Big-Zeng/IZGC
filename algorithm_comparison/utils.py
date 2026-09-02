@@ -281,7 +281,7 @@ def evaluate_clustering_unsupervised(y_pred, X):
     return evaluate_clustering(None, y_pred, X)
 
 
-def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
+def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=600,
                            marker_size=30, show_legend=False, show_title=False):
     """
     绘制聚类结果图（论文级别）
@@ -301,8 +301,8 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
 
     # 设置字体
     plt.rcParams['font.family'] = 'Times New Roman'
-    plt.rcParams['font.size'] = 12
-    plt.rcParams['axes.labelsize'] = 14
+    plt.rcParams['font.size'] = 15
+    plt.rcParams['axes.labelsize'] = 15
     plt.rcParams['axes.titlesize'] = 16
 
     # 固定颜色列表（20种不同颜色，适合论文）
@@ -338,7 +338,7 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
         mask = np.array(labels) == label
         if label == -1:
             # 噪声点用灰色X标记
-            plt.scatter(X[mask, 0], X[mask, 1], c='gray', s=marker_size/2,
+            plt.scatter(X[mask, 0], X[mask, 1], c='gray', s=marker_size*2,
                        alpha=0.5, label='Noise', marker='x')
         else:
             # 使用固定颜色（循环使用）
@@ -347,9 +347,9 @@ def plot_clustering_result(X, labels, title, save_path, figsize=(8, 6), dpi=300,
                        s=marker_size, alpha=0.7, label=f'Cluster {label+1}',
                        edgecolors='white', linewidths=0.5)
 
-    plt.xlabel('X')
-    plt.ylabel('Y')
-
+    plt.xlabel('X',fontsize =20)
+    plt.ylabel('Y',fontsize =20)
+    plt.tick_params(axis="both", labelsize=20, length=3)
     if show_title:
         plt.title(title)
 

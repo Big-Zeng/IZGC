@@ -100,7 +100,7 @@ ax.set_xlim(min(A[0], B[0], C[0]) - margin, max(A[0], B[0], C[0]) + margin)
 ax.set_ylim(min(A[1], B[1], C[1]) - margin, max(A[1], B[1], C[1]) + margin)
 
 # 装饰：去掉了 ax.grid()
-ax.set_title("Grid Interpolation Mechanism: From TIN to Regular Grid", fontsize=14)
+# ax.set_title("Grid Interpolation Mechanism: From TIN to Regular Grid", fontsize=14)
 ax.set_xlabel("X Coordinate")
 ax.set_ylabel("Y Coordinate")
 ax.legend(loc='upper right')

@@ -315,8 +315,9 @@ class ContourBasedClusteringWithoutZ:
 
         # 生成等值线
         # 增加图片尺寸，设置 dpi 以清晰显示
-        fig, ax = plt.subplots(figsize=(12, 10))
+        fig, ax = plt.subplots(figsize=(8, 8))
         ax.set_aspect('equal')  # 保持横纵比例一致
+        ax.tick_params(axis='both', which='major', labelsize=8)
         contour_set = ax.contour(X, Y, zi, levels=10, colors='black')
 
         # 展示等值线图
@@ -348,8 +349,9 @@ class ContourBasedClusteringWithoutZ:
         # ax.legend()
         plt.xlabel('X Coordinates')
         plt.ylabel('Y Coordinates')
+        plt.tight_layout()
         # 保存图片
-        plt.savefig('contour_areas.png', dpi=300)
+        plt.savefig('contour_areas.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
 
         if self.interactive:
             plt.show()
@@ -649,7 +651,7 @@ class ContourBasedClusteringWithoutZ:
         if not self.density_centers:
             return
 
-        fig, ax = plt.subplots(figsize=(12, 10))
+        fig, ax = plt.subplots(figsize=(8, 8))
         ax.set_aspect('equal')  # 保持横纵比例一致
         colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'magenta',
                   'brown', 'pink', 'gray', 'olive', 'navy']
@@ -704,13 +706,13 @@ class ContourBasedClusteringWithoutZ:
         if unassigned_count > 0:
             title += f'\n未分配点: {unassigned_count}'
 
-        ax.set_title(title)
+        # ax.set_title(title)
         ax.set_xlabel('X Coordinate')
         ax.set_ylabel('Y Coordinate')
         ax.grid(True, linestyle='--', alpha=0.7)
         plt.tight_layout()
         # 保存图片
-        plt.savefig('cluster_result.png', dpi=300)
+        plt.savefig('cluster_result.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
 
         if self.interactive:
             plt.show()

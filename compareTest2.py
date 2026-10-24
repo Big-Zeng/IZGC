@@ -10,7 +10,7 @@ import ContourBasedClusteringWithoutZ22 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
 # ==================== 配置区域 ====================
-DATASET = "data/zelnik4.csv"                # 数据集路径
+DATASET = "data/flame.csv"                # 数据集路径
 NORMALIZE_COORDS = True                 # 是否归一化坐标到[0,100]范围
 # ==================================================
 
@@ -102,7 +102,7 @@ class VRPAnalyzer:
 # grid_size是影响比较大的
      #ls.csv 2.36
     # max_buffer_distance先不用了
-    def run_contour_clustering(self, grid_size=1.3 , max_buffer_distance=0, min_cluster_size=2, radius=30, trueY=None):
+    def run_contour_clustering(self, grid_size=3.160 , max_buffer_distance=0, min_cluster_size=2, radius=30, trueY=None):
         # 计算密度
         points = np.array(self.coords)
         tree = cKDTree(points)
@@ -140,7 +140,7 @@ class VRPAnalyzer:
             grid_size=grid_size,
             max_buffer_distance=max_buffer_distance,
             min_cluster_size=5,
-            merge_small_clusters=False
+            merge_small_clusters=True
 
         )
 

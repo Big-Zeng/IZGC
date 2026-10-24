@@ -23,7 +23,7 @@ plt.rcParams['font.serif'] = ['Times New Roman']
 # --- 图 1：随机分布点集 ---
 fig1, ax1 = plt.subplots(figsize=(6, 6))
 ax1.scatter(points[:, 0], points[:, 1], color='#1f77b4', s=60, edgecolors='k', linewidth=0.5, zorder=3)
-ax1.set_title("Discrete Sampling Points", fontsize=16)
+#ax1.set_title("Discrete Sampling Points", fontsize=16)
 ax1.set_xlim(-5, 105)
 ax1.set_ylim(-5, 105)
 ax1.set_xlabel("X ", fontsize=12)
@@ -38,7 +38,7 @@ fig2, ax2 = plt.subplots(figsize=(6, 6))
 ax2.triplot(points[:, 0], points[:, 1], tri.simplices, color='#7f7f7f', linewidth=1.2, zorder=1)
 # 绘制顶点
 ax2.scatter(points[:, 0], points[:, 1], color='#1f77b4', s=60, edgecolors='k', linewidth=0.5, zorder=3)
-ax2.set_title("Generated TIN (Delaunay)", fontsize=16)
+#ax2.set_title("Generated TIN (Delaunay)", fontsize=16)
 ax2.set_xlim(-5, 105)
 ax2.set_ylim(-5, 105)
 ax2.set_xlabel("X ", fontsize=12)

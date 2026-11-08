@@ -25,7 +25,7 @@ and the scripts behind the experiments, tables and figures in the manuscript.
 | `algorithm_comparison/` | Head-to-head benchmarking harness (`alg_*.py` wrappers, `run_all.py`) |
 | `algorithm_comparison/utils.py` | Data loading, normalisation, evaluation and plotting helpers |
 | `data/` | Benchmark point sets in CSV format (`x, y, target`) |
-| `data/real_data/` | **Not distributed** — the case-study coordinates are withheld (see [Case-study data](#case-study-data)); `index.txt` lists the expected files |
+| `data/real_data/` | **Not distributed** — the case-study coordinates are withheld (see [Case-study data](#case-study-data)); the expected file names are listed there |
 | `street_test/` | Scripts behind the noise, overlap and per-dataset metric tables, plus figure generation |
 | `addedExperiment/` | Stress-test script with the full seven-metric protocol |
 | `docs/README.zh-CN.md` | Notes in Chinese (development history, parameter tuning hints) |
@@ -224,18 +224,28 @@ The municipal delivery-zone experiment uses delivery point sets supplied by a co
 data-sharing agreement. That agreement does not cover public redistribution, so the coordinates are **not
 published in this repository** and `data/real_data/` is listed in `.gitignore`. The experiment covers six
 prefectural cities in Hunan Province, China — Changsha (2,545 points), Xiangtan (1,093), Zhuzhou (1,232),
-Yiyang (484), Hengyang (487) and Changde (472), 6,313 points in total — and the expected file names are
-listed in [`data/real_data/index.txt`](data/real_data/index.txt).
+Yiyang (484), Hengyang (487) and Changde (472), 6,313 points in total. The scripts expect these file
+names under `data/real_data/`:
+
+| File | Points | Role |
+|------|-------:|------|
+| `长沙市_real.csv` | 2,545 | Delivery points, Changsha |
+| `湘潭市_real.csv` | 1,093 | Delivery points, Xiangtan |
+| `株洲市_real.csv` | 1,232 | Delivery points, Zhuzhou |
+| `益阳市_real.csv` | 484 | Delivery points, Yiyang |
+| `衡阳市_real.csv` | 487 | Delivery points, Hengyang |
+| `常德市_real.csv` | 472 | Delivery points, Changde |
+| `长沙市_zero_points.csv` | 557 | Artificial zero-valued constraint points encoding the Xiang River |
 
 The de-identified coordinate sets are available from the corresponding author on reasonable request,
 subject to the same agreement. They carry `x, y` only, in degrees of longitude and latitude; customer,
 address, order and time attributes were removed before release, and district-level source files,
 intermediate versions and backup copies are not available in any form. Because the scripts expect the
-names and layout shown in `index.txt`, dropping the files into `data/real_data/` restores the case study
+names shown above, dropping the files into `data/real_data/` restores the case study
 without any code change.
 
-`长沙市_zero_points.csv` holds the artificial zero-valued points that encode the Xiang River as a
-geographic barrier; these are constraint points, not observed samples.
+The zero-valued file listed above holds constraint points rather than observed samples: they encode the
+Xiang River as a geographic barrier.
 
 Because no ground-truth partition exists for these areas, only internal indices are reported for the
 case study, and the visual assessment of the resulting zones is qualitative. Every other result in the

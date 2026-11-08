@@ -32,7 +32,3 @@ desktop.ini
 # Local scratch output
 *.tmp
 ~$*
-
-# Case-study data supplied under a data-sharing agreement: never publish.
-# Drop the original {city}_real.csv files here to reproduce the case study.
-data/real_data/

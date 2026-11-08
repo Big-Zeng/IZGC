@@ -25,7 +25,7 @@ and the scripts behind the experiments, tables and figures in the manuscript.
 | `algorithm_comparison/` | Head-to-head benchmarking harness (`alg_*.py` wrappers, `run_all.py`) |
 | `algorithm_comparison/utils.py` | Data loading, normalisation, evaluation and plotting helpers |
 | `data/` | Benchmark point sets in CSV format (`x, y, target`) |
-| `data/real_data/` | Case-study inputs for the six cities analysed in the paper, plus the Xiang River zero-point file (coordinates only) |
+| `data/real_data/` | **Not distributed** — the case-study coordinates are withheld (see [Case-study data](#case-study-data)); `index.txt` lists the expected files |
 | `street_test/` | Scripts behind the noise, overlap and per-dataset metric tables, plus figure generation |
 | `addedExperiment/` | Stress-test script with the full seven-metric protocol |
 | `docs/README.zh-CN.md` | Notes in Chinese (development history, parameter tuning hints) |
@@ -114,8 +114,8 @@ x,y,target
 * `x`, `y` — two-dimensional coordinates (any unit; normalisation is applied by the calling script)
 * `target` — ground-truth label, used for the external validation indices only
 
-Files in `data/real_data/` hold the case-study delivery-point coordinates and carry `x, y` without
-`target`; supervised indices are therefore not computed for them.
+The case-study files carry `x, y` without `target`, so supervised indices are not computed for them. They
+are not part of this repository; see [Case-study data](#case-study-data).
 
 ---
 
@@ -147,7 +147,7 @@ can be re-run.
 | Noise robustness study | `python street_test/noise_experiment_spiral.py` | `street_test/results_noise_spiral/` |
 | Overlap robustness study | `python street_test/overlap_experiment.py` | `street_test/results_overlap/` |
 | Calibrated stress test (Δg calibration plus repeated runs) | `python addedExperiment/run_izgc_stress_test.py --repeats 30` | `results_stress_test/` |
-| Case-study zoning maps | `python algorithm_comparison/run_contour_unsupervised.py` | `algorithm_comparison/results_unsupervised/` |
+| Case-study zoning maps | `python algorithm_comparison/run_contour_unsupervised.py` | `algorithm_comparison/results_unsupervised/` (requires the case-study coordinates, available on request) |
 | Global sensitivity analysis (Sobol) | `python sobol_sensitivity_test.py` | `sobol_results/` |
 | Grid-spacing sweep | `python test_grid_size_sweep.py` | `grid_size_sweep_results.png` and `.txt` in the current directory |
 
@@ -220,16 +220,27 @@ clusters and are therefore biased against non-convex ground truth.
 
 ## Case-study data
 
-The municipal delivery-zone experiment uses delivery point sets supplied by a commercial partner. The
-release in `data/real_data/` covers exactly the six prefectural cities reported in the paper — Changsha
-(2,545 points), Xiangtan (1,093), Zhuzhou (1,232), Yiyang (484), Hengyang (487) and Changde (472), 6,313
-points in total — and contains coordinate pairs only (`x, y`, in degrees of longitude and latitude).
-Customer, address, order and time attributes are not part of this repository, and district-level source
-files are not released. `长沙市_zero_points.csv` holds the artificial zero-valued points that encode the
-Xiang River as a geographic barrier; these are constraint points, not observed samples.
+The municipal delivery-zone experiment uses delivery point sets supplied by a commercial partner under a
+data-sharing agreement. That agreement does not cover public redistribution, so the coordinates are **not
+published in this repository** and `data/real_data/` is listed in `.gitignore`. The experiment covers six
+prefectural cities in Hunan Province, China — Changsha (2,545 points), Xiangtan (1,093), Zhuzhou (1,232),
+Yiyang (484), Hengyang (487) and Changde (472), 6,313 points in total — and the expected file names are
+listed in [`data/real_data/index.txt`](data/real_data/index.txt).
+
+The de-identified coordinate sets are available from the corresponding author on reasonable request,
+subject to the same agreement. They carry `x, y` only, in degrees of longitude and latitude; customer,
+address, order and time attributes were removed before release, and district-level source files,
+intermediate versions and backup copies are not available in any form. Because the scripts expect the
+names and layout shown in `index.txt`, dropping the files into `data/real_data/` restores the case study
+without any code change.
+
+`长沙市_zero_points.csv` holds the artificial zero-valued points that encode the Xiang River as a
+geographic barrier; these are constraint points, not observed samples.
 
 Because no ground-truth partition exists for these areas, only internal indices are reported for the
-case study, and the visual assessment of the resulting zones is qualitative.
+case study, and the visual assessment of the resulting zones is qualitative. Every other result in the
+paper — all benchmark comparisons, robustness studies, sensitivity analysis and the stress test — uses
+the synthetic datasets in `data/`, which are fully included here.
 
 ---
 

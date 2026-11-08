@@ -32,3 +32,7 @@ desktop.ini
 # Local scratch output
 *.tmp
 ~$*
+
+# Case-study coordinates supplied under a data-sharing agreement: not published.
+# Place the original {city}_real.csv files here to reproduce the case study.
+data/real_data/

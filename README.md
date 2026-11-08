@@ -25,7 +25,9 @@ and the scripts behind the experiments, tables and figures in the manuscript.
 | `algorithm_comparison/` | Head-to-head benchmarking harness (`alg_*.py` wrappers, `run_all.py`) |
 | `algorithm_comparison/utils.py` | Data loading, normalisation, evaluation and plotting helpers |
 | `data/` | Benchmark point sets in CSV format (`x, y, target`) |
-| `data/real_data/` | Case-study inputs for the six cities analysed in the paper, plus the Xiang River zero-point file (coordinates only) |
+| `data/case_study_synthetic/` | Synthetic stand-ins for the six case areas and the barrier zero-point file (see [Case-study data](#case-study-data)) |
+| `data/real_data/` | Not distributed — the released municipal point sets are withheld (see below); the directory is created locally when you obtain them |
+| `make_synthetic_case.py` | Generator for `data/case_study_synthetic/` |
 | `street_test/` | Scripts behind the noise, overlap and per-dataset metric tables, plus figure generation |
 | `addedExperiment/` | Stress-test script with the full seven-metric protocol |
 | `docs/README.zh-CN.md` | Notes in Chinese (development history, parameter tuning hints) |
@@ -114,8 +116,10 @@ x,y,target
 * `x`, `y` — two-dimensional coordinates (any unit; normalisation is applied by the calling script)
 * `target` — ground-truth label, used for the external validation indices only
 
-Files in `data/real_data/` hold the case-study delivery-point coordinates and carry `x, y` without
-`target`; supervised indices are therefore not computed for them.
+Case-study files carry `x, y` without `target`, so supervised indices are not computed for them. The
+synthetic case sets in `data/case_study_synthetic/` use coordinates in metres on an arbitrary local
+frame; all other files use whatever unit the source data provides, which is irrelevant once the
+coordinates are normalised.
 
 ---
 
@@ -147,7 +151,7 @@ can be re-run.
 | Noise robustness study | `python street_test/noise_experiment_spiral.py` | `street_test/results_noise_spiral/` |
 | Overlap robustness study | `python street_test/overlap_experiment.py` | `street_test/results_overlap/` |
 | Calibrated stress test (Δg calibration plus repeated runs) | `python addedExperiment/run_izgc_stress_test.py --repeats 30` | `results_stress_test/` |
-| Case-study zoning maps | `python algorithm_comparison/run_contour_unsupervised.py` | `algorithm_comparison/results_unsupervised/` |
+| Case-study zoning maps | `python algorithm_comparison/run_contour_unsupervised.py` | `algorithm_comparison/results_unsupervised/` (needs the withheld municipal data in `data/real_data/`) |
 | Global sensitivity analysis (Sobol) | `python sobol_sensitivity_test.py` | `sobol_results/` |
 | Grid-spacing sweep | `python test_grid_size_sweep.py` | `grid_size_sweep_results.png` and `.txt` in the current directory |
 
@@ -220,15 +224,42 @@ clusters and are therefore biased against non-convex ground truth.
 
 ## Case-study data
 
-The municipal delivery-zone experiment uses delivery point sets supplied by a commercial partner. The
-release in `data/real_data/` covers exactly the six prefectural cities reported in the paper — Changsha
-(2,545 points), Xiangtan (1,093), Zhuzhou (1,232), Yiyang (484), Hengyang (487) and Changde (472), 6,313
-points in total — and contains coordinate pairs only (`x, y`, in degrees of longitude and latitude).
-Customer, address, order and time attributes are not part of this repository, and district-level source
-files are not released. `长沙市_zero_points.csv` holds the artificial zero-valued points that encode the
-Xiang River as a geographic barrier; these are constraint points, not observed samples.
+The municipal delivery-zone experiment uses delivery point sets supplied by a commercial partner under
+a data-sharing agreement. Those point sets **cannot be redistributed**, so they are not part of this
+repository; `data/real_data/` is listed in `.gitignore` and left empty for anyone who obtains the data
+separately. The experiment covers six prefectural cities in Hunan Province, China — Changsha,
+Xiangtan, Zhuzhou, Yiyang, Hengyang and Changde — and the file naming convention is
+`{city}_real.csv` with a `x, y` header. `长沙市_zero_points.csv` holds the artificial zero-valued
+points that encode the Xiang River as a geographic barrier; these are constraint points, not observed
+samples. Both conventions are the ones the scripts expect, so dropping the original files into
+`data/real_data/` restores the case study without any code change.
 
-Because no ground-truth partition exists for these areas, only internal indices are reported for the
+To keep the case-study code runnable, `data/case_study_synthetic/` provides six synthetic point sets and
+a synthetic barrier file. They were added because reviewers should be able to execute every stage of the
+pipeline without access to the original data. Only aggregate descriptors were used to set them up — the
+point count, the number of density clusters, the spatial extent, the typical cluster radius and the share
+of scattered background points — and all geometry is drawn at random, so nothing can be traced back to a
+real delivery point. The table below pairs each synthetic set with the case area it stands in for.
+
+| Synthetic file | Points | Density clusters | Stands in for |
+|----------------|-------:|-----------------:|---------------|
+| `synthetic_dense_urban.csv` | 2,545 | 57 | Changsha — dense agglomerations around an urban core |
+| `synthetic_compact_clustered.csv` | 1,093 | 25 | Xiangtan — compact clusters of intermediate size |
+| `synthetic_polycentric.csv` | 1,232 | 25 | Zhuzhou — large agglomerations plus small satellites |
+| `synthetic_regular_agglomerations.csv` | 484 | 5 | Yiyang — few, well separated agglomerations |
+| `synthetic_heterogeneous_noisy.csv` | 487 | 32 | Hengyang — heterogeneous densities, many isolated points |
+| `synthetic_sparse_dispersed.csv` | 472 | 13 | Changde — sparse, dispersed settlements |
+| `synthetic_barrier_zero_points.csv` | 557 | — | Xiang River zero-points used by the constraint example |
+
+Regenerate them with:
+
+```bash
+python make_synthetic_case.py
+```
+
+Because the synthetic sets are not the original data, the numbers in the case-study table of the paper
+cannot be reproduced from them; they reproduce the *pipeline*, not the reported values. Because no
+ground-truth partition exists for the real areas either, only internal indices are reported for the
 case study, and the visual assessment of the resulting zones is qualitative.
 
 ---

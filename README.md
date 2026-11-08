@@ -25,7 +25,7 @@ and the scripts behind the experiments, tables and figures in the manuscript.
 | `algorithm_comparison/` | Head-to-head benchmarking harness (`alg_*.py` wrappers, `run_all.py`) |
 | `algorithm_comparison/utils.py` | Data loading, normalisation, evaluation and plotting helpers |
 | `data/` | Benchmark point sets in CSV format (`x, y, target`) |
-| `data/real_data/` | Case-study inputs for the municipal delivery-zone experiment (coordinates only) |
+| `data/real_data/` | Case-study inputs for the six cities analysed in the paper, plus the Xiang River zero-point file (coordinates only) |
 | `street_test/` | Scripts behind the noise, overlap and per-dataset metric tables, plus figure generation |
 | `addedExperiment/` | Stress-test script with the full seven-metric protocol |
 | `docs/README.zh-CN.md` | Notes in Chinese (development history, parameter tuning hints) |
@@ -34,6 +34,10 @@ Files whose names carry other version suffixes (`…WithoutZ.py`, `…WithoutZ2.
 `…WithoutZ4.py`, `…WithoutZ21.py`, `…WithoutZ22_v1.py`, `…WithoutZ22_map.py`) are earlier development
 snapshots. They are kept for provenance only and are **not** required to reproduce the paper; the
 reference implementation is `ContourBasedClusteringWithoutZ22.py`.
+
+Data-preparation utilities such as `algorithm_comparison/convert_real_data.py` and
+`merge_changsha_districts.py` are included for documentation; the raw district-level source files they
+consume are not part of this release.
 
 ---
 
@@ -217,10 +221,15 @@ clusters and are therefore biased against non-convex ground truth.
 ## Case-study data
 
 The municipal delivery-zone experiment uses delivery point sets supplied by a commercial partner. The
-release in `data/real_data/` contains coordinate pairs only (`x, y`, in degrees of longitude and
-latitude); customer, address, order and time attributes are not part of this repository. Because no
-ground-truth partition exists for these areas, only internal indices are reported for the case study,
-and the visual assessment of the resulting zones is qualitative.
+release in `data/real_data/` covers exactly the six prefectural cities reported in the paper — Changsha
+(2,545 points), Xiangtan (1,093), Zhuzhou (1,232), Yiyang (484), Hengyang (487) and Changde (472), 6,313
+points in total — and contains coordinate pairs only (`x, y`, in degrees of longitude and latitude).
+Customer, address, order and time attributes are not part of this repository, and district-level source
+files are not released. `长沙市_zero_points.csv` holds the artificial zero-valued points that encode the
+Xiang River as a geographic barrier; these are constraint points, not observed samples.
+
+Because no ground-truth partition exists for these areas, only internal indices are reported for the
+case study, and the visual assessment of the resulting zones is qualitative.
 
 ---
 

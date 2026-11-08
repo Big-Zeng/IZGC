@@ -1,67 +1,104 @@
-# Contour-Based Clustering
+# IZGC — Isoline Zero-point Grid Clustering
 
-`compareTest2.py` 是等值线聚类算法的单数据集启动入口。它读取带真实标签的二维点集，依次运行 **Contour-Based Clustering**、**KMeans** 和 **DBSCAN**，输出聚类指标与对比可视化结果。
+Reference implementation of **IZGC**, the constraint-aware spatial clustering framework described in
+*"An Intelligent Constraint-Aware Spatial Clustering Framework via Density Field Reconstruction"*
+(Zeng, Lin, Pan & Chu, submitted to *Computers & Geosciences*).
 
-## 算法流程
+IZGC reconstructs a smooth density field from an unlabelled point set on a locally extended grid,
+inserts zero-valued points into empty grid cells so that low-density regions become explicit, extracts
+isolines from the reconstructed field, and converts the contour hierarchy into cluster regions. Points
+are then assigned to density centres, which yields a partition that follows the topological boundary of
+each cluster instead of an assumed convex shape.
 
-1. 读取 CSV 数据，提取坐标 `x, y` 和真实标签 `target`。
-2. 可选地将坐标按轴归一化到 `[0, 100]`。
-3. 使用 `cKDTree` 统计每个点在给定半径内的邻居数，作为该点的密度值。
-4. 在坐标范围外扩展网格，生成虚拟点；对密度场做线性插值。
-5. 提取 10 条等值线，将等值线转换为多边形区域，并建立父子层次结构。
-6. 将最外层区域作为密度中心，把实际点分配到各中心；不足 `min_cluster_size` 的小簇按配置合并。
-7. 计算 Inertia、Silhouette、ARI（以及 AMI/FMI），生成四联对比图并保存。
+This repository contains the method, the baseline algorithms used for comparison, the benchmark datasets,
+and the scripts behind the experiments, tables and figures in the manuscript.
 
-## 文件说明
+---
 
-| 文件 | 作用 |
-|------|------|
-| `compareTest2.py` | 启动入口，完成数据读取、三种算法对比、指标计算和绘图 |
-| `ContourBasedClusteringWithoutZ22.py` | 等值线聚类算法实现 |
-| `clustering_metrics.py` | AMI、ARI、FMI 等聚类指标实现 |
-| `data/` | 测试数据集 |
+## Repository layout
 
-运行后会在仓库根目录生成：
+| Path | Contents |
+|------|----------|
+| `ContourBasedClusteringWithoutZ22.py` | **Reference implementation of IZGC** — the exact version used for all reported results |
+| `compareTest2.py` | Minimal single-dataset demo: IZGC vs. K-means++ vs. DBSCAN, with metrics and a four-panel figure |
+| `clustering_metrics.py` | AMI, ARI and FMI implementations used by the demo |
+| `algorithm_comparison/` | Head-to-head benchmarking harness (`alg_*.py` wrappers, `run_all.py`) |
+| `algorithm_comparison/utils.py` | Data loading, normalisation, evaluation and plotting helpers |
+| `data/` | Benchmark point sets in CSV format (`x, y, target`) |
+| `data/real_data/` | Case-study inputs for the municipal delivery-zone experiment (coordinates only) |
+| `street_test/` | Scripts behind the noise, overlap and per-dataset metric tables, plus figure generation |
+| `addedExperiment/` | Stress-test script with the full seven-metric protocol |
+| `docs/README.zh-CN.md` | Notes in Chinese (development history, parameter tuning hints) |
 
-- `contour_areas.png`：密度场等值线区域图（600 DPI）
-- `cluster_result.png`：等值线聚类结果图（600 DPI）
-- `clustering_comparison.png`：Ground Truth / KMeans / DBSCAN / Contour 四联对比图（150 DPI）
+Files whose names carry other version suffixes (`…WithoutZ.py`, `…WithoutZ2.py`, `…WithoutZ3.py`,
+`…WithoutZ4.py`, `…WithoutZ21.py`, `…WithoutZ22_v1.py`, `…WithoutZ22_map.py`) are earlier development
+snapshots. They are kept for provenance only and are **not** required to reproduce the paper; the
+reference implementation is `ContourBasedClusteringWithoutZ22.py`.
 
-## 环境依赖
+---
 
-- Python 3.9+
-- numpy
-- pandas
-- scikit-learn
-- scipy
-- matplotlib
-- shapely
+## Requirements
 
-安装：
+* Python 3.9 or newer (tested with CPython 3.11.0 on Windows 11 and Linux)
+* `numpy`, `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `shapely`
+
+Optional, only for specific baselines and analyses:
+
+| Package | Needed for |
+|---------|-----------|
+| `pyclustering` | BANG baseline (`algorithm_comparison/alg_bang.py`) |
+| `SALib` | Sobol global sensitivity analysis (`sobol_sensitivity_test.py`) |
+| MATLAB R2020a+ with the DPC-FWSN sources | DPC-FWSN baseline (`algorithm_comparison/alg_dpc_fwsn.py`); skipped automatically when MATLAB is unavailable |
+
+## Installation
 
 ```bash
-pip install numpy pandas scikit-learn scipy matplotlib shapely
+git clone https://github.com/Big-Zeng/IZGC.git
+cd IZGC
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-交互模式需要 matplotlib 的图形后端（默认尝试 `TkAgg`）。Linux 下如缺少 Tk：
+---
 
-```bash
-sudo apt install python3-tk
-```
+## Quick start
 
-## 快速开始
-
-在仓库根目录执行：
+Run the minimal demo from the repository root:
 
 ```bash
 python compareTest2.py
 ```
 
-入口文件使用相对路径读取数据和保存图片，因此建议始终从仓库根目录运行。
+It loads `data/flame.csv`, normalises the coordinates to `[0, 100]`, runs IZGC, K-means++ and DBSCAN,
+prints the metrics and writes three figures to the repository root
+(`contour_areas.png`, `cluster_result.png`, `clustering_comparison.png`).
 
-## 输入数据格式
+Output on the Flame dataset (Python 3.11.0, scikit-learn 1.6.1):
 
-CSV 至少包含以下三列：
+```
+KMeans Clustering Results:      Inertia 170054.88   Silhouette  0.3806   ARI 0.4534
+DBSCAN Clustering Results:      Inertia 168684.88   Silhouette -0.1091   ARI 0.0412
+Contour-Based Clustering:       Inertia 191916.44   Silhouette  0.3323   ARI 1.0000
+```
+
+The demo runs in well under a minute on a laptop. To run without a display (servers, CI, batch jobs):
+
+```bash
+MPLBACKEND=Agg python compareTest2.py
+```
+
+`MPLBACKEND=Agg` makes the interactive figure windows return immediately, so no window has to be closed
+by hand. To switch a dataset, edit the two settings at the top of `compareTest2.py`:
+
+```python
+DATASET = "data/flame.csv"     # any CSV with columns x, y, target
+NORMALIZE_COORDS = True        # scale both axes to [0, 100]
+```
+
+## Input data format
+
+Every dataset is a plain CSV with a header row and at least three columns:
 
 ```csv
 x,y,target
@@ -70,150 +107,155 @@ x,y,target
 1.40,23.25,2
 ```
 
-- `x`、`y`：二维坐标，数值类型。
-- `target`：真实簇标签，整数或字符串均可，但需要能作为分类标签使用。
+* `x`, `y` — two-dimensional coordinates (any unit; normalisation is applied by the calling script)
+* `target` — ground-truth label, used for the external validation indices only
 
-`data/real_data/` 中的部分真实数据只有 `x,y` 两列。直接用于本脚本前需要补充 `target` 列，否则会在 `df['target']` 处报错。
+Files in `data/real_data/` hold the case-study delivery-point coordinates and carry `x, y` without
+`target`; supervised indices are therefore not computed for them.
 
-## 配置说明
+---
 
-### 数据集与归一化
+## Benchmark datasets
 
-在 `compareTest2.py` 顶部修改：
+The synthetic benchmarks used in the manuscript are all in `data/`:
 
-```python
-DATASET = "data/flame.csv"   # 数据集路径
-NORMALIZE_COORDS = True      # 是否将坐标归一化到 [0, 100]
-```
+| Dataset | File | Dataset | File |
+|---------|------|---------|------|
+| Flame | `flame.csv` | Aggregation | `Aggregation.csv` |
+| Jain | `jain.csv` | Compound | `Compound.csv` |
+| Spiral | `spiral.csv` | R15 | `R15.csv` |
+| Cth | `cth.csv` | D31 | `D31.csv` |
+| Complex8 | `complex8.csv` | Complex9 | `complex9.csv` |
+| S1–S4 | `s1.csv`, `s2.csv`, … | A2, A3 | `a2.csv`, `a3.csv` |
 
-归一化按 X、Y 两个轴分别进行。真实地理坐标（经纬度跨度较小）建议开启归一化，否则密度半径和 DBSCAN 的 `eps` 需要重新调整。
+Additional point sets (`ring.csv`, `ls.csv`, `lineblobs.csv`, `2d_3c.csv`, `zelnik4.csv`,
+`cluto-t5-8k.csv`, …) are retained so that the individual benchmark configurations reported in the paper
+can be re-run.
 
-### 对比算法参数
+---
 
-KMeans：
+## Reproducing the results in the paper
 
-```python
-n_clusters = len(np.unique(y_true))  # 使用真实簇数
-random_state = 42
-n_init = 10
-```
+| Experiment in the manuscript | Command | Output |
+|------------------------------|---------|--------|
+| Algorithm comparison across benchmark datasets | `cd algorithm_comparison && python run_all.py` | one figure per algorithm plus a metrics table in `algorithm_comparison/results/` |
+| Per-dataset seven-metric comparison | `python street_test/dataset_metrics.py` | `street_test/results_dataset_metrics/` |
+| Noise robustness study | `python street_test/noise_experiment_spiral.py` | `street_test/results_noise_spiral/` |
+| Overlap robustness study | `python street_test/overlap_experiment.py` | `street_test/results_overlap/` |
+| Calibrated stress test (Δg calibration plus repeated runs) | `python addedExperiment/run_izgc_stress_test.py --repeats 30` | `results_stress_test/` |
+| Case-study zoning maps | `python algorithm_comparison/run_contour_unsupervised.py` | `algorithm_comparison/results_unsupervised/` |
+| Global sensitivity analysis (Sobol) | `python sobol_sensitivity_test.py` | `sobol_results/` |
+| Grid-spacing sweep | `python test_grid_size_sweep.py` | `grid_size_sweep_results.png` and `.txt` in the current directory |
 
-DBSCAN：
+`run_all.py` executes IZGC, K-means++, GMM, DBSCAN, CLIQUE, BANG and DPC-FWSN on a single dataset and
+writes one figure per algorithm plus a metrics table. DPC-FWSN requires MATLAB and is skipped with a
+warning when the engine is not found, so the remaining baselines still run.
 
-```python
-eps = 5.0
-min_samples = 5
-metric = 'euclidean'
-```
+The seven-metric protocol used in the tables is AMI, ARI, FMI, Macro-F1, Macro-Jaccard, Completeness and
+V-measure. Macro-F1 and Macro-Jaccard are computed after Hungarian label alignment, which makes them
+permutation-invariant.
 
-### 等值线聚类参数
+---
 
-入口通过 `VRPAnalyzer.run_contour_clustering()` 调用算法，当前默认值为：
+## Main parameters
 
-```python
-grid_size = 3.160
-max_buffer_distance = 0
-min_cluster_size = 2   # 注意：构造函数中实际传入的是 5
-radius = 30
-```
+IZGC has three primary hyperparameters — the grid step Δg, the search radius R and the minimum cluster
+scale θ — plus one assignment buffer used when attaching boundary points to density centres.
 
-其中的实际行为是：
+| Code parameter | Paper symbol | Demo default | Effect |
+|----------------|--------------|--------------|--------|
+| `grid_size` | Δg | `3.160` | Spacing of the interpolation grid. Smaller values give finer cluster boundaries at higher cost |
+| `radius` | R | `30` | Neighbourhood radius of the `cKDTree` density estimate, in normalised units |
+| `min_cluster_size` | θ | `5` | Clusters below this size are merged into the nearest large cluster |
+| `max_buffer_distance` | — | `0` | Buffer used when assigning boundary points to density centres |
 
-- `radius`：密度估计的邻域半径，影响每个点的密度值。
-- `grid_size`：虚拟点网格大小。值越小，网格越密、虚拟点和插值计算量越大，聚类区域边界越精细。
-- `max_buffer_distance`：区域缓冲区扩展距离，用于把边界附近的点分配给密度中心。
-- `min_cluster_size`：小于该点数的簇会被合并到最近的大簇。当前构造函数中写死为 `5`，函数参数 `min_cluster_size` 实际未生效。
-- `merge_small_clusters=True`：小簇合并到大簇；改为 `False` 时小簇点会被标记为噪声（标签 `-1`）。
-
-如需修改有效的最小簇大小，请同时修改 `compareTest2.py` 中构造实例处的这一行：
-
-```python
-min_cluster_size=5,
-```
-
-## 交互模式
-
-`ContourBasedClusteringWithoutZ22` 的 `interactive` 默认是 `True`，入口没有显式覆盖，因此运行过程中会依次弹出窗口：
-
-1. 网格与虚拟点窗口：可在空白处用鼠标左键添加零值点，关闭窗口后继续。
-2. 等值线区域窗口：关闭后继续。
-3. 聚类结果窗口：关闭后继续。
-4. 最后 `compareTest2.py` 自身还会调用一次 `plt.show()` 显示四联对比图。
-
-批量运行或服务器无图形界面时，需要关闭交互。可在创建算法实例时增加 `interactive=False`：
+Δg is selected per dataset: the reported experiments use values between 1.74 and 3.04, and the exact
+value for each dataset is recorded in the header of `street_test/dataset_metrics.py`. Setting
+`merge_small_clusters=False` labels the points of small clusters as noise (`-1`) instead of merging them.
 
 ```python
-cluster = ContourBasedClusteringWithoutZ22.ContourBasedClusteringWithoutZ22(
-    combined_data,
-    grid_size=grid_size,
-    max_buffer_distance=max_buffer_distance,
-    min_cluster_size=5,
+import ContourBasedClusteringWithoutZ22 as izgc
+
+model = izgc.ContourBasedClusteringWithoutZ22(
+    combined_data,               # [(x, y, density, index), ...]
+    grid_size=3.160,             # Δg
+    max_buffer_distance=0,
+    min_cluster_size=5,          # θ
     merge_small_clusters=True,
-    interactive=False
+    interactive=False,
 )
+labels = model.perform_clustering()
 ```
 
-并把文件末尾的 `plt.show()` 删除或改为保存后关闭：
+`interactive=True` opens the intermediate figures and waits for them to be closed; use `False` for batch
+runs. The density estimate uses the `radius` argument of the calling wrapper
+(`VRPAnalyzer.run_contour_clustering(radius=30, ...)` in `compareTest2.py`), not a constructor argument.
 
-```python
-# plt.show()
+Δg is scale dependent. Because coordinates are normalised to a 100 × 100 box before clustering, a given
+Δg is comparable across datasets; if normalisation is disabled, Δg and R must be rescaled to the
+coordinate units of the data.
+
+---
+
+## Metrics
+
+| Metric | Range | Interpretation |
+|--------|-------|----------------|
+| ARI | [−1, 1] | Agreement with ground truth, corrected for chance |
+| AMI | [0, 1] | Shared information between partitions, normalised |
+| FMI | [0, 1] | Pairwise precision/recall trade-off |
+| Macro-F1 | [0, 1] | Class-balanced F1 after optimal label alignment |
+| V-measure | [0, 1] | Harmonic mean of homogeneity and completeness |
+| Silhouette | [−1, 1] | Internal cohesion/separation, computed on non-noise points |
+| Inertia | ≥ 0 | Within-cluster sum of squared distances |
+
+Internal indices (Silhouette, Inertia) are reported for reference only: they favour compact, convex
+clusters and are therefore biased against non-convex ground truth.
+
+---
+
+## Case-study data
+
+The municipal delivery-zone experiment uses delivery point sets supplied by a commercial partner. The
+release in `data/real_data/` contains coordinate pairs only (`x, y`, in degrees of longitude and
+latitude); customer, address, order and time attributes are not part of this repository. Because no
+ground-truth partition exists for these areas, only internal indices are reported for the case study,
+and the visual assessment of the resulting zones is qualitative.
+
+---
+
+## License
+
+Released under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
+
+Copyright (C) 2025–2026 Xiangfei Zeng, Zhinan Lin, Jeng-Shyang Pan, Shu-Chuan Chu.
+
+You may redistribute and/or modify this code under the terms of the GPL-3.0 as published by the Free
+Software Foundation. The program is distributed in the hope that it will be useful, but **without any
+warranty**; without even the implied warranty of merchantability or fitness for a particular purpose.
+Derivative works distributed to others must remain under the same licence.
+
+## Citation
+
+If you use this code, please cite the paper:
+
+```bibtex
+@article{zeng2026izgc,
+  title   = {An Intelligent Constraint-Aware Spatial Clustering Framework via Density Field Reconstruction},
+  author  = {Zeng, Xiangfei and Lin, Zhinan and Pan, Jeng-Shyang and Chu, Shu-Chuan},
+  journal = {Computers \& Geosciences},
+  year    = {2026},
+  note    = {Manuscript submitted for publication}
+}
 ```
 
-也可以使用无界面后端：
+## Contact
 
-```bash
-MPLBACKEND=Agg python compareTest2.py
-```
+* Xiangfei Zeng — xiangfeizeng@ygu.edu.cn
+* Jeng-Shyang Pan (corresponding author) — 100112@nuist.edu.cn
 
-需要注意：`MPLBACKEND=Agg` 下 `plt.show()` 不会阻塞，但也不会显示窗口；仍建议设置 `interactive=False`，以便及时关闭图形并避免无界面环境下产生多余窗口对象。
+Bug reports and questions are welcome through the issue tracker.
 
-## 输出指标
+---
 
-控制台会打印每个算法的：
-
-- **Inertia**：簇内误差平方和，越小通常表示簇内越紧凑。
-- **Silhouette**：轮廓系数，范围 `[-1, 1]`，越大越好。
-- **ARI**：调整兰德指数，范围 `[-1, 1]`，1 表示与真实标签完全一致。
-
-入口还调用了 `ClusteringMetrics.evaluate_all()`，可计算：
-
-- **AMI**：调整互信息
-- **ARI**：调整兰德指数
-- **FMI**：Fowlkes-Mallows 指数
-
-目前 `evaluate_all()` 的结果保存在局部变量 `metrics` 中，尚未打印。如需输出 AMI/FMI，可在 `run_contour_clustering()` 中补充：
-
-```python
-metrics = ClusteringMetrics.evaluate_all(y_true, pre_labels)
-print(f"AMI: {metrics['AMI']:.4f}, ARI: {metrics['ARI']:.4f}, FMI: {metrics['FMI']:.4f}")
-```
-
-## 参数调优建议
-
-1. **先确定坐标尺度**：优先开启 `NORMALIZE_COORDS=True`，让不同数据集的 `radius`、`eps` 有一致的参考范围。
-2. **调 `radius`**：半径过小会导致密度过于稀疏、区域碎片化；过大会把相邻簇连成一片。
-3. **调 `grid_size`**：从 `3.0` 左右开始尝试；网格过细会显著增加运行时间，过粗会丢失簇边界。
-4. **调 `min_cluster_size`**：数据噪声较多或存在大量小簇时适当增大，可减少碎片簇。
-5. **调 `eps`**：DBSCAN 的 `eps` 与坐标尺度直接相关，归一化后可从 `3~8` 范围尝试。
-
-## 常见问题
-
-**`KeyError: 'target'`**
-
-数据文件缺少真实标签列。请补充 `target` 列，或修改脚本以适配无标签数据（此时 ARI 等有监督指标无法计算）。
-
-**窗口卡住不继续**
-
-算法默认开启交互模式，需要手动关闭每个 matplotlib 窗口。批量运行时按上文设置 `interactive=False`。
-
-**中文显示为方框**
-
-算法文件设置了 `SimHei` 字体。系统未安装该字体时会出现警告，可安装中文字体或修改 `plt.rcParams['font.sans-serif']`。
-
-**运行很慢或内存占用高**
-
-通常是 `grid_size` 过小或数据量过大导致虚拟点和插值网格数量激增。适当增大 `grid_size`，或对大数据集先做降采样。
-
-**没有生成图片**
-
-确认脚本从仓库根目录运行，并检查当前目录是否可写；图片默认保存在仓库根目录。
+*中文说明见 [`docs/README.zh-CN.md`](docs/README.zh-CN.md).*

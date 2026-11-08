@@ -1,0 +1,34 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc.*
+
+# Test / build artefacts
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.iml
+
+# JVM crash logs produced by the MATLAB / JVM bridge
+hs_err_pid*.log
+replay_pid*.log
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local scratch output
+*.tmp
+~$*

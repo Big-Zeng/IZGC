@@ -1,9 +1,9 @@
 """
-运行所有算法对比
-自动进行参数优化，生成论文级别的图表
+Run the full algorithm comparison.
+Optimises every parameter automatically and produces publication-quality figures.
 """
 
-# 禁用matplotlib交互模式，加快绑定速度
+# disable the interactive backend to speed up rendering
 import matplotlib
 matplotlib.use('Agg')
 
@@ -27,54 +27,54 @@ from algorithm_comparison.alg_clique2 import run_clique2
 from algorithm_comparison.alg_gmm import run_gmm, COVARIANCE_TYPES
 from algorithm_comparison.alg_bang import run_bang, PYCLUSTERING_AVAILABLE as BANG_AVAILABLE
 
-# 尝试导入MATLAB
+# try to import the MATLAB engine
 try:
     from algorithm_comparison.alg_dpc_fwsn import run_dpc_fwsn, MATLAB_AVAILABLE
 except:
     MATLAB_AVAILABLE = False
 
-# ==================== 配置 ====================
+# ==================== configuration ====================
 DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 OPTIMIZE_METRIC = 'ARI'
 
-# 各算法参数搜索范围 (start, end, step)
+# parameter search ranges per algorithm (start, end, step)
 CONTOUR_RANGES = {
-    'grid_size': (0.65, 0.7, 0.001),           # 从1.0到5.0，步长0.5
-    'max_buffer_distance': (0, 0, 1),        # 从0到5，步长1
-    'min_cluster_size': (5, 5, 1),          # 从3到10，步长2
-    'density_radius': (30, 30, 1)            # 从20到40，步长5
+    'grid_size': (0.65, 0.7, 0.001),           # 0.65 -> 0.7, step 0.001
+    'max_buffer_distance': (0, 0, 1),        # fixed at 0
+    'min_cluster_size': (5, 5, 1),          # fixed at 5
+    'density_radius': (30, 30, 1)            # fixed at 30
 }
 
 KMEANS_RANGES = {
-    'n_clusters': (15, 15, 1),  # 簇数：从2到15，步长1
-    'n_init': (10, 50, 1),  # 初始化次数：从10到50，步长10
-    'max_iter': (300, 500, 50)  # 最大迭代：从300到500，步长50
+    'n_clusters': (15, 15, 1),  # fixed at 15
+    'n_init': (10, 50, 1),  # 10 -> 50, step 1
+    'max_iter': (300, 500, 50)  # 300 -> 500, step 50
 }
 
 DBSCAN_RANGES = {
-    'eps': (1.0, 50, 1.0),  # 邻域半径：从1.0到50.0，步长1.0
-    'min_samples': (2, 50, 1)  # 最小样本数：从2到50，步长1
+    'eps': (1.0, 50, 1.0),  # neighbourhood radius, 1.0 -> 50.0, step 1.0
+    'min_samples': (2, 50, 1)  # 2 -> 50, step 1
 }
 
 CLIQUE_RANGES = {
-    'intervals': (4, 100, 1),  # 网格划分数：从4到100，步长1
-    'density_threshold': (1, 50, 1)  # 密度阈值：从1到50，步长1
+    'intervals': (4, 100, 1),  # 4 -> 100, step 1
+    'density_threshold': (1, 50, 1)  # 1 -> 50, step 1
 }
 
 GMM_RANGES = {
-    'n_components': (15, 15, 1),    # 簇数：从2到15，步长1
-    'n_init': (10, 50, 1)           # 初始化次数：从5到20，步长5
+    'n_components': (15, 15, 1),    # fixed at 15
+    'n_init': (10, 50, 1)           # 10 -> 50, step 1
 }
 
 DPC_RANGES = {
-    'k': (1, 50, 1)                          # 从5到20，步长2
+    'k': (1, 50, 1)                          # 1 -> 50, step 1
 }
 
 BANG_RANGES = {
-    'levels': (4, 50, 1),                  # 网格层级：从4到100，步长1
-    'density_threshold': (0.01, 1, 0.05)    # 密度阈值：从0.01到1，步长0.05
+    'levels': (4, 50, 1),                  # 4 -> 50, step 1
+    'density_threshold': (0.01, 1, 0.05)    # 0.01 -> 1, step 0.05
 }
 
 RUN_MATLAB = True
@@ -82,7 +82,7 @@ RUN_MATLAB = True
 
 
 def generate_param_values(start, end, step):
-    """生成参数值列表"""
+    """Build the value list for one parameter."""
     if isinstance(start, int) and isinstance(step, int):
         return list(range(start, end + 1, step))
     else:
@@ -90,16 +90,16 @@ def generate_param_values(start, end, step):
 
 
 def optimize_algorithm(name, run_func, X, y_true, param_ranges, optimize_metric='ARI', **extra_args):
-    """通用的算法参数优化函数"""
+    """Generic parameter-optimisation routine."""
     print(f"\n{'='*60}")
-    print(f"优化 {name}")
+    print(f"Optimising {name}")
     print(f"{'='*60}")
     
-    # 生成参数值
+    # build the value grid
     param_grid = {}
     for pname, (start, end, step) in param_ranges.items():
         param_grid[pname] = generate_param_values(start, end, step)
-        print(f"  {pname}: {start} -> {end}, 步长={step}, 共{len(param_grid[pname])}个值")
+        print(f"  {pname}: {start} -> {end}, step={step}, {len(param_grid[pname])} values")
     
     best_score = -np.inf
     best_params = None
@@ -110,7 +110,7 @@ def optimize_algorithm(name, run_func, X, y_true, param_ranges, optimize_metric=
     param_values = list(param_grid.values())
     total = np.prod([len(v) for v in param_values])
     
-    print(f"参数组合数: {total}")
+    print(f"Parameter combinations: {total}")
     
     start_time = time.time()
     
@@ -141,12 +141,12 @@ def optimize_algorithm(name, run_func, X, y_true, param_ranges, optimize_metric=
     elapsed = time.time() - start_time
     
     if best_params:
-        print(f"\n最佳参数: {best_params}")
-        print(f"最佳{optimize_metric}: {best_score:.4f}")
-        print(f"簇数: {best_metrics['n_clusters']}, 噪声: {best_metrics['n_noise']}")
-        print(f"用时: {elapsed:.2f}s")
+        print(f"\nBest parameters: {best_params}")
+        print(f"Best {optimize_metric}: {best_score:.4f}")
+        print(f"Clusters: {best_metrics['n_clusters']}, noise: {best_metrics['n_noise']}")
+        print(f"Elapsed: {elapsed:.2f}s")
     else:
-        print(f"\n未找到有效参数")
+        print(f"\nNo valid parameter combination found")
     
     return {
         'name': name,
@@ -158,30 +158,30 @@ def optimize_algorithm(name, run_func, X, y_true, param_ranges, optimize_metric=
 
 
 def main():
-    """主函数"""
+    """Entry point."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     
     print("="*70)
-    print("聚类算法综合对比 - 参数自动优化")
+    print("Clustering benchmark with automatic parameter optimisation")
     print("="*70)
     
-    # 加载数据
+    # load the data
     X, y_true = load_dataset(DATASET)
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
     
-    print(f"\n数据集: {dataset_name}")
-    print(f"样本数: {len(X)}")
-    print(f"真实簇数: {len(np.unique(y_true))}")
+    print(f"\nDataset: {dataset_name}")
+    print(f"Samples: {len(X)}")
+    print(f"Ground-truth clusters: {len(np.unique(y_true))}")
     
     X_original = X.copy()
     if NORMALIZE:
         X = normalize_coordinates(X)
-        print("✓ 坐标已归一化到[0, 100]")
+        print("Coordinates scaled to [0, 100]")
     
     results = []
     
     # 1. Ground Truth
-    print("\n保存Ground Truth图...")
+    print("\nSaving the ground-truth figure...")
     plot_ground_truth(X, y_true, f"{OUTPUT_DIR}/01_GroundTruth_{dataset_name}.png", dpi=300)
     
     # 2. ContourBasedClustering
@@ -236,16 +236,16 @@ def main():
             f"{OUTPUT_DIR}/05_CLIQUE_{dataset_name}.png", dpi=300
         )
     
-    # 6. GMM (高斯混合模型)
+    # 6. GMM (Gaussian mixture model)
     print(f"\n{'='*60}")
-    print("优化 GMM")
+    print("Optimising GMM")
     print(f"{'='*60}")
     
-    # GMM需要特殊处理covariance_type参数
+    # GMM needs its own handling of the covariance_type parameter
     gmm_param_grid = {}
     for pname, (start, end, step) in GMM_RANGES.items():
         gmm_param_grid[pname] = generate_param_values(start, end, step)
-        print(f"  {pname}: {start} -> {end}, 步长={step}, 共{len(gmm_param_grid[pname])}个值")
+        print(f"  {pname}: {start} -> {end}, step={step}, {len(gmm_param_grid[pname])} values")
     print(f"  covariance_type: {COVARIANCE_TYPES}")
     
     best_gmm_score = -np.inf
@@ -254,7 +254,7 @@ def main():
     best_gmm_metrics = None
     
     total_gmm = len(gmm_param_grid['n_components']) * len(gmm_param_grid['n_init']) * len(COVARIANCE_TYPES)
-    print(f"参数组合数: {total_gmm}")
+    print(f"Parameter combinations: {total_gmm}")
     
     for n_components in gmm_param_grid['n_components']:
         for n_init in gmm_param_grid['n_init']:
@@ -276,8 +276,8 @@ def main():
                     pass
     
     if best_gmm_params:
-        print(f"\n最佳参数: {best_gmm_params}")
-        print(f"最佳{OPTIMIZE_METRIC}: {best_gmm_score:.4f}")
+        print(f"\nBest parameters: {best_gmm_params}")
+        print(f"Best {OPTIMIZE_METRIC}: {best_gmm_score:.4f}")
         results.append({
             'name': 'GMM',
             'params': best_gmm_params,
@@ -308,12 +308,12 @@ def main():
     # 8. DPC-FWSN (MATLAB)
     if RUN_MATLAB and MATLAB_AVAILABLE:
         print(f"\n{'='*60}")
-        print("优化 DPC-FWSN (MATLAB)")
+        print("Optimising DPC-FWSN (MATLAB)")
         print(f"{'='*60}")
         
-        # 生成参数值
+        # build the value grid
         k_values = generate_param_values(*DPC_RANGES['k'])
-        print(f"  k: {DPC_RANGES['k'][0]} -> {DPC_RANGES['k'][1]}, 步长={DPC_RANGES['k'][2]}, 共{len(k_values)}个值")
+        print(f"  k: {DPC_RANGES['k'][0]} -> {DPC_RANGES['k'][1]}, step={DPC_RANGES['k'][2]}, {len(k_values)} values")
         
         try:
             from matlab_integration import MatlabRunner
@@ -343,7 +343,7 @@ def main():
                             best_labels = labels.copy()
                             best_metrics = eval_metrics.copy()
                 except Exception as e:
-                    print(f"  k={k}: 失败 - {e}")
+                    print(f"  k={k}: failed - {e}")
             
             matlab_runner.close()
             
@@ -361,14 +361,14 @@ def main():
                     f"{OUTPUT_DIR}/08_DPC-FWSN_{dataset_name}.png", dpi=300
                 )
         except Exception as e:
-            print(f"DPC-FWSN失败: {e}")
+            print(f"DPC-FWSN failed: {e}")
     
-    # 打印汇总
+    # summary
     print("\n" + "="*90)
-    print("算法对比汇总")
+    print("Algorithm comparison summary")
     print("="*90)
     
-    header = f"{'算法':<15} {'AMI':<10} {'ARI':<10} {'FMI':<10} {'Silhouette':<12} {'簇数':<8} {'噪声':<8}"
+    header = f"{'Algorithm':<15} {'AMI':<10} {'ARI':<10} {'FMI':<10} {'Silhouette':<12} {'Clusters':<10} {'Noise':<8}"
     print(header)
     print("-"*90)
     
@@ -379,7 +379,7 @@ def main():
     
     print("="*90)
     
-    # 保存结果到CSV
+    # write the CSV
     csv_data = []
     for r in results:
         m = r['metrics']
@@ -397,26 +397,26 @@ def main():
     df = pd.DataFrame(csv_data)
     csv_path = f"{OUTPUT_DIR}/comparison_results_{dataset_name}.csv"
     df.to_csv(csv_path, index=False)
-    print(f"\n结果已保存: {csv_path}")
+    print(f"\nResults saved: {csv_path}")
     
-    # 保存每个算法的最佳结果到txt
+    # dump the best result of each algorithm to a text file
     for r in results:
         txt_path = f"{OUTPUT_DIR}/{r['name']}_{dataset_name}_best.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:
-            f.write(f"算法: {r['name']}\n")
-            f.write(f"数据集: {dataset_name}\n")
-            f.write(f"最佳参数: {r['params']}\n")
-            f.write(f"\n评估指标:\n")
+            f.write(f"Algorithm: {r['name']}\n")
+            f.write(f"Dataset: {dataset_name}\n")
+            f.write(f"Best parameters: {r['params']}\n")
+            f.write(f"\nEvaluation metrics:\n")
             f.write(f"  AMI: {r['metrics']['AMI']:.4f}\n")
             f.write(f"  ARI: {r['metrics']['ARI']:.4f}\n")
             f.write(f"  FMI: {r['metrics']['FMI']:.4f}\n")
             f.write(f"  Silhouette: {r['metrics']['Silhouette']:.4f}\n")
-            f.write(f"  簇数: {r['metrics']['n_clusters']}\n")
-            f.write(f"  噪声点: {r['metrics']['n_noise']}\n")
-        print(f"  已保存: {txt_path}")
+            f.write(f"  Clusters: {r['metrics']['n_clusters']}\n")
+            f.write(f"  Noise points: {r['metrics']['n_noise']}\n")
+        print(f"  Saved: {txt_path}")
     
-    print(f"\n图表已保存到: {OUTPUT_DIR}/")
-    print("\n完成！")
+    print(f"\nFigures written to: {OUTPUT_DIR}/")
+    print("\nDone!")
 
 
 if __name__ == "__main__":

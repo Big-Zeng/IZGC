@@ -1,8 +1,6 @@
 # IZGC — Isoline Zero-point Grid Clustering
 
-Reference implementation of **IZGC**, the constraint-aware spatial clustering framework described in
-*"An Intelligent Constraint-Aware Spatial Clustering Framework via Density Field Reconstruction"*
-(Zeng, Lin, Pan & Chu, submitted to *Computers & Geosciences*).
+Reference implementation of **IZGC**, the constraint-aware spatial clustering framework.
 
 IZGC reconstructs a smooth density field from an unlabelled point set on a locally extended grid,
 inserts zero-valued points into empty grid cells so that low-density regions become explicit, extracts
@@ -265,24 +263,7 @@ Software Foundation. The program is distributed in the hope that it will be usef
 warranty**; without even the implied warranty of merchantability or fitness for a particular purpose.
 Derivative works distributed to others must remain under the same licence.
 
-## Citation
 
-If you use this code, please cite the paper:
-
-```bibtex
-@article{zeng2026izgc,
-  title   = {An Intelligent Constraint-Aware Spatial Clustering Framework via Density Field Reconstruction},
-  author  = {Zeng, Xiangfei and Lin, Zhinan and Pan, Jeng-Shyang and Chu, Shu-Chuan},
-  journal = {Computers \& Geosciences},
-  year    = {2026},
-  note    = {Manuscript submitted for publication}
-}
-```
-
-## Contact
-
-* Xiangfei Zeng — xiangfeizeng@ygu.edu.cn
-* Jeng-Shyang Pan (corresponding author) — 100112@nuist.edu.cn
 
 Bug reports and questions are welcome through the issue tracker.
 

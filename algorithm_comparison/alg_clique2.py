@@ -12,7 +12,7 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# 尝试导入pyclustering
+# Try to import pyclustering
 try:
     from pyclustering.cluster.clique import clique
     PYCLUSTERING_AVAILABLE = True
@@ -20,21 +20,21 @@ except ImportError:
     PYCLUSTERING_AVAILABLE = False
     print("警告: pyclustering未安装，请运行: pip install pyclustering")
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
-# pyclustering CLIQUE参数:
-# - intervals: 每个维度的网格划分数量
-# - density_threshold: 密度阈值
+# Parameter search range (start, end, step)
+# pyclustering CLIQUE parameters:
+# - intervals: number of grid divisions per dimension
+# - density_threshold: density threshold
 PARAM_RANGES = {
-    'intervals': (4, 100, 1),           # 网格划分数：从4到100，步长1
-    'density_threshold': (1, 50, 1)    # 密度阈值：从1到50，步长1
+    'intervals': (4, 100, 1),           # Grid divisions: 4 to 100 in steps of 1
+    'density_threshold': (1, 50, 1)    # Density threshold: 1 to 50 in steps of 1
 }
 
-# 优化目标
+# Optimisation objective
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -59,16 +59,16 @@ def run_clique2(X, intervals, density_threshold):
     if not PYCLUSTERING_AVAILABLE:
         return None
     
-    # 创建CLIQUE实例
+    # Create a CLIQUE instance
     clique_instance = clique(X.tolist(), intervals, density_threshold)
     
-    # 执行聚类
+    # Run clustering
     clique_instance.process()
     
-    # 获取聚类结果
+    # Get the clustering result
     clusters = clique_instance.get_clusters()
     
-    # 转换为标签数组
+    # Convert to a label array
     labels = np.full(len(X), -1)
     for cluster_id, cluster_points in enumerate(clusters):
         for point_idx in cluster_points:
@@ -86,7 +86,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         param_grid[name] = generate_param_values(start, end, step)
@@ -178,7 +178,7 @@ if __name__ == "__main__":
             save_path, dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/CLIQUE2_{dataset_name}_best.txt"
         save_best_result("CLIQUE2", dataset_name, best_params, best_metrics, txt_path)
     else:

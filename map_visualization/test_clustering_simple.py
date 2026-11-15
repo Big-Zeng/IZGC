@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import ContourBasedClusteringWithoutZ22_map as ContourClustering
 import numpy as np
 
-# 创建简单测试数据
+# Create simple test data
 test_points = [
     (112.9, 28.2, 10, 1),
     (112.91, 28.21, 12, 2),
@@ -24,7 +24,7 @@ cluster = ContourClustering.ContourBasedClusteringWithoutZ(
     grid_size=0.05,
     max_buffer_distance=5,
     min_cluster_size=2,
-    interactive=False  # 非交互模式
+    interactive=False  # Non-interactive mode
 )
 
 print("执行聚类...")
@@ -37,7 +37,7 @@ print(f"标签: {labels}")
 print("获取密度中心...")
 print(f"密度中心数量: {len(cluster.density_centers)}")
 
-# 测试获取多边形数据
+# Test retrieving the polygon data
 print("\n测试获取多边形数据:")
 for i, center in enumerate(cluster.density_centers):
     print(f"簇 {i}:")

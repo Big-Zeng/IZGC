@@ -6,14 +6,14 @@ import matplotlib.patches as patches
 from shapely.geometry import Point, Polygon
 import matplotlib
 from shapely.geometry import Point, LineString
-matplotlib.use('TkAgg')  # 或 'Qt5Agg'（需安装PyQt5）
+matplotlib.use('TkAgg')  # or 'Qt5Agg' (requires PyQt5)
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from sklearn.metrics import silhouette_score
 from scipy.spatial import cKDTree
 
-plt.rcParams['font.sans-serif'] = ['SimHei']   # 黑体
-plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
+plt.rcParams['font.sans-serif'] = ['SimHei']   # SimHei
+plt.rcParams['axes.unicode_minus'] = False     # Fix minus-sign rendering
 class ContourBasedClusteringWithoutZ:
     def __init__(self, actual_points, grid_size=1.0, max_buffer_distance=5, 
                  manual_virtual_points=None, min_cluster_size=5, interactive=True):
@@ -34,14 +34,14 @@ class ContourBasedClusteringWithoutZ:
         self.max_buffer_distance = int(max_buffer_distance)
         self.virtual_points = []
         self.manual_virtual_points = manual_virtual_points or []
-        self.manual_points = []  # 用于存储交互式添加的点
+        self.manual_points = []  # Stores the interactively added points
         self.contour_areas = []
         self.density_centers = []
         self.point_to_density_center = {}
-        self.min_cluster_size = min_cluster_size  # 新增：最小簇大小阈值
-        self.interactive = interactive  # 新增：是否启用交互模式
+        self.min_cluster_size = min_cluster_size  # Added: minimum cluster-size threshold
+        self.interactive = interactive  # Added: whether to enable interactive mode
 
-        # 内部类定义
+        # Internal class definition
         class ContourArea:
             def __init__(self, polygon, points):
                 self.polygon = polygon
@@ -76,13 +76,13 @@ class ContourBasedClusteringWithoutZ:
         
         for point in points:
             if len(point) == 2:
-                # 如果只提供 (x, y)，自动添加 z=0.0 和 id=-1
+                # If only (x, y) is given, add z = 0.0 and id = -1
                 self.manual_virtual_points.append((point[0], point[1], 0.0, -1))
             elif len(point) == 3:
-                # 如果提供 (x, y, z)，自动添加 id=-1
+                # If (x, y, z) is given, add id = -1
                 self.manual_virtual_points.append((point[0], point[1], point[2], -1))
             elif len(point) == 4:
-                # 如果提供完整的 (x, y, z, id)
+                # If the full (x, y, z, id) is given
                 self.manual_virtual_points.append(point)
             else:
                 print(f"警告: 忽略格式不正确的点 {point}")
@@ -97,7 +97,7 @@ class ContourBasedClusteringWithoutZ:
         min_x, max_x = min(x_coords), max(x_coords)
         min_y, max_y = min(y_coords), max(y_coords)
 
-        # 扩展边界确保覆盖所有区域
+        # Expand the extent so that all regions are covered
         i_start = min_x - 2 * self.grid_size
         i_end = max_x + 2 * self.grid_size
         j_start = min_y - 2 * self.grid_size
@@ -108,23 +108,23 @@ class ContourBasedClusteringWithoutZ:
         while i < i_end:
             j = j_start
             while j < j_end:
-                # 检查当前网格是否存在实际点
+                # Check whether the current cell contains a real point
                 has_point = any(
                     i <= x < i + self.grid_size and
                     j <= y < j + self.grid_size
                     for (x, y, _, _) in self.actual_points
                 )
 
-                # 无实际点时生成虚拟点
+                # Generate virtual points when there are no real points
                 if not has_point:
                     virtual_x = i + self.grid_size / 2
                     virtual_y = j + self.grid_size / 2
-                    virtual_points.append((virtual_x, virtual_y, 0.0, -1))  # -1表示自动虚拟点
+                    virtual_points.append((virtual_x, virtual_y, 0.0, -1))  # -1 marks an automatically generated virtual point
 
                 j += self.grid_size
             i += self.grid_size
 
-        # 合并预设的手动虚拟点
+        # Merge the predefined manual virtual points
         if self.manual_virtual_points:
             for point in self.manual_virtual_points:
                 if len(point) == 2:
@@ -135,7 +135,7 @@ class ContourBasedClusteringWithoutZ:
                     virtual_points.append(point)
             print(f"已添加 {len(self.manual_virtual_points)} 个预设虚拟点")
 
-        # ====== 生成网格刻度 ======
+        # ====== Generate the grid ticks ======
         x_ticks = np.arange(i_start, i_end + self.grid_size, self.grid_size)
         y_ticks = np.arange(j_start, j_end + self.grid_size, self.grid_size)
 
@@ -143,26 +143,26 @@ class ContourBasedClusteringWithoutZ:
         auto_virtual_count = len(virtual_points)
         print(f"网格总数: {grid_count}, 自动虚拟点数: {auto_virtual_count}")
 
-        # ====== 交互界面（仅在interactive=True时显示）======
+        # ====== Interactive UI (shown only when interactive=True) ======
         if self.interactive:
             fig, ax = plt.subplots(figsize=(10, 8))
             
-            # 绘制网格线
+            # Draw the grid lines
             for x in x_ticks:
                 ax.axvline(x, color='gray', linestyle='--', linewidth=0.5)
             for y in y_ticks:
                 ax.axhline(y, color='gray', linestyle='--', linewidth=0.5)
 
-            # 绘制实际点
+            # Plot real points
             ax.scatter(x_coords, y_coords, c='red', s=50, label="实际点", zorder=3)
             ax.set_aspect('equal')
-            # 绘制自动生成的虚拟点
+            # Plot the automatically generated virtual points
             if virtual_points:
                 auto_vx = [p[0] for p in virtual_points]
                 auto_vy = [p[1] for p in virtual_points]
                 ax.scatter(auto_vx, auto_vy, c='blue', s=30, marker='x', label="自动虚拟点", zorder=2)
 
-            # 设置标题和说明
+            # Set the title and caption
             ax.set_title(
                 "网格显示\n请用【鼠标左键】在空白处点击添加零值点\n完成后【关闭窗口】继续",
                 color='blue',
@@ -173,38 +173,38 @@ class ContourBasedClusteringWithoutZ:
             ax.set_ylabel("Y")
             ax.legend(loc='upper right')
 
-            # === 定义点击事件处理函数 ===
+            # === Click-event handler ===
             def on_click(event):
-                # 确保点击在坐标轴内，且是左键
+                # Accept only left clicks inside the axes
                 if event.inaxes == ax and event.button == 1:
-                    # 获取点击坐标
+                    # Get the click coordinates
                     new_x, new_y = event.xdata, event.ydata
 
-                    # 创建新的零值点 (-2 表示交互式手动添加的虚拟点)
+                    # Create a new zero point (-2 marks a virtual point added interactively)
                     new_point = (new_x, new_y, 0.0, -2)
 
-                    # 添加到类属性中
+                    # Add to the class attribute
                     self.manual_points.append(new_point)
 
-                    # 实时绘制新点
+                    # Draw the new point immediately
                     ax.scatter(new_x, new_y, c='green', s=60, marker='+', 
                               label="_nolegend_", zorder=4)
                     ax.text(new_x, new_y, " 0", fontsize=8, color='green')
 
-                    # 刷新画布
+                    # Redraw the canvas
                     fig.canvas.draw()
                     print(f"已手动添加零值点: ({new_x:.2f}, {new_y:.2f})")
 
-            # 连接事件
+            # Connect the event
             cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
-            # 阻塞显示，直到用户关闭窗口
+            # Block until the window is closed
             plt.show()
 
-        # 合并所有虚拟点（自动 + 交互式手动）
+        # Merge all virtual points (automatic and interactive)
         self.virtual_points = virtual_points + self.manual_points
 
-        # 返回合并后的所有虚拟点以及网格刻度
+        # Return all merged virtual points and the grid ticks
         print(f"交互结束。自动点: {auto_virtual_count}, 交互式手动点: {len(self.manual_points)}, 总虚拟点数: {len(self.virtual_points)}")
 
         return self.virtual_points, x_ticks, y_ticks
@@ -220,31 +220,31 @@ class ContourBasedClusteringWithoutZ:
         min_x, max_x = min(x_coords), max(x_coords)
         min_y, max_y = min(y_coords), max(y_coords)
 
-        # 扩展边界
+        # Expand the extent
         i_start = min_x - self.grid_size
         i_end = max_x + self.grid_size
         j_start = min_y - self.grid_size
         j_end = max_y + self.grid_size
 
-        # 生成网格
+        # Build the grid
         x_ticks = np.arange(i_start, i_end + self.grid_size, self.grid_size)
         y_ticks = np.arange(j_start, j_end + self.grid_size, self.grid_size)
 
         print(f"xgrid: {x_ticks}")
         print(f"ygrid: {y_ticks}")
 
-        # 计算网格数量
+        # Compute the number of grid cells
         grid_count = (len(x_ticks) - 1) * (len(y_ticks) - 1)
         print(f"网格总数: {grid_count}")
 
-        # 绘制网格
+        # Plot the grid
         fig, ax = plt.subplots(figsize=(8, 6))
         for x in x_ticks:
             ax.axvline(x, color='gray', linestyle='--', linewidth=0.5)
         for y in y_ticks:
             ax.axhline(y, color='gray', linestyle='--', linewidth=0.5)
 
-        # 绘制实际点
+        # Plot real points
         ax.scatter(x_coords, y_coords, c='red', s=50, label="Actual Points")
         ax.set_title(f"网格显示 (总数: {grid_count})")
         ax.set_xlabel("X")
@@ -279,39 +279,39 @@ class ContourBasedClusteringWithoutZ:
 
     def generate_contour_areas(self):
         """生成等值线区域并建立层次结构"""
-        # 生成虚拟点
+        # Generate virtual points
         virtual_points, x_ticks, y_ticks = self.generate_virtual_points()
 
         all_points = self.actual_points + self.virtual_points
 
-        # 准备插值数据
+        # Prepare interpolation data
         x1 = np.array([p[0] for p in all_points])
         y1 = np.array([p[1] for p in all_points])
         z1 = np.array([p[2] for p in all_points])
 
         X, Y = np.meshgrid(x_ticks, y_ticks)
 
-        # 网格插值
+        # Grid interpolation
         zi = griddata((x1, y1), z1, (X, Y), method='linear')
         zi = np.nan_to_num(zi, nan=0)
 
-        # 生成等值线
+        # Generate contours
         fig, ax = plt.subplots()
         contour_set = ax.contour(X, Y, zi, levels=10, colors='black')
         
-        # 只在交互模式下显示等值线图
+        # Show the contour plot in interactive mode only
         if self.interactive:
-            # 展示等值线图
+            # Show the contour plot
             ax.set_title('Contour Map with Actual and Virtual Points')
 
-            # 绘制实际点
+            # Plot real points
             x_coords = [p[0] for p in self.actual_points]
             y_coords = [p[1] for p in self.actual_points]
             ax.scatter(x_coords, y_coords, c='red', s=50, label="Actual Points", zorder=3)
 
-            # 绘制虚拟点
+            # Plot virtual points
             if self.virtual_points:
-                # 区分自动虚拟点和交互式手动点
+                # Tell automatic virtual points from interactive ones
                 auto_points = [p for p in self.virtual_points if p[3] == -1]
                 manual_points = [p for p in self.virtual_points if p[3] == -2]
                 
@@ -332,26 +332,26 @@ class ContourBasedClusteringWithoutZ:
             plt.ylabel('Y')
             plt.show()
         else:
-            # 非交互模式下关闭图形
+            # Close the figure in non-interactive mode
             plt.close(fig)
         plt.show()
 
-        # 转换为多边形区域
+        # Convert to polygonal regions
         face_polygons = self.line_to_polygon(contour_set)
 
-        # 创建等值线区域对象
+        # Create contour-region objects
         contour_areas = []
         for polygon in face_polygons:
             points_in_poly = []
             for point in self.actual_points:
                 if self.is_point_in_region(point[0], point[1], polygon):
                     points_in_poly.append(point)
-            if points_in_poly:  # 仅包含有点的区域
+            if points_in_poly:  # Keep only regions that contain points
                 contour_areas.append(self.ContourArea(polygon, points_in_poly))
 
         self.contour_areas = contour_areas
 
-        # 建立区域层次结构
+        # Build the region hierarchy
         for area in self.contour_areas:
             area_poly = Polygon(area.polygon)
             for other in self.contour_areas:
@@ -367,7 +367,7 @@ class ContourBasedClusteringWithoutZ:
 
     def get_density_centers(self):
         """获取密度中心点（关键聚类中心）"""
-        # 获取到最外层的圈(最外圈则为密度中心)
+        # Take the outermost ring; if it is the outermost, the region is a density centre
         outCircle = [area for area in self.contour_areas if area.parent is None]
         self.density_centers = outCircle
         return outCircle
@@ -380,16 +380,16 @@ class ContourBasedClusteringWithoutZ:
         point_assignments = {}
         assigned_points = set()
 
-        # 逐步扩展缓冲区
+        # Grow the buffer step by step
         for buffer_dist in range(0, self.max_buffer_distance + 1):
             current_assignments = {}
 
-            # 为每个密度中心创建缓冲区
+            # Create a buffer for each density centre
             for center in self.density_centers:
                 center_poly = Polygon(center.polygon)
                 buffer_zone = center_poly.buffer(buffer_dist)
 
-                # 查找缓冲区内的点
+                # Find the points inside the buffer
                 for point in self.actual_points:
                     if point in assigned_points:
                         continue
@@ -400,10 +400,10 @@ class ContourBasedClusteringWithoutZ:
                             current_assignments[point] = []
                         current_assignments[point].append(center)
 
-            # 处理重叠分配（多个中心都包含同一个点）
+            # Resolve overlapping assignments (a point inside several buffers)
             for point, centers in current_assignments.items():
                 if len(centers) > 1:
-                    # 选择距离最近的中心
+                    # Choose the nearest centre
                     min_dist = float('inf')
                     closest_center = None
                     for center in centers:
@@ -413,7 +413,7 @@ class ContourBasedClusteringWithoutZ:
                             closest_center = center
                     current_assignments[point] = [closest_center]
 
-                # 记录最终分配
+                # Record the final assignment
                 self.point_to_density_center[point] = current_assignments[point]
                 assigned_points.add(point)
 
@@ -431,10 +431,10 @@ class ContourBasedClusteringWithoutZ:
             print("警告: 没有密度中心，无法分配无归属点")
             return 0
         
-        # 找出所有已分配的点
+        # Collect all assigned points
         assigned_points = set(self.point_to_density_center.keys())
         
-        # 找出所有未分配的点
+        # Collect all unassigned points
         unassigned_points = [point for point in self.actual_points 
                             if point not in assigned_points]
         
@@ -444,12 +444,12 @@ class ContourBasedClusteringWithoutZ:
         
         print(f"\n发现 {len(unassigned_points)} 个无归属点")
         
-        # 获取所有簇及其包含的点
+        # Collect all clusters and their points
         cluster_points_map = {}
         for center in self.density_centers:
             cluster_points = [point for point, centers in self.point_to_density_center.items() 
                              if center in centers]
-            if cluster_points:  # 只考虑非空簇
+            if cluster_points:  # Consider non-empty clusters only
                 cluster_points_map[center] = cluster_points
         
         if not cluster_points_map:
@@ -458,14 +458,14 @@ class ContourBasedClusteringWithoutZ:
         
         assigned_count = 0
         
-        # 对每个无归属点，找到最近的簇
+        # For each unassigned point, find the nearest cluster
         for unassigned_point in unassigned_points:
             min_dist = float('inf')
             nearest_center = None
             
-            # 遍历所有簇，找到距离该点最近的簇中的点
+            # Scan all clusters for the point nearest to this one
             for center, cluster_points in cluster_points_map.items():
-                # 计算该点到簇中所有点的最小距离
+                # Minimum distance from this point to the cluster
                 for cluster_point in cluster_points:
                     dist = self.calculate_distance(unassigned_point, cluster_point)
                     if dist < min_dist:
@@ -476,7 +476,7 @@ class ContourBasedClusteringWithoutZ:
                 print(f"  警告: 点 {unassigned_point[:2]} 找不到合适的簇，保持未分配")
                 continue
             
-            # 将该点分配给最近的簇
+            # Assign the point to the nearest cluster
             self.point_to_density_center[unassigned_point] = [nearest_center]
             assigned_count += 1
         
@@ -496,14 +496,14 @@ class ContourBasedClusteringWithoutZ:
             print("警告: 没有聚类结果，无法合并小簇")
             return 0
         
-        # 统计每个密度中心的点数（初始统计）
+        # Count the points of each density centre (initial count)
         center_point_counts = {}
         for center in self.density_centers:
             count = sum(1 for point, centers in self.point_to_density_center.items() 
                        if center in centers)
             center_point_counts[center] = count
         
-        # 找出小簇（点数 < min_cluster_size）
+        # Find small clusters (fewer than min_cluster_size points)
         small_clusters = [center for center, count in center_point_counts.items() 
                          if count < self.min_cluster_size and count > 0]
         
@@ -513,11 +513,11 @@ class ContourBasedClusteringWithoutZ:
         
         print(f"\n发现 {len(small_clusters)} 个小簇（点数 < {self.min_cluster_size}）")
         
-        # 找出大簇（点数 >= min_cluster_size）及其包含的点
+        # Find large clusters (at least min_cluster_size points) and their points
         large_clusters = {}
         for center, count in center_point_counts.items():
             if count >= self.min_cluster_size:
-                # 获取该大簇中的所有点
+                # Collect the points of that large cluster
                 cluster_points = [point for point, centers in self.point_to_density_center.items() 
                                  if center in centers]
                 large_clusters[center] = cluster_points
@@ -531,9 +531,9 @@ class ContourBasedClusteringWithoutZ:
         merged_count = 0
         total_reassigned_points = 0
         
-        # 对每个小簇，将其中的每个点分配给最近的大簇
+        # Reassign every point of each small cluster to its nearest large cluster
         for small_center in small_clusters:
-            # 获取小簇中的所有点
+            # Collect the points of the small cluster
             small_cluster_points = [point for point, centers in self.point_to_density_center.items() 
                                    if small_center in centers]
             
@@ -542,15 +542,15 @@ class ContourBasedClusteringWithoutZ:
             
             print(f"\n  处理小簇 (中心: {small_center.center}, 点数: {len(small_cluster_points)})")
             
-            # 对小簇中的每个点，找到最近的大簇
+            # For each point of a small cluster, find the nearest large cluster
             reassigned_points = 0
             for small_point in small_cluster_points:
                 min_dist = float('inf')
                 nearest_large_center = None
                 
-                # 遍历所有大簇，找到距离该点最近的大簇中的点
+                # Scan all large clusters for the point nearest to this one
                 for large_center, large_points in large_clusters.items():
-                    # 计算该点到大簇中所有点的最小距离
+                    # Minimum distance from this point to the large cluster
                     for large_point in large_points:
                         dist = self.calculate_distance(small_point, large_point)
                         if dist < min_dist:
@@ -561,7 +561,7 @@ class ContourBasedClusteringWithoutZ:
                     print(f"    警告: 点 {small_point[:2]} 找不到合适的大簇，保持不变")
                     continue
                 
-                # 将该点重新分配给最近的大簇
+                # Reassign the point to the nearest large cluster
                 self.point_to_density_center[small_point] = [nearest_large_center]
                 reassigned_points += 1
             
@@ -582,22 +582,22 @@ class ContourBasedClusteringWithoutZ:
         colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'magenta', 
                  'brown', 'pink', 'gray', 'olive', 'navy']
 
-        # 统计每个中心的点数
+        # Count the points of each centre
         center_point_counts = {}
         for center in self.density_centers:
             count = sum(1 for point, centers in self.point_to_density_center.items() 
                        if center in centers)
             center_point_counts[center] = count
 
-        # 绘制密度中心和缓冲区
+        # Plot the density centres and buffers
         for i, center in enumerate(self.density_centers):
             point_count = center_point_counts.get(center, 0)
             if point_count == 0:
-                continue  # 跳过没有点的簇
+                continue  # Skip clusters without points
             
             color = colors[i % len(colors)]
 
-            # 绘制原始区域
+            # Plot the original regions
             poly_patch = patches.Polygon(
                 center.polygon,
                 closed=True,
@@ -607,17 +607,17 @@ class ContourBasedClusteringWithoutZ:
             )
             ax.add_patch(poly_patch)
 
-            # 绘制属于该中心的实际点
+            # Plot the real points assigned to this centre
             for point, centers in self.point_to_density_center.items():
                 if center in centers:
                     ax.plot(point[0], point[1], 'o', color=color, markersize=6)
             
-            # 标注簇的点数
+            # Label the cluster sizes
             ax.text(center.center[0], center.center[1], f'n={point_count}', 
                    fontsize=10, ha='center', va='center',
                    bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7))
 
-        # 绘制未分配的点
+        # Plot unassigned points
         all_assigned = {point for point in self.point_to_density_center}
         unassigned_count = 0
         for point in self.actual_points:
@@ -625,7 +625,7 @@ class ContourBasedClusteringWithoutZ:
                 ax.plot(point[0], point[1], 'ko', markersize=6)
                 unassigned_count += 1
 
-        # 设置图形属性
+        # Set figure properties
         title = 'Contour-Based Clustering Result'
         if self.min_cluster_size > 1:
             title += f' (min_cluster_size={self.min_cluster_size})'
@@ -663,11 +663,11 @@ class ContourBasedClusteringWithoutZ:
             else:
                 final_clusters_hashable[point] = tuple(id(item) for item in region_list)
 
-        # 获取唯一的区域标签
+        # Get the unique region labels
         regions = sorted(set(final_clusters_hashable.values()))
         region_to_label = {region: i for i, region in enumerate(regions)}
 
-        # 处理所有点，给噪声点分配 -1 标签
+        # Process all points and label noise as -1
         labels = []
         for point in self.actual_points:
             if tuple(point) in final_clusters_hashable:
@@ -712,11 +712,11 @@ class ContourBasedClusteringWithoutZ:
         self.get_density_centers()
         self.assign_points_to_centers()
         
-        # 新增：合并小簇
+        # Added: merge small clusters
         if self.min_cluster_size > 1:
             self.merge_small_clusters()
         
-        # 新增：分配无归属点到最近的簇
+        # Added: assign unassigned points to the nearest cluster
         self.assign_unassigned_points()
         
         return self.point_to_density_center
@@ -729,7 +729,7 @@ class ContourBasedClusteringWithoutZ:
                 point for point, centers in self.point_to_density_center.items()
                 if center in centers
             ]
-            if not cluster_points:  # 跳过空簇
+            if not cluster_points:  # Skip empty clusters
                 continue
             total_load = sum(point[2] for point in cluster_points)
             report[center.center] = {
@@ -744,9 +744,9 @@ class ContourBasedClusteringWithoutZ:
 
 
 
-# 示例用法
+# Example usage
 if __name__ == "__main__":
-    # 实际点数据 (x, y, 货物量, 客户ID)
+    # Real point data (x, y, cargo volume, customer id)
     actual_points = [
         (0.2, 0.3, 1.5, 1),
         (0.8, 1.2, 2.0, 2),
@@ -757,35 +757,35 @@ if __name__ == "__main__":
         (9.3, 3.0, 2.5, 7),
         (5.3, 2.0, 1.3, 8),
         (3.3, 7.2, 1.4, 9),
-        # 添加一些孤立点（形成小簇）
+        # Add a few isolated points to form small clusters
         (15.0, 15.0, 1.0, 10),
         (15.5, 15.2, 1.2, 11),
         (16.0, 15.5, 0.8, 12),
     ]
     
-    # 手动添加虚拟点（可选）
+    # Add manual virtual points (optional)
     manual_virtual_points = [
         (5.0, 5.0),
         (6.0, 6.0, 0.5),
         (7.0, 7.0, 0.3, -2),
     ]
     
-    # 创建聚类实例（设置最小簇大小为5）
+    # Create the clustering instance with min_cluster_size = 5
     cluster = ContourBasedClusteringWithoutZ(
         actual_points, 
         grid_size=1.0,
         max_buffer_distance=5,
         manual_virtual_points=manual_virtual_points,
-        min_cluster_size=5  # 小于5个点的簇将被合并
+        min_cluster_size=5  # Clusters with fewer than five points are merged
     )
     
-    # 执行聚类（会自动合并小簇）
+    # Run clustering (small clusters are merged automatically)
     clusters = cluster.perform_clustering()
 
-    # 可视化结果
+    # Visualize results
     cluster.visualize_clusters()
 
-    # 获取聚类报告
+    # Get the clustering report
     report = cluster.get_cluster_report()
     print("\n" + "="*60)
     print("聚类报告")

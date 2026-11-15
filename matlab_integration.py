@@ -33,7 +33,7 @@ class MatlabRunner:
     
     def _detect_available_method(self):
         """自动检测可用的方法"""
-        # 尝试MATLAB Engine
+        # Try MATLAB Engine
         try:
             import matlab.engine
             print("检测到 MATLAB Engine API")
@@ -41,7 +41,7 @@ class MatlabRunner:
         except ImportError:
             pass
         
-        # 尝试Oct2Py
+        # Try Oct2Py
         try:
             import oct2py
             print("检测到 Oct2Py (Octave)")
@@ -49,7 +49,7 @@ class MatlabRunner:
         except ImportError:
             pass
         
-        # 回退到子进程
+        # Fall back to a subprocess
         print("使用子进程方法调用MATLAB")
         return 'subprocess'
     
@@ -100,20 +100,20 @@ class MatlabRunner:
         """使用MATLAB Engine运行"""
         import matlab
         
-        # 转换数据为MATLAB格式
+        # Convert the data to MATLAB format
         matlab_data = matlab.double(data.tolist())
         
-        # 添加MATLAB路径
+        # Add the MATLAB path
         self.matlab_engine.addpath('compare/algorithm', nargout=0)
         
-        # 调用MATLAB函数
+        # Call the MATLAB function
         try:
-            # 这里需要创建一个简化的MATLAB函数来调用Algorithm_PR
+            # A simplified MATLAB wrapper is needed to call Algorithm_PR
             labels, ami, ari, fmi = self.matlab_engine.run_algorithm_pr_wrapper(
                 matlab_data, float(n_clusters), float(k), nargout=4
             )
             
-            # 转换回Python格式
+            # Convert back to Python format
             labels = np.array(labels).flatten()
             
             return labels, {
@@ -127,11 +127,11 @@ class MatlabRunner:
     
     def _run_with_octave(self, data, n_clusters, k):
         """使用Octave运行"""
-        # 添加路径
+        # Add the path
         self.octave_engine.addpath('compare/algorithm')
         
         try:
-            # 调用MATLAB函数
+            # Call the MATLAB function
             result = self.octave_engine.run_algorithm_pr_wrapper(
                 data, n_clusters, k, nout=4
             )
@@ -170,19 +170,19 @@ class MatlabRunner:
         """使用MATLAB Engine运行（无监督版本）"""
         import matlab
         
-        # 转换数据为MATLAB格式
+        # Convert the data to MATLAB format
         matlab_data = matlab.double(data.tolist())
         
-        # 添加MATLAB路径
+        # Add the MATLAB path
         self.matlab_engine.addpath('compare/algorithm', nargout=0)
         
         try:
-            # 调用无监督版本的MATLAB函数
+            # Call the unsupervised MATLAB variant
             labels = self.matlab_engine.run_algorithm_pr_unsupervised(
                 matlab_data, float(n_clusters), float(k), nargout=1
             )
             
-            # 转换回Python格式
+            # Convert back to Python format
             labels = np.array(labels).flatten()
             return labels
         except Exception as e:
@@ -191,11 +191,11 @@ class MatlabRunner:
     
     def _run_unsupervised_with_octave(self, data, n_clusters, k):
         """使用Octave运行（无监督版本）"""
-        # 添加路径
+        # Add the path
         self.octave_engine.addpath('compare/algorithm')
         
         try:
-            # 调用无监督版本的MATLAB函数
+            # Call the unsupervised MATLAB variant
             labels = self.octave_engine.run_algorithm_pr_unsupervised(
                 data, n_clusters, k, nout=1
             )
@@ -206,24 +206,24 @@ class MatlabRunner:
     
     def _run_unsupervised_with_subprocess(self, data, n_clusters, k):
         """使用子进程运行MATLAB（无监督版本）"""
-        # 获取matlab_integration.py所在目录（项目根目录）
+        # Directory holding matlab_integration.py (the project root)
         script_dir = os.path.dirname(os.path.abspath(__file__))
         algorithm_dir = os.path.join(script_dir, 'compare', 'algorithm')
         
-        # 确保目录存在
+        # Ensure the directory exists
         if not os.path.exists(algorithm_dir):
             print(f"错误: 目录不存在 {algorithm_dir}")
             return None
         
-        # 临时文件放在algorithm目录下，避免中文路径问题
+        # Keep temporary files under algorithm/ to avoid non-ASCII paths
         temp_data_file = os.path.join(algorithm_dir, 'temp_data_unsup.csv')
         result_file = os.path.join(algorithm_dir, 'temp_result_unsup.mat')
         temp_script_file = os.path.join(algorithm_dir, 'temp_script_unsup.m')
         
-        # 保存数据（仅坐标，无标签）
+        # Save the data (coordinates only, no labels)
         np.savetxt(temp_data_file, data, delimiter=',')
         
-        # 创建临时MATLAB脚本
+        # Create a temporary MATLAB script
         matlab_script = f"""
 % 临时脚本 - 无监督版本
 try
@@ -254,7 +254,7 @@ quit;
             f.write(matlab_script)
         
         try:
-            # 在algorithm目录下运行MATLAB
+            # Run MATLAB from the algorithm directory
             result = subprocess.run(
                 ['matlab', '-batch', "run('temp_script_unsup.m')"], 
                 check=True, 
@@ -263,18 +263,18 @@ quit;
                 cwd=algorithm_dir
             )
             
-            # 检查结果文件是否存在
+            # Check whether the result file exists
             if not os.path.exists(result_file):
                 print(f"MATLAB未生成结果文件")
                 print(f"MATLAB stdout: {result.stdout}")
                 print(f"MATLAB stderr: {result.stderr}")
                 return None
             
-            # 读取结果
+            # Read the results
             from scipy.io import loadmat
             mat_result = loadmat(result_file)
             
-            # 检查是否有错误
+            # Check for errors
             if 'error_msg' in mat_result:
                 print(f"MATLAB内部错误: {mat_result['error_msg']}")
                 return None
@@ -289,7 +289,7 @@ quit;
         except Exception as e:
             print(f"执行错误: {e}")
         finally:
-            # 清理临时文件
+            # Clean up temporary files
             for f in [temp_data_file, temp_script_file, result_file]:
                 if os.path.exists(f):
                     try:
@@ -301,24 +301,24 @@ quit;
 
     def _run_with_subprocess(self, data, n_clusters, k):
         """使用子进程运行MATLAB"""
-        # 获取matlab_integration.py所在目录（项目根目录）
+        # Directory holding matlab_integration.py (the project root)
         script_dir = os.path.dirname(os.path.abspath(__file__))
         algorithm_dir = os.path.join(script_dir, 'compare', 'algorithm')
         
-        # 确保目录存在
+        # Ensure the directory exists
         if not os.path.exists(algorithm_dir):
             print(f"错误: 目录不存在 {algorithm_dir}")
             return None, None
         
-        # 临时文件放在algorithm目录下，避免中文路径问题
+        # Keep temporary files under algorithm/ to avoid non-ASCII paths
         temp_data_file = os.path.join(algorithm_dir, 'temp_data.csv')
         result_file = os.path.join(algorithm_dir, 'temp_result.mat')
         temp_script_file = os.path.join(algorithm_dir, 'temp_script.m')
         
-        # 保存数据
+        # Save the data
         np.savetxt(temp_data_file, data, delimiter=',')
         
-        # 创建临时MATLAB脚本（放在algorithm目录下）
+        # Create a temporary MATLAB script under algorithm/
         matlab_script = f"""
 % 临时脚本 - 在algorithm目录下运行
 try
@@ -349,7 +349,7 @@ quit;
             f.write(matlab_script)
         
         try:
-            # 在algorithm目录下运行MATLAB
+            # Run MATLAB from the algorithm directory
             result = subprocess.run(
                 ['matlab', '-batch', "run('temp_script.m')"], 
                 check=True, 
@@ -358,18 +358,18 @@ quit;
                 cwd=algorithm_dir
             )
             
-            # 检查结果文件是否存在
+            # Check whether the result file exists
             if not os.path.exists(result_file):
                 print(f"MATLAB未生成结果文件")
                 print(f"MATLAB stdout: {result.stdout}")
                 print(f"MATLAB stderr: {result.stderr}")
                 return None, None
             
-            # 读取结果
+            # Read the results
             from scipy.io import loadmat
             mat_result = loadmat(result_file)
             
-            # 检查是否有错误
+            # Check for errors
             if 'error_msg' in mat_result:
                 print(f"MATLAB内部错误: {mat_result['error_msg']}")
                 return None, None
@@ -388,7 +388,7 @@ quit;
         except Exception as e:
             print(f"执行错误: {e}")
         finally:
-            # 清理临时文件
+            # Clean up temporary files
             for f in [temp_data_file, temp_script_file, result_file]:
                 if os.path.exists(f):
                     try:
@@ -406,7 +406,7 @@ quit;
             self.octave_engine.exit()
 
 
-# 简化的调用接口
+# Simplified calling interface
 def run_matlab_algorithm_pr(data, n_clusters, k=11):
     """
     简化的接口，运行MATLAB的Algorithm_PR算法
@@ -449,7 +449,7 @@ if __name__ == "__main__":
     print("MATLAB集成测试")
     print("=" * 70)
     
-    # 测试数据
+    # Test data
     test_data = np.array([
         [1.0, 2.0, 0],
         [1.5, 2.5, 0],

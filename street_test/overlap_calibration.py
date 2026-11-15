@@ -28,7 +28,7 @@ import pandas as pd
 from scipy.spatial import cKDTree
 from scipy.stats import norm
 
-# 项目根目录
+# Project root
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -57,26 +57,26 @@ except ImportError:
 
 
 # ============================================================
-# 配置
+# Configuration
 # ============================================================
 
 RANDOM_SEED = 20260825
 
-# 初始数据集: d=6, σ=1.0 (几乎完全分离, overlap≈0.003)
+# Initial dataset: d = 6, sigma = 1.0 (almost fully separated, overlap around 0.003)
 CALIB_D = 6.0
 CALIB_SIGMA = 1.0
 N_PER_CLUSTER = 500
 
 ALGORITHMS = ["IZGC", "K-means++", "GMM", "DBSCAN", "CLIQUE", "BANG", "DPC-FWSN"]
 
-# 各算法参数搜索范围
+# Parameter search range of each algorithm
 IZGC_RANGES = {
     'grid_size': [round(v, 1) for v in np.arange(1.2, 1.6, 0.01)],
     'R': [20, 25, 30, 35, 40],
     'theta': [3, 5, 7, 10],
 }
 KMEANS_RANGES = {
-    'n_clusters': [2],   # 已知2簇
+    'n_clusters': [2],   # Two clusters are known
     'n_init': [10, 20, 30, 50],
     'max_iter': [300, 500, 1000],
 }
@@ -103,7 +103,7 @@ DPC_RANGES = {
 
 
 # ============================================================
-# 工具函数
+# Helper functions
 # ============================================================
 
 def normalize_coordinates(X: np.ndarray) -> np.ndarray:
@@ -152,7 +152,7 @@ def n_clusters(labels: np.ndarray) -> int:
 
 
 # ============================================================
-# 算法运行函数
+# Algorithm runner
 # ============================================================
 
 def run_izgc(X, grid_size, R, theta, merge_small_clusters=True):
@@ -226,7 +226,7 @@ def run_dpc_fwsn(X, k, n_clusters, matlab_runner=None):
 
 
 # ============================================================
-# 各算法网格搜索
+# Grid search per algorithm
 # ============================================================
 
 def calibrate_izgc(X, y_true) -> Dict:
@@ -465,7 +465,7 @@ def calibrate_dpc_fwsn(X, y_true, matlab_runner=None) -> Tuple[Dict, Optional[ob
 
 
 # ============================================================
-# 主函数
+# Main function
 # ============================================================
 
 def main():
@@ -497,14 +497,14 @@ def main():
     print(f"  Output: {outdir}")
     print("=" * 70)
 
-    # 1. 生成校准数据集
+    # 1. Generate the calibration dataset
     print("\n[1] Generating calibration dataset...")
     X, y_true = generate_overlapping_blobs(RANDOM_SEED, CALIB_D, CALIB_SIGMA, N_PER_CLUSTER)
     print(f"  X: {X.shape}, y: {y_true.shape}, labels: {np.unique(y_true)}")
     print(f"  X range: X=[{X[:,0].min():.2f}, {X[:,0].max():.2f}], "
           f"Y=[{X[:,1].min():.2f}, {X[:,1].max():.2f}]")
 
-    # 2. 逐算法网格搜索
+    # 2. Grid search per algorithm
     print("\n[2] Running grid search for each algorithm...")
     results = {}
     matlab_runner = None
@@ -531,14 +531,14 @@ def main():
         dpc_result, matlab_runner = calibrate_dpc_fwsn(X, y_true, matlab_runner)
         results["DPC-FWSN"] = dpc_result
 
-    # 关闭MATLAB
+    # Close MATLAB
     if matlab_runner is not None:
         try:
             matlab_runner.close()
         except:
             pass
 
-    # 3. 汇总打印
+    # 3. Print the summary
     print("\n" + "=" * 70)
     print("Calibration Summary")
     print("=" * 70)
@@ -556,7 +556,7 @@ def main():
             print(f"{alg:<14s} {'N/A':<10s} {'N/A':<10s} (no valid params found)")
     print("=" * 70)
 
-    # 4. 保存JSON
+    # 4. Save JSON
     json_path = outdir / "calibration_results.json"
     save_data = {}
     for alg, r in results.items():
@@ -569,7 +569,7 @@ def main():
         json.dump(save_data, f, ensure_ascii=False, indent=2)
     print(f"\n  Calibration results saved: {json_path}")
 
-    # 5. 保存CSV
+    # 5. Save CSV
     csv_path = outdir / "calibration_results.csv"
     csv_rows = []
     for alg, r in results.items():
@@ -582,7 +582,7 @@ def main():
     pd.DataFrame(csv_rows).to_csv(csv_path, index=False, encoding='utf-8-sig')
     print(f"  CSV saved: {csv_path}")
 
-    # 6. 保存可读txt
+    # 6. Save a readable txt
     txt_path = outdir / "calibration_results.txt"
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write("=" * 70 + "\n")

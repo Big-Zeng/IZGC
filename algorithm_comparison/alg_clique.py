@@ -12,18 +12,18 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/ring.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (1, 50, 0.1),           # 网格大小：从5到25，步长2
-    'density_threshold': (1, 25, 1)    # 密度阈值：从2到12，步长2
+    'grid_size': (1, 50, 0.1),           # Grid size: 5 to 25 in steps of 2
+    'density_threshold': (1, 25, 1)    # Density threshold: 2 to 12 in steps of 2
 }
 
-# 优化目标
+# Optimisation objective
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -47,11 +47,11 @@ def run_clique(X, grid_size, density_threshold):
     n_bins_x = max(1, int((x_max - x_min) / grid_size))
     n_bins_y = max(1, int((y_max - y_min) / grid_size))
     
-    # 将点分配到网格
+    # Assign points to cells
     grid_x = np.clip(((X[:, 0] - x_min) / grid_size).astype(int), 0, n_bins_x - 1)
     grid_y = np.clip(((X[:, 1] - y_min) / grid_size).astype(int), 0, n_bins_y - 1)
     
-    # 计算每个网格的点
+    # Assign the points of each cell
     grid_points = {}
     for i, (gx, gy) in enumerate(zip(grid_x, grid_y)):
         key = (gx, gy)
@@ -59,10 +59,10 @@ def run_clique(X, grid_size, density_threshold):
             grid_points[key] = []
         grid_points[key].append(i)
     
-    # 找出密集网格
+    # Find dense cells
     dense_grids = {k: v for k, v in grid_points.items() if len(v) >= density_threshold}
     
-    # 连接相邻的密集网格形成簇
+    # Link adjacent dense cells into clusters
     labels = np.full(len(X), -1)
     cluster_id = 0
     visited = set()
@@ -71,7 +71,7 @@ def run_clique(X, grid_size, density_threshold):
         if grid_key in visited:
             continue
         
-        # BFS找到所有连接的密集网格
+        # BFS to collect all connected dense cells
         queue = [grid_key]
         cluster_grids = []
         
@@ -83,7 +83,7 @@ def run_clique(X, grid_size, density_threshold):
             visited.add(current)
             cluster_grids.append(current)
             
-            # 检查8个相邻网格
+            # Inspect the eight neighbouring cells
             cx, cy = current
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
@@ -93,7 +93,7 @@ def run_clique(X, grid_size, density_threshold):
                     if neighbor in dense_grids and neighbor not in visited:
                         queue.append(neighbor)
         
-        # 分配标签
+        # Assign labels
         if cluster_grids:
             for gk in cluster_grids:
                 for point_idx in dense_grids[gk]:
@@ -108,7 +108,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值，grid_size保留3位小数
+    # Generate parameter values with grid_size rounded to three decimals
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         values = generate_param_values(start, end, step)
@@ -193,7 +193,7 @@ if __name__ == "__main__":
             save_path, dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/CLIQUE_{dataset_name}_best.txt"
         save_best_result("CLIQUE", dataset_name, best_params, best_metrics, txt_path)
     else:

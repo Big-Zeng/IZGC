@@ -11,67 +11,67 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# 设置随机种子以保证可重复性
+# Fix the random seed for reproducibility
 np.random.seed(42)
 
-# 参数设置
-n_line = 150       # 线形簇点数（较多，但密度稀疏）
-n_blob1 = 58       # 圆形簇1点数
-n_blob2 = 58       # 圆形簇2点数
+# Parameter settings
+n_line = 150       # Points in the linear cluster (numerous but sparse)
+n_blob1 = 58       # Points in circular cluster 1
+n_blob2 = 58       # Points in circular cluster 2
 total_points = n_line + n_blob1 + n_blob2
 
 print(f"目标总点数: 266")
 print(f"实际总点数: {total_points}")
 
-# ==================== 生成线形簇（标签=1）====================
-# 创建一条向上开口的半弧形（U形），包裹矩形但距离较远
-arc_angles = np.linspace(np.pi * 0.15, np.pi * 0.85, n_line)  # 从27度到153度，更宽
-arc_radius = 50  # 更大的弧形半径，与矩形距离更远
-arc_center_x, arc_center_y = 50, 10  # 弧形中心位置更低，使其向上开口
+# ==================== Generate the linear cluster (label = 1) ====================
+# Create an upward-opening half arc (U shape) enclosing the rectangles at a distance
+arc_angles = np.linspace(np.pi * 0.15, np.pi * 0.85, n_line)  # From 27 to 153 degrees, a wider range
+arc_radius = 50  # A larger arc radius, placing the arc further from the rectangles
+arc_center_x, arc_center_y = 50, 10  # Lower the arc centre so that it opens upwards
 
 line_x = arc_center_x + arc_radius * np.cos(arc_angles)
 line_y = arc_center_y + arc_radius * np.sin(arc_angles)
 
-# 添加噪声使其更稀疏
+# Add noise to make it sparser
 noise_x = np.random.normal(0, 2.5, n_line)
 noise_y = np.random.normal(0, 2.5, n_line)
 line_x = line_x + noise_x
 line_y = line_y + noise_y
 line_labels = np.ones(n_line, dtype=int)
 
-# ==================== 生成矩形1（标签=2）====================
-# 位置：左侧矩形（在半弧内部，距离弧线较远）
+# ==================== Generate rectangle 1 (label = 2) ====================
+# Placement: left rectangle, inside the half arc but well away from it
 rect1_x_min, rect1_x_max = 28, 38
 rect1_y_min, rect1_y_max = 35, 50
 
-# 生成矩形1点（密集分布）
+# Generate the points of rectangle 1 (dense)
 rect1_x = np.random.uniform(rect1_x_min, rect1_x_max, n_blob1)
 rect1_y = np.random.uniform(rect1_y_min, rect1_y_max, n_blob1)
 rect1_labels = np.full(n_blob1, 2, dtype=int)
 
-# ==================== 生成矩形2（标签=3）====================
-# 位置：右侧矩形（在半弧内部，距离弧线较远）
+# ==================== Generate rectangle 2 (label = 3) ====================
+# Placement: right rectangle, inside the half arc but well away from it
 rect2_x_min, rect2_x_max = 62, 72
 rect2_y_min, rect2_y_max = 35, 50
 
-# 生成矩形2点（密集分布）
+# Generate the points of rectangle 2 (dense)
 rect2_x = np.random.uniform(rect2_x_min, rect2_x_max, n_blob2)
 rect2_y = np.random.uniform(rect2_y_min, rect2_y_max, n_blob2)
 rect2_labels = np.full(n_blob2, 3, dtype=int)
 
-# ==================== 合并所有数据 ====================
+# ==================== Merge all data ====================
 x = np.concatenate([line_x, rect1_x, rect2_x])
 y = np.concatenate([line_y, rect1_y, rect2_y])
 labels = np.concatenate([line_labels, rect1_labels, rect2_labels])
 
-# 打乱数据顺序
+# Shuffle the data order
 indices = np.random.permutation(len(x))
 x = x[indices]
 y = y[indices]
 labels = labels[indices]
 
-# ==================== 保存数据 ====================
-# 保存为CSV格式
+# ==================== Save the data ====================
+# Save as CSV
 df = pd.DataFrame({
     'x': x,
     'y': y,
@@ -80,25 +80,25 @@ df = pd.DataFrame({
 df.to_csv('data/LineBlobs.csv', index=False)
 print(f"✓ 已生成 data/LineBlobs.csv ({len(df)} 个点)")
 
-# 保存为TXT格式（制表符分隔，包含标签）
+# Save as tab-separated TXT including labels
 with open('data/LineBlobs.txt', 'w') as f:
     for i in range(len(x)):
         f.write(f"{x[i]:.12f}\t{y[i]:.12f}\t{labels[i]}\n")
 print(f"✓ 已生成 data/LineBlobs.txt ({len(x)} 个点，包含标签)")
 
-# ==================== 可视化数据 ====================
+# ==================== Visualise the data ====================
 plt.figure(figsize=(10, 10))
 
-# 绘制半弧形
+# Draw the half arc
 plt.scatter(line_x, line_y, c='green', s=30, alpha=0.6, label=f'半弧形 (n={n_line}, 标签=1, 稀疏)')
 
-# 绘制矩形1
+# Draw rectangle 1
 plt.scatter(rect1_x, rect1_y, c='red', s=30, alpha=0.6, label=f'矩形1 (n={n_blob1}, 标签=2, 密集)')
 
-# 绘制矩形2
+# Draw rectangle 2
 plt.scatter(rect2_x, rect2_y, c='blue', s=30, alpha=0.6, label=f'矩形2 (n={n_blob2}, 标签=3, 密集)')
 
-# 绘制矩形边界（辅助线）
+# Draw the rectangle outlines as guides
 rect1_corners_x = [rect1_x_min, rect1_x_max, rect1_x_max, rect1_x_min, rect1_x_min]
 rect1_corners_y = [rect1_y_min, rect1_y_min, rect1_y_max, rect1_y_max, rect1_y_min]
 plt.plot(rect1_corners_x, rect1_corners_y, 'r--', alpha=0.3, linewidth=1)
@@ -118,7 +118,7 @@ plt.savefig('data/LineBlobs_visualization.png', dpi=150, bbox_inches='tight')
 print("✓ 已生成可视化图片 data/LineBlobs_visualization.png")
 plt.show()
 
-# ==================== 打印统计信息 ====================
+# ==================== Print the statistics ====================
 print("\n" + "="*60)
 print("LineBlobs 数据集统计信息")
 print("="*60)

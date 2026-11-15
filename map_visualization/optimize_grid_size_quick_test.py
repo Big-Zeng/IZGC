@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
-# 添加父目录到路径
+# Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import ContourBasedClusteringWithoutZ22_map as ContourClustering
 
-# ==================== 测试配置 ====================
+# ==================== Test configuration ====================
 TARGET_CITY = "长沙市"
 TARGET_AREA = "岳麓区"
 GRID_SIZE_START = 0.03
@@ -31,11 +31,11 @@ print("="*80)
 print(f"快速测试: {TARGET_CITY} - {TARGET_AREA}")
 print("="*80)
 
-# 读取索引文件
+# Read the index file
 with open('client_data_by_city/index.json', 'r', encoding='utf-8') as f:
     index_data = json.load(f)
 
-# 查找目标区域
+# Locate the target region
 target_area = None
 for area in index_data['city_areas']:
     if area['city'] == TARGET_CITY and area['area'] == TARGET_AREA:
@@ -52,17 +52,17 @@ print(f"  区域: {target_area['area']}")
 print(f"  客户数: {target_area['count']}")
 print(f"  数据文件: {target_area['json_file']}")
 
-# 读取数据
+# Read data
 with open(target_area['json_file'], 'r', encoding='utf-8') as f:
     clients = json.load(f)
 
 coords = np.array([[client['lon'], client['lat']] for client in clients])
 
-# 计算密度
+# Compute density
 tree = cKDTree(coords)
 density = np.array([len(tree.query_ball_point(p, 0.01)) for p in coords])
 
-# 准备聚类数据
+# Prepare the clustering data
 combined_data = []
 for i, client in enumerate(clients):
     combined_data.append((
@@ -78,7 +78,7 @@ print(f"  步长: {GRID_SIZE_STEP}")
 print(f"  max_buffer_distance: {MAX_BUFFER_DISTANCE}")
 print(f"  min_cluster_size: {MIN_CLUSTER_SIZE}")
 
-# 扫描grid_size
+# Sweep grid_size
 grid_sizes = np.arange(GRID_SIZE_START, GRID_SIZE_END + GRID_SIZE_STEP, GRID_SIZE_STEP)
 results = []
 
@@ -99,7 +99,7 @@ for grid_size in grid_sizes:
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
         n_noise = list(labels).count(-1)
         
-        # 计算轮廓系数
+        # Compute the silhouette coefficient
         silhouette = None
         if n_clusters > 1 and n_noise < len(labels):
             mask = labels_array != -1
@@ -126,7 +126,7 @@ for grid_size in grid_sizes:
     except Exception as e:
         print(f"  grid_size={grid_size:.3f}: 失败 - {e}")
 
-# 找到最佳结果
+# Find the best result
 valid_results = [r for r in results if r['silhouette_score'] is not None]
 
 if valid_results:
@@ -141,7 +141,7 @@ if valid_results:
     print(f"噪声点: {best['n_noise']}")
     print(f"{'='*80}")
     
-    # 绘制结果
+    # Plot the results
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
     
     grid_sizes_plot = [r['grid_size'] for r in results]

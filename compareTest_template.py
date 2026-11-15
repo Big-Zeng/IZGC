@@ -16,12 +16,12 @@ import ContourBasedClusteringWithoutZ3 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
 
-# ==================== 配置区域 ====================
-# 数据集选择（修改这里来测试不同数据集）
-DATASET = "data/flame.csv"          # 数据集路径
-N_CLUSTERS = 2                       # 真实簇数
+# ==================== Configuration ====================
+# Dataset selection; change this line to test another dataset
+DATASET = "data/flame.csv"          # Dataset path
+N_CLUSTERS = 2                       # True number of clusters
 
-# 算法参数
+# Algorithm parameters
 KMEANS_PARAMS = {
     'n_clusters': N_CLUSTERS,
     'random_state': 42,
@@ -29,15 +29,15 @@ KMEANS_PARAMS = {
 }
 
 DBSCAN_PARAMS = {
-    'eps': 1.5,                      # 邻域半径
-    'min_samples': 5                 # 最小样本数
+    'eps': 1.5,                      # Neighbourhood radius
+    'min_samples': 5                 # Minimum samples
 }
 
 CONTOUR_PARAMS = {
-    'grid_size': None,               # None表示自动计算，或指定具体值如1.2
-    'max_buffer_distance': 5,        # 最大缓冲距离
-    'auto_grid_multiplier': 2.0,     # 自动计算时：格子数 = 点数 × 此倍数
-    'optimize_grid': False           # True表示使用梯度下降优化grid_size
+    'grid_size': None,               # None computes it automatically; otherwise give a value such as 1.2
+    'max_buffer_distance': 5,        # Maximum buffer distance
+    'auto_grid_multiplier': 2.0,     # When computed automatically: cells = number of points x this factor
+    'optimize_grid': False           # True optimises grid_size by gradient descent
 }
 # ==================================================
 
@@ -62,20 +62,20 @@ class VRPAnalyzer:
         """
         n_points = len(self.coords)
         
-        # 计算包裹所有点的矩形
+        # Compute the bounding rectangle of all points
         x_min, y_min = self.coords.min(axis=0)
         x_max, y_max = self.coords.max(axis=0)
         
         width = x_max - x_min
         height = y_max - y_min
         
-        # 矩形面积
+        # Rectangle area
         area = width * height
         
-        # 目标格子数量
+        # Target number of cells
         target_grid_count = n_points * grid_multiplier
         
-        # 计算grid_size
+        # Compute grid_size
         grid_size = np.sqrt(area / target_grid_count)
         
         print(f"\n自动计算grid_size:")
@@ -111,7 +111,7 @@ class VRPAnalyzer:
         inertia = self.calculate_inertia(self.coords, labels)
         silhouette_avg = silhouette_score(self.coords, labels) if len(set(labels)) > 1 else -1
         
-        # 使用自定义评估指标
+        # Use custom evaluation metrics
         metrics = ClusteringMetrics.evaluate_all(self.true_labels, labels)
         
         return kmeans, labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
@@ -123,7 +123,7 @@ class VRPAnalyzer:
         
         inertia = self.calculate_inertia(self.coords, labels)
         
-        # 计算轮廓系数（排除噪声点）
+        # Compute the silhouette coefficient excluding noise
         if len(set(labels)) > 1:
             mask = labels != -1
             if np.sum(mask) > 0 and len(np.unique(labels[mask])) > 1:
@@ -133,7 +133,7 @@ class VRPAnalyzer:
         else:
             silhouette_avg = -1
         
-        # 使用自定义评估指标
+        # Use custom evaluation metrics
         metrics = ClusteringMetrics.evaluate_all(self.true_labels, labels)
         
         return dbscan, labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
@@ -148,7 +148,7 @@ class VRPAnalyzer:
             auto_grid_multiplier: 自动计算时的格子数量倍数（默认2.0）
             optimize_grid: 是否使用梯度下降优化grid_size
         """
-        # 如果启用优化
+        # If optimisation is enabled
         if optimize_grid:
             print("\n使用梯度下降优化grid_size...")
             from optimize_grid_size import GridSizeOptimizer
@@ -165,13 +165,13 @@ class VRPAnalyzer:
             )
             print(f"优化后的grid_size: {grid_size:.3f}\n")
         
-        # 如果未指定grid_size且未优化，则自动计算
+        # Computed automatically when grid_size is neither given nor optimised
         elif grid_size is None:
             grid_size = self.calculate_auto_grid_size(grid_multiplier=auto_grid_multiplier)
         else:
             print(f"\n使用指定的grid_size: {grid_size:.3f}")
         
-        # 计算密度（使用Voronoi）
+        # Compute density with Voronoi
         points = self.coords
         vor = Voronoi(points)
         density = np.zeros(len(points))
@@ -188,10 +188,10 @@ class VRPAnalyzer:
             area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
             density[i] = 1.0 / area if area > 0 else 0
         
-        # 准备数据
+        # Prepare data
         combined_data = [(*point, density[i], i) for i, point in enumerate(points)]
         
-        # 运行聚类
+        # Run clustering
         cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
             combined_data,
             grid_size=grid_size,
@@ -203,7 +203,7 @@ class VRPAnalyzer:
         
         pre_labels = cluster.get_predicted_labels()
         
-        # 计算评估指标
+        # Compute evaluation metrics
         inertia = self.calculate_inertia(self.coords, pre_labels)
         
         if len(set(pre_labels)) > 1:
@@ -215,19 +215,19 @@ class VRPAnalyzer:
         else:
             silhouette_avg = -1
         
-        # 使用自定义评估指标
+        # Use custom evaluation metrics
         metrics = ClusteringMetrics.evaluate_all(self.true_labels, pre_labels)
         
         return final_points, pre_labels, inertia, silhouette_avg, metrics['AMI'], metrics['ARI'], metrics['FMI']
 
 
-# ==================== 主程序 ====================
+# ==================== Main program ====================
 if __name__ == "__main__":
     print("=" * 80)
     print("聚类算法对比测试")
     print("=" * 80)
     
-    # 读取数据
+    # Read data
     df = pd.read_csv(DATASET)
     X = df[['x', 'y']].values
     y_true = df['target'].values
@@ -238,10 +238,10 @@ if __name__ == "__main__":
     print(f"X范围: [{X[:, 0].min():.2f}, {X[:, 0].max():.2f}]")
     print(f"Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
     
-    # 创建分析器
+    # Create the analyser
     analyzer = VRPAnalyzer(X, y_true)
     
-    # 1. KMeans聚类
+    # 1. K-means clustering
     print("\n" + "-" * 80)
     print("1. KMeans 聚类")
     print("-" * 80)
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     print(f"ARI:        {kmeans_ari:.4f}")
     print(f"FMI:        {kmeans_fmi:.4f}")
     
-    # 2. DBSCAN聚类
+    # 2. DBSCAN clustering
     print("\n" + "-" * 80)
     print("2. DBSCAN 聚类")
     print("-" * 80)
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     print(f"ARI:        {dbscan_ari:.4f}")
     print(f"FMI:        {dbscan_fmi:.4f}")
     
-    # 3. Contour-Based聚类
+    # 3. Contour-based clustering
     print("\n" + "-" * 80)
     print("3. Contour-Based 聚类")
     print("-" * 80)
@@ -291,7 +291,7 @@ if __name__ == "__main__":
     print(f"ARI:        {contour_ari:.4f}")
     print(f"FMI:        {contour_fmi:.4f}")
     
-    # 汇总对比
+    # Summary comparison
     print("\n" + "=" * 80)
     print("算法对比汇总")
     print("=" * 80)
@@ -305,10 +305,10 @@ if __name__ == "__main__":
           f"{contour_silhouette:<12.4f} {contour_inertia:<12.2f}")
     print("=" * 80)
     
-    # 可视化对比
+    # Visual comparison
     fig = plt.figure(figsize=(16, 4))
     
-    # 真实标签
+    # Ground-truth labels
     plt.subplot(141)
     plt.scatter(X[:, 0], X[:, 1], c=y_true, cmap='tab10', s=20)
     plt.title('Ground Truth')

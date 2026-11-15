@@ -18,7 +18,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
     print(f"诊断 grid_size = {grid_size}")
     print("="*80)
     
-    # 读取数据
+    # Read data
     df = pd.read_csv(dataset_path)
     X = df[['x', 'y']].values
     y_true = df['target'].values
@@ -29,7 +29,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
     print(f"  X范围: [{X[:, 0].min():.2f}, {X[:, 0].max():.2f}]")
     print(f"  Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
     
-    # 计算数据范围
+    # Compute the data extent
     x_range = X[:, 0].max() - X[:, 0].min()
     y_range = X[:, 1].max() - X[:, 1].min()
     area = x_range * y_range
@@ -39,7 +39,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
     print(f"  Y范围: {y_range:.2f}")
     print(f"  总面积: {area:.2f}")
     
-    # 估算网格数量
+    # Estimate the number of cells
     n_grids_x = int(x_range / grid_size) + 4  # +4 for padding
     n_grids_y = int(y_range / grid_size) + 4
     total_grids = n_grids_x * n_grids_y
@@ -51,7 +51,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
     print(f"  总网格数: {total_grids}")
     print(f"  点数/网格数比: {len(X) / total_grids:.2f}")
     
-    # 计算密度
+    # Compute density
     vor = Voronoi(X)
     density = np.zeros(len(X))
     
@@ -72,10 +72,10 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
     print(f"  平均密度: {density.mean():.4f}")
     print(f"  密度标准差: {density.std():.4f}")
     
-    # 准备数据
+    # Prepare data
     combined_data = [(*point, density[i], i) for i, point in enumerate(X)]
     
-    # 创建聚类实例
+    # Create clustering instance
     try:
         cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
             combined_data,
@@ -84,11 +84,11 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
             interpolation_method='linear'
         )
         
-        # 执行聚类（禁用可视化）
+        # Run clustering with visualisation disabled
         import matplotlib
         matplotlib.use('Agg')
         
-        # 简化虚拟点生成
+        # Simplified virtual-point generation
         def silent_generate():
             x_coords = [p[0] for p in cluster.actual_points]
             y_coords = [p[1] for p in cluster.actual_points]
@@ -127,13 +127,13 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
         
         cluster.generate_virtual_points = silent_generate
         
-        # 执行聚类
+        # Run clustering
         cluster.perform_clustering()
         
-        # 获取结果
+        # Get the results
         pred_labels = cluster.get_predicted_labels()
         
-        # 分析结果
+        # Analyse the results
         unique_labels = set(pred_labels)
         n_clusters = len(unique_labels) - (1 if -1 in unique_labels else 0)
         n_noise = list(pred_labels).count(-1)
@@ -143,7 +143,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
         print(f"  噪声点数: {n_noise}")
         print(f"  有效点数: {len(pred_labels) - n_noise}")
         
-        # 每个簇的点数
+        # Number of points per cluster
         if n_clusters > 0:
             print(f"\n每个簇的点数:")
             for label in sorted(unique_labels):
@@ -153,7 +153,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
                 percentage = count / len(pred_labels) * 100
                 print(f"    簇 {label}: {count} 点 ({percentage:.1f}%)")
         
-        # 计算评估指标
+        # Compute evaluation metrics
         if n_clusters > 0:
             metrics = ClusteringMetrics.evaluate_all(y_true, pred_labels)
             
@@ -162,7 +162,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
             print(f"  AMI: {metrics['AMI']:.4f}")
             print(f"  FMI: {metrics['FMI']:.4f}")
             
-            # 分析ARI为0的原因
+            # Diagnose why the ARI is zero
             if abs(metrics['ARI']) < 0.001:
                 print(f"\n⚠️  ARI接近0的可能原因:")
                 if n_clusters == 1:
@@ -180,7 +180,7 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
             print(f"    - 所有点都被标记为噪声")
             print(f"    - 建议: 大幅增大max_buffer_distance或调整grid_size")
         
-        # 可视化建议
+        # Visualisation suggestion
         print(f"\n建议:")
         if grid_size < 0.1:
             print(f"  - grid_size太小 ({grid_size:.3f})，网格过密")
@@ -209,14 +209,14 @@ def diagnose_grid_size(dataset_path, grid_size, max_buffer_distance=5):
 if __name__ == "__main__":
     import sys
     
-    # 默认参数
+    # Default parameters
     dataset = "data/flame.csv"
     
     print("="*80)
     print("Grid Size诊断工具")
     print("="*80)
     
-    # 测试几个典型的grid_size值
+    # Test a few typical grid_size values
     test_values = [0.01, 0.1, 0.5, 1.0, 2.0, 5.0]
     
     print(f"\n将测试以下grid_size值: {test_values}")

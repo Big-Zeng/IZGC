@@ -3,8 +3,8 @@ ContourBasedClustering 等值线聚类算法
 支持参数循环优化
 """
 
-# 必须在导入ContourBasedClusteringWithoutZ22之前设置Agg后端
-# 因为该模块内部会设置TkAgg
+# The Agg backend must be set before importing ContourBasedClusteringWithoutZ22
+# The module sets TkAgg internally
 import matplotlib
 matplotlib.use('Agg')
 
@@ -21,20 +21,20 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/2d_3c.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (1.742,  1.742, 0.001),           # 从1.0到5.0，步长0.5
-    'max_buffer_distance': (0, 0, 1),        # 从0到5，步长1
-    'min_cluster_size': (5, 5, 1),          # 从3到10，步长2
-    'density_radius': (30, 30, 1)            # 从20到40，步长5
+    'grid_size': (1.742,  1.742, 0.001),           # From 1.0 to 5.0 in steps of 0.5
+    'max_buffer_distance': (0, 0, 1),        # From 0 to 5 in steps of 1
+    'min_cluster_size': (5, 5, 1),          # From 3 to 10 in steps of 2
+    'density_radius': (30, 30, 1)            # From 20 to 40 in steps of 5
 }
 
-# 优化目标: 'ARI', 'AMI', 'FMI', 'Silhouette'
+# Objective: 'ARI', 'AMI', 'FMI' or 'Silhouette'
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -49,7 +49,7 @@ def generate_param_values(start, end, step):
 
 
 def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, density_radius,merge_small_clusters = True):
-    #grid_size 保留三位小数,直接截取
+    #grid_size truncated to three decimals
 
     grid_size = '%.3f' % grid_size
     grid_size = float(grid_size)
@@ -58,14 +58,14 @@ def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, 
     """运行等值线聚类"""
     from scipy.spatial import Voronoi
     matplotlib.use('Agg')
-    # 计算密度
+    # Compute density
     tree = cKDTree(X)
     density = np.array([len(tree.query_ball_point(p, density_radius)) for p in X])
 
-    # 准备数据：(x, y, density, index)
+    # Prepare data as (x, y, density, index)
     combined_data = [(*point, density[i], i) for i, point in enumerate(X)]
 
-    # 创建聚类实例
+    # Create clustering instance
     cluster = ContourClustering.ContourBasedClusteringWithoutZ(
         combined_data,
         grid_size=grid_size,
@@ -75,10 +75,10 @@ def run_contour_clustering(X, grid_size, max_buffer_distance, min_cluster_size, 
 
     )
 
-    # 执行聚类
+    # Run clustering
     cluster.perform_clustering()
 
-    # 获取标签
+    # Get labels
     labels = cluster.get_predicted_labels()
 
     return np.array(labels)
@@ -89,7 +89,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
 
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         param_grid[name] = generate_param_values(start, end, step)
@@ -100,7 +100,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     best_labels = None
     best_metrics = None
 
-    # 生成所有参数组合
+    # Generate all parameter combinations
     param_names = list(param_grid.keys())
     param_values = list(param_grid.values())
     total_combinations = int(np.prod([len(v) for v in param_values]))
@@ -117,7 +117,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
         try:
             labels = run_contour_clustering(X, **params)
 
-            # 检查聚类是否有效
+            # Check whether the clustering is valid
             n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
             if n_clusters < 2:
                 fail_count += 1
@@ -151,10 +151,10 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
 
 
 if __name__ == "__main__":
-    # 创建输出目录
+    # Create the output directory
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # 加载数据
+    # Load data
     print("="*60)
     print("ContourBasedClustering 参数优化")
     print("="*60)
@@ -166,12 +166,12 @@ if __name__ == "__main__":
     print(f"样本数: {len(X)}")
     print(f"真实簇数: {len(np.unique(y_true))}")
 
-    # 归一化
+    # Normalise
     if NORMALIZE:
         X = normalize_coordinates(X)
         print("✓ 坐标已归一化到[0, 100]")
 
-    # 参数搜索
+    # Parameter search
     best_params, best_labels, best_metrics, all_results = grid_search(
         X, y_true, PARAM_RANGES, OPTIMIZE_METRIC
     )
@@ -183,10 +183,10 @@ if __name__ == "__main__":
         print("  2. 调整参数范围")
         print("  3. 增大density_radius")
     else:
-        # 打印最佳结果
+        # Print the best result
         print_best_result("ContourBasedClustering", best_params, best_metrics)
 
-        # 保存图表
+        # Save the figure
         save_path = f"{OUTPUT_DIR}/ContourBased_{dataset_name}.png"
         plot_clustering_result(
             X, best_labels,
@@ -194,11 +194,11 @@ if __name__ == "__main__":
             save_path, dpi=600
         )
 
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/ContourBased_{dataset_name}_best.txt"
         save_best_result("ContourBasedClustering", dataset_name, best_params, best_metrics, txt_path)
 
-        # 保存真实标签图
+        # Save the ground-truth label figure
         gt_path = f"{OUTPUT_DIR}/GroundTruth_{dataset_name}.png"
         plot_clustering_result(X, y_true, 'Ground Truth', gt_path, dpi=300)
     

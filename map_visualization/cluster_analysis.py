@@ -8,7 +8,7 @@ import numpy as np
 import sys
 import os
 
-# 添加父目录到路径以导入ContourBasedClusteringWithoutZ22
+# Add the parent directory to sys.path to import ContourBasedClusteringWithoutZ22
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import ContourBasedClusteringWithoutZ22 as ContourClustering
@@ -19,30 +19,30 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
 
-# ==================== 配置参数 ====================
-GRID_SIZE = 0.05              # 网格大小（经纬度单位）
-MAX_BUFFER_DISTANCE = 5       # 最大缓冲距离
-MIN_CLUSTER_SIZE = 10         # 最小簇大小（小于此值的簇会被合并）
+# ==================== Parameters ====================
+GRID_SIZE = 0.05              # Grid size in degrees
+MAX_BUFFER_DISTANCE = 5       # Maximum buffer distance
+MIN_CLUSTER_SIZE = 10         # Minimum cluster size; smaller clusters are merged
 # ==================================================
 
 print("="*80)
 print("客户数据聚类分析")
 print("="*80)
 
-# 读取客户数据
+# Read the customer data
 print("\n正在读取客户数据...")
 with open('client_data.json', 'r', encoding='utf-8') as f:
     clients = json.load(f)
 
 print(f"✓ 加载了 {len(clients)} 个客户")
 
-# 提取坐标数据
+# Extract the coordinate data
 coords = np.array([[client['lon'], client['lat']] for client in clients])
 print(f"\n数据范围:")
 print(f"  经度: [{coords[:, 0].min():.6f}, {coords[:, 0].max():.6f}]")
 print(f"  纬度: [{coords[:, 1].min():.6f}, {coords[:, 1].max():.6f}]")
 
-# 计算密度（使用Voronoi图）
+# Compute the density from the Voronoi diagram
 print("\n正在计算点密度...")
 try:
     vor = Voronoi(coords)
@@ -55,20 +55,20 @@ except Exception as e:
     tree = cKDTree(coords)
     density = np.array([len(tree.query_ball_point(p, 0.1)) for p in coords])
 
-# 准备聚类数据（格式：x, y, density, id）
+# Prepare the clustering data as x, y, density, id
 print("\n准备聚类数据...")
 combined_data = []
 for i, client in enumerate(clients):
     combined_data.append((
-        client['lon'],    # x (经度)
-        client['lat'],    # y (纬度)
-        density[i],       # z (密度)
+        client['lon'],    # x (longitude)
+        client['lat'],    # y (latitude)
+        density[i],       # z (density)
         i                 # id
     ))
 
 print(f"✓ 数据准备完成，共 {len(combined_data)} 个点")
 
-# 创建聚类实例
+# Create clustering instance
 print("\n" + "="*80)
 print("开始聚类分析")
 print("="*80)
@@ -85,7 +85,7 @@ cluster = ContourClustering.ContourBasedClusteringWithoutZ(
     min_cluster_size=MIN_CLUSTER_SIZE
 )
 
-# 执行聚类
+# Run clustering
 print("\n正在执行聚类...")
 try:
     cluster.perform_clustering()
@@ -96,12 +96,12 @@ except Exception as e:
     traceback.print_exc()
     sys.exit(1)
 
-# 获取聚类标签
+# Get the cluster labels
 print("\n正在获取聚类结果...")
 pred_labels = cluster.get_predicted_labels()
 pred_labels_array = np.array(pred_labels)
 
-# 统计聚类结果
+# Summarise the clustering results
 n_clusters = len(set(pred_labels)) - (1 if -1 in pred_labels else 0)
 n_noise = list(pred_labels).count(-1)
 
@@ -112,7 +112,7 @@ print(f"发现簇数: {n_clusters}")
 print(f"噪声点数: {n_noise}")
 print(f"有效聚类点数: {len(pred_labels) - n_noise}")
 
-# 统计每个簇的点数
+# Count the points of each cluster
 cluster_counts = {}
 for label in pred_labels:
     if label != -1:
@@ -124,20 +124,20 @@ for label in sorted(cluster_counts.keys()):
     percentage = (count / len(pred_labels)) * 100
     print(f"  簇 {label}: {count} 个点 ({percentage:.2f}%)")
 
-# 计算无监督评价指标
+# Compute the unsupervised metrics
 print("\n" + "="*80)
 print("无监督聚类评价指标")
 print("="*80)
 
-# 只对非噪声点计算指标
+# Compute the metrics on non-noise points only
 mask = pred_labels_array != -1
 coords_valid = coords[mask]
 labels_valid = pred_labels_array[mask]
 
 if n_clusters > 1 and len(labels_valid) > 0:
     try:
-        # 1. 轮廓系数 (Silhouette Score)
-        # 范围: [-1, 1]，越接近1越好
+        # 1. Silhouette score
+        # Range [-1, 1]; closer to 1 is better
         silhouette = silhouette_score(coords_valid, labels_valid, metric='euclidean')
         print(f"\n1. 轮廓系数 (Silhouette Score): {silhouette:.4f}")
         print(f"   范围: [-1, 1]")
@@ -151,15 +151,15 @@ if n_clusters > 1 and len(labels_valid) > 0:
         else:
             print("(较差)")
         
-        # 2. Calinski-Harabasz指数 (方差比准则)
-        # 值越大越好
+        # 2. Calinski-Harabasz index (variance-ratio criterion)
+        # Larger is better
         ch_score = calinski_harabasz_score(coords_valid, labels_valid)
         print(f"\n2. Calinski-Harabasz指数: {ch_score:.4f}")
         print(f"   范围: [0, +∞)")
         print(f"   解释: 值越大，簇间分离度越好")
         
-        # 3. Davies-Bouldin指数
-        # 值越小越好
+        # 3. Davies-Bouldin index
+        # Smaller is better
         db_score = davies_bouldin_score(coords_valid, labels_valid)
         print(f"\n3. Davies-Bouldin指数: {db_score:.4f}")
         print(f"   范围: [0, +∞)")
@@ -173,7 +173,7 @@ if n_clusters > 1 and len(labels_valid) > 0:
         else:
             print("(较差)")
         
-        # 4. 簇内误差平方和 (Inertia)
+        # 4. Within-cluster sum of squares (inertia)
         inertia = 0.0
         for label in np.unique(labels_valid):
             cluster_points = coords_valid[labels_valid == label]
@@ -184,7 +184,7 @@ if n_clusters > 1 and len(labels_valid) > 0:
         print(f"   范围: [0, +∞)")
         print(f"   解释: 值越小，簇内紧密度越高")
         
-        # 5. 簇间距离统计
+        # 5. Statistics of the inter-cluster distances
         cluster_centers = []
         for label in np.unique(labels_valid):
             cluster_points = coords_valid[labels_valid == label]
@@ -201,7 +201,7 @@ if n_clusters > 1 and len(labels_valid) > 0:
             print(f"   最大距离: {inter_cluster_distances.max():.6f}")
             print(f"   平均距离: {inter_cluster_distances.mean():.6f}")
         
-        # 保存评价指标
+        # Save the evaluation metrics
         metrics = {
             'n_clusters': int(n_clusters),
             'n_noise': int(n_noise),
@@ -229,7 +229,7 @@ else:
     if len(labels_valid) == 0:
         print(f"  - 没有有效聚类点")
 
-# 保存聚类结果到客户数据
+# Write the clustering result back to the customer data
 print("\n正在保存聚类结果...")
 for i, client in enumerate(clients):
     client['cluster'] = int(pred_labels[i])
@@ -239,7 +239,7 @@ with open('client_data_clustered.json', 'w', encoding='utf-8') as f:
 
 print(f"✓ 聚类结果已保存到: client_data_clustered.json")
 
-# 可视化聚类结果
+# Visualise the clustering results
 print("\n正在生成可视化...")
 try:
     cluster.visualize_clusters()

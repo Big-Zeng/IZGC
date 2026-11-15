@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
 
-# 导入自定义模块
+# Import the custom module
 import ContourBasedClusteringWithoutZ3 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
@@ -28,23 +28,23 @@ class ClusteringComparison:
             data_file: CSV数据文件路径
             n_clusters: 真实的簇数量（如果已知）
         """
-        # 读取数据
+        # Read data
         df = pd.read_csv(data_file)
         
-        # 提取坐标和标签
+        # Extract the coordinates and labels
         if 'x' in df.columns and 'y' in df.columns:
             self.X = df[['x', 'y']].values
         else:
-            # 如果没有x,y列，使用前两列
+            # Use the first two columns when x and y are absent
             self.X = df.iloc[:, :2].values
         
-        # 提取真实标签
+        # Extract the ground-truth labels
         if 'target' in df.columns:
             self.y_true = df['target'].values
         else:
             self.y_true = df.iloc[:, -1].values
         
-        # 真实簇数
+        # True number of clusters
         self.n_clusters = n_clusters if n_clusters else len(np.unique(self.y_true))
         
         print(f"数据加载成功: {data_file}")
@@ -58,7 +58,7 @@ class ClusteringComparison:
         unique_labels = np.unique(labels)
         
         for label in unique_labels:
-            if label == -1:  # 跳过噪声点
+            if label == -1:  # Skip the noise points
                 continue
             cluster_points = points[labels == label]
             if len(cluster_points) == 0:
@@ -77,7 +77,7 @@ class ClusteringComparison:
         kmeans = KMeans(n_clusters=self.n_clusters, random_state=42, n_init=10)
         labels = kmeans.fit_predict(self.X)
         
-        # 计算评估指标
+        # Compute evaluation metrics
         inertia = self.calculate_inertia(self.X, labels)
         
         if len(np.unique(labels)) > 1:
@@ -85,7 +85,7 @@ class ClusteringComparison:
         else:
             silhouette = -1
         
-        # 使用自定义评估指标
+        # Use custom evaluation metrics
         metrics = ClusteringMetrics.evaluate_all(self.y_true, labels)
         
         results = {
@@ -108,7 +108,7 @@ class ClusteringComparison:
         print("运行 DBSCAN 聚类")
         print("=" * 70)
         
-        # 自动估计eps（如果未提供）
+        # Estimate eps automatically when it is not given
         if eps is None:
             from sklearn.neighbors import NearestNeighbors
             neighbors = NearestNeighbors(n_neighbors=min_samples)
@@ -126,11 +126,11 @@ class ClusteringComparison:
         
         print(f"发现簇数: {n_clusters_found}, 噪声点: {n_noise}")
         
-        # 计算评估指标
+        # Compute evaluation metrics
         inertia = self.calculate_inertia(self.X, labels)
         
         if len(set(labels)) > 1 and n_clusters_found > 0:
-            # 排除噪声点计算轮廓系数
+            # Compute the silhouette coefficient excluding noise
             mask = labels != -1
             if np.sum(mask) > 0 and len(np.unique(labels[mask])) > 1:
                 silhouette = silhouette_score(self.X[mask], labels[mask])
@@ -139,7 +139,7 @@ class ClusteringComparison:
         else:
             silhouette = -1
         
-        # 使用自定义评估指标
+        # Use custom evaluation metrics
         metrics = ClusteringMetrics.evaluate_all(self.y_true, labels)
         
         results = {
@@ -165,7 +165,7 @@ class ClusteringComparison:
         print("=" * 70)
         print(f"参数: grid_size={grid_size}, max_buffer_distance={max_buffer_distance}")
         
-        # 计算密度（使用Voronoi）
+        # Compute density with Voronoi
         points = self.X
         vor = Voronoi(points)
         density = np.zeros(len(points))
@@ -187,10 +187,10 @@ class ClusteringComparison:
             else:
                 density[i] = 0
         
-        # 准备数据
+        # Prepare data
         combined_data = [(*point, density[i], i) for i, point in enumerate(points)]
         
-        # 运行聚类
+        # Run clustering
         cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
             combined_data,
             grid_size=grid_size,
@@ -200,10 +200,10 @@ class ClusteringComparison:
         cluster.perform_clustering()
         labels = cluster.get_predicted_labels()
         
-        # 可视化
+        # Visualise
         cluster.visualize_clusters()
         
-        # 计算评估指标
+        # Compute evaluation metrics
         inertia = self.calculate_inertia(self.X, labels)
         
         if len(set(labels)) > 1:
@@ -215,7 +215,7 @@ class ClusteringComparison:
         else:
             silhouette = -1
         
-        # 使用自定义评估指标
+        # Use custom evaluation metrics
         metrics = ClusteringMetrics.evaluate_all(self.y_true, labels)
         
         n_clusters_found = len(set(labels)) - (1 if -1 in labels else 0)
@@ -256,15 +256,15 @@ class ClusteringComparison:
         print("聚类算法对比测试")
         print("=" * 70)
         
-        # 运行三种算法
+        # Run the three algorithms
         kmeans_results = self.run_kmeans()
         dbscan_results = self.run_dbscan(eps=dbscan_eps)
         contour_results = self.run_contour_clustering(grid_size=contour_grid_size)
         
-        # 汇总对比
+        # Summary comparison
         self._print_comparison_table([kmeans_results, dbscan_results, contour_results])
         
-        # 可视化对比
+        # Visual comparison
         self._visualize_comparison([kmeans_results, dbscan_results, contour_results])
         
         return kmeans_results, dbscan_results, contour_results
@@ -291,13 +291,13 @@ class ClusteringComparison:
         """可视化对比"""
         fig, axes = plt.subplots(1, len(results_list) + 1, figsize=(16, 4))
         
-        # 绘制真实标签
+        # Plot the ground-truth labels
         axes[0].scatter(self.X[:, 0], self.X[:, 1], c=self.y_true, cmap='tab10', s=20)
         axes[0].set_title('真实标签 (Ground Truth)')
         axes[0].set_xlabel('X')
         axes[0].set_ylabel('Y')
         
-        # 绘制各算法结果
+        # Plot the results of each algorithm
         for i, results in enumerate(results_list, 1):
             axes[i].scatter(self.X[:, 0], self.X[:, 1], 
                           c=results['labels'], cmap='tab10', s=20)
@@ -309,16 +309,16 @@ class ClusteringComparison:
         plt.show()
 
 
-# 主程序
+# Main program
 if __name__ == "__main__":
-    # 测试数据集
-    dataset = "data/Aggregation.csv"  # 可以改为其他数据集
+    # Test datasets
+    dataset = "data/Aggregation.csv"  # Other datasets can be substituted here
     
-    # 创建对比实例
+    # Create the comparison instance
     comparison = ClusteringComparison(dataset)
     
-    # 运行对比
+    # Run the comparison
     comparison.compare_all(
-        dbscan_eps=1.5,           # DBSCAN的eps参数
-        contour_grid_size=1.2     # Contour的grid_size参数
+        dbscan_eps=1.5,           # eps of DBSCAN
+        contour_grid_size=1.2     # grid_size of the contour method
     )

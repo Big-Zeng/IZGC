@@ -20,8 +20,8 @@ from scipy import ndimage
 from sklearn.metrics import silhouette_score
 from scipy.spatial import cKDTree
 
-plt.rcParams['font.sans-serif'] = ['SimHei']   # 黑体
-plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
+plt.rcParams['font.sans-serif'] = ['SimHei']   # SimHei
+plt.rcParams['axes.unicode_minus'] = False     # Fix minus-sign rendering
 
 
 class ContourBasedClusteringWithoutZ:
@@ -54,7 +54,7 @@ class ContourBasedClusteringWithoutZ:
         self.point_to_density_center = {}
         self.manual_points = []
         
-        # 内部类定义
+        # Internal class definition
         class ContourArea:
             def __init__(self, polygon, points):
                 self.polygon = polygon
@@ -90,7 +90,7 @@ class ContourBasedClusteringWithoutZ:
         min_x, max_x = min(x_coords), max(x_coords)
         min_y, max_y = min(y_coords), max(y_coords)
 
-        # 扩展边界
+        # Expand the extent
         i_start = min_x - 2 * self.grid_size
         i_end = max_x + 2 * self.grid_size
         j_start = min_y - 2 * self.grid_size
@@ -98,7 +98,7 @@ class ContourBasedClusteringWithoutZ:
 
         virtual_points = []
 
-        # 正常网格部分
+        # Regular grid
         i = i_start
         while i < i_end:
             j = j_start
@@ -115,7 +115,7 @@ class ContourBasedClusteringWithoutZ:
                 j += self.grid_size
             i += self.grid_size
 
-        # 低货量区域加密网格
+        # Refine the grid in low-volume areas
         fine_grid_size = self.grid_size / 2
         for p in self.actual_points:
             if p[2] < avg_z:
@@ -145,7 +145,7 @@ class ContourBasedClusteringWithoutZ:
                         yj += fine_grid_size
                     xi += fine_grid_size
 
-        # 绘制交互界面
+        # Draw the interactive interface
         x_ticks = np.arange(i_start, i_end + self.grid_size, self.grid_size)
         y_ticks = np.arange(j_start, j_end + self.grid_size, self.grid_size)
 
@@ -215,28 +215,28 @@ class ContourBasedClusteringWithoutZ:
 
     def generate_contour_areas(self):
         """生成等值线区域并建立层次结构（支持多种插值方法）"""
-        # 生成虚拟点
+        # Generate virtual points
         virtual_points, x_ticks, y_ticks = self.generate_virtual_points()
 
         all_points = self.actual_points + self.virtual_points
 
-        # 准备插值数据
+        # Prepare interpolation data
         x1 = np.array([p[0] for p in all_points])
         y1 = np.array([p[1] for p in all_points])
         z1 = np.array([p[2] for p in all_points])
 
         X, Y = np.meshgrid(x_ticks, y_ticks)
 
-        # 根据不同插值方法进行插值
+        # Interpolate with each method in turn
         print(f"使用 {self.interpolation_method} 插值方法...")
         
         if self.interpolation_method == 'idw':
-            # IDW (Inverse Distance Weighting) 插值
+            # IDW (inverse distance weighting) interpolation
             print(f"  IDW参数: power={self.idw_power}, neighbors={self.idw_neighbors}")
             tree = cKDTree(np.c_[x1, y1])
             distances, indices = tree.query(np.c_[X.flat, Y.flat], k=self.idw_neighbors)
             
-            # 避免除零错误
+            # Avoid division by zero
             distances = np.where(distances == 0, 1e-10, distances)
             
             weights = 1.0 / distances**self.idw_power
@@ -244,43 +244,43 @@ class ContourBasedClusteringWithoutZ:
             zi = zi.reshape(X.shape)
             
         elif self.interpolation_method == 'cubic':
-            # 双三次样条插值
+            # Bicubic spline interpolation
             print(f"  Cubic参数: smoothing={self.cubic_smoothing}")
             zi = griddata((x1, y1), z1, (X, Y), method='cubic')
             
-            # 处理NaN值
+            # Handle NaN values
             zi = np.nan_to_num(zi, nan=0)
             
-            # 添加平滑处理
+            # Add smoothing
             if self.cubic_smoothing > 0:
                 zi = ndimage.gaussian_filter(zi, sigma=self.cubic_smoothing)
                 print(f"  应用高斯平滑，sigma={self.cubic_smoothing}")
                 
         else:
-            # 默认使用线性插值或其他scipy支持的方法
+            # Defaults to linear interpolation or another scipy method
             zi = griddata((x1, y1), z1, (X, Y), method=self.interpolation_method)
             zi = np.nan_to_num(zi, nan=0)
 
-        # 生成等值线
+        # Generate contours
         fig, ax = plt.subplots(figsize=(10, 8))
         contour_set = ax.contour(X, Y, zi, levels=1, colors='black')
         
-        # 展示等值线图
+        # Show the contour plot
         ax.set_title(f'等值线图 (插值方法: {self.interpolation_method})')
 
-        # 绘制实际点
+        # Plot real points
         x_coords = [p[0] for p in self.actual_points]
         y_coords = [p[1] for p in self.actual_points]
         ax.scatter(x_coords, y_coords, c='red', s=50, label="实际点", zorder=5)
         
-        # 在每个实际点旁边显示Z值
+        # Show the z value next to each real point
         for i, point in enumerate(self.actual_points):
             ax.text(point[0], point[1], f' {point[2]:.1f}',
                     fontsize=8, color='darkred',
                     verticalalignment='bottom',
                     horizontalalignment='left')
 
-        # 绘制虚拟点
+        # Plot virtual points
         if self.virtual_points:
             vx = [p[0] for p in self.virtual_points]
             vy = [p[1] for p in self.virtual_points]
@@ -292,10 +292,10 @@ class ContourBasedClusteringWithoutZ:
         plt.colorbar(ax.contourf(X, Y, zi, levels=10, alpha=0.3), ax=ax, label='密度值')
         plt.show()
 
-        # 转换为多边形区域
+        # Convert to polygonal regions
         face_polygons = self.line_to_polygon(contour_set)
 
-        # 创建等值线区域对象
+        # Create contour-region objects
         contour_areas = []
         for polygon in face_polygons:
             points_in_poly = []
@@ -307,7 +307,7 @@ class ContourBasedClusteringWithoutZ:
 
         self.contour_areas = contour_areas
 
-        # 建立区域层次结构
+        # Build the region hierarchy
         for area in self.contour_areas:
             area_poly = Polygon(area.polygon)
             for other in self.contour_areas:
@@ -494,9 +494,9 @@ class ContourBasedClusteringWithoutZ:
         return self.point_to_density_center
 
 
-# 示例用法
+# Example usage
 if __name__ == "__main__":
-    # 实际点数据 (x, y, 密度值, 客户ID)
+    # Real point data (x, y, density, customer id)
     actual_points = [
         (0.2, 0.3, 1.5, 1),
         (0.8, 1.2, 2.0, 2),
@@ -513,7 +513,7 @@ if __name__ == "__main__":
     print("测试不同插值方法")
     print("="*80)
     
-    # 测试不同插值方法
+    # Test the interpolation methods
     methods = [
         ('linear', {}),
         ('cubic', {'cubic_smoothing': 0.5}),
@@ -525,7 +525,7 @@ if __name__ == "__main__":
         print(f"测试插值方法: {method}")
         print(f"{'='*80}")
         
-        # 创建聚类实例
+        # Create clustering instance
         cluster = ContourBasedClusteringWithoutZ(
             actual_points,
             grid_size=1.0,
@@ -534,13 +534,13 @@ if __name__ == "__main__":
             **params
         )
         
-        # 执行聚类
+        # Run clustering
         clusters = cluster.perform_clustering()
         
-        # 可视化结果
+        # Visualize results
         cluster.visualize_clusters()
         
-        # 计算评估指标
+        # Compute evaluation metrics
         cluster.silhouette_score()
         
         print(f"\n发现 {len(cluster.density_centers)} 个聚类中心")

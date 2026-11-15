@@ -34,7 +34,7 @@ from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
 from scipy.stats import norm
 
-# 项目根目录
+# Project root
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -57,11 +57,11 @@ class OverlapExperimentConfig:
     delta_g_star: float = 2.0
     max_buffer_distance: int = 0
 
-    # Experiment 1: 固定σ=1.0, 改变d
+    # Experiment 1: fix sigma = 1.0 and vary d
     d_values: Tuple[float, ...] = (6.0, 5.0, 4.0, 3.0, 2.0, 1.0)
     sigma_fixed: float = 1.0
 
-    # Experiment 2: 固定d=3, 改变σ
+    # Experiment 2: fix d = 3 and vary sigma
     sigma_values: Tuple[float, ...] = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
     d_fixed: float = 3.0
 

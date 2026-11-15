@@ -9,7 +9,7 @@ import numpy as np
 import sys
 import os
 
-# 添加父目录到路径
+# Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import ContourBasedClusteringWithoutZ22_map as ContourClustering
@@ -17,9 +17,9 @@ from scipy.spatial import cKDTree
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 app = Flask(__name__)
-CORS(app)  # 允许跨域请求
+CORS(app)  # Allow cross-origin requests
 
-# 全局变量存储客户数据
+# Global variable holding the customer data
 clients_data = None
 
 def load_client_data():
@@ -39,7 +39,7 @@ def index():
 def perform_clustering():
     """执行聚类分析API"""
     try:
-        # 获取参数
+        # Get the parameters
         params = request.json
         grid_size = float(params.get('grid_size', 0.05))
         max_buffer_distance = int(params.get('max_buffer_distance', 5))
@@ -52,20 +52,20 @@ def perform_clustering():
         print(f"  min_cluster_size: {min_cluster_size}")
         print(f"{'='*80}\n")
         
-        # 加载客户数据
+        # Load the customer data
         clients = load_client_data()
         print(f"✓ 加载了 {len(clients)} 个客户")
         
-        # 提取坐标数据
+        # Extract the coordinate data
         coords = np.array([[client['lon'], client['lat']] for client in clients])
         
-        # 计算密度
+        # Compute density
         print("正在计算点密度...")
         tree = cKDTree(coords)
         density = np.array([len(tree.query_ball_point(p, 0.1)) for p in coords])
         print(f"✓ 密度计算完成")
         
-        # 准备聚类数据
+        # Prepare the clustering data
         combined_data = []
         for i, client in enumerate(clients):
             combined_data.append((
@@ -75,7 +75,7 @@ def perform_clustering():
                 i
             ))
         
-        # 创建聚类实例（禁用交互式界面）
+        # Create the clustering instance with the interactive UI disabled
         print("正在执行聚类...")
         cluster = ContourClustering.ContourBasedClusteringWithoutZ(
             combined_data,
@@ -84,55 +84,55 @@ def perform_clustering():
             min_cluster_size=min_cluster_size
         )
         
-        # 执行聚类（需要修改算法以支持非交互模式）
-        # 暂时使用原有方法，但需要关闭matplotlib的交互显示
+        # Run clustering; the algorithm must support non-interactive mode
+        # The original approach is kept, but matplotlib's interactive display is switched off
         import matplotlib
-        matplotlib.use('Agg')  # 使用非交互式后端
+        matplotlib.use('Agg')  # Use a non-interactive backend
         
         cluster.perform_clustering()
         print("✓ 聚类完成")
         
-        # 获取聚类标签
+        # Get the cluster labels
         pred_labels = cluster.get_predicted_labels()
         pred_labels_array = np.array(pred_labels)
         
-        # 统计聚类结果
+        # Summarise the clustering results
         n_clusters = len(set(pred_labels)) - (1 if -1 in pred_labels else 0)
         n_noise = list(pred_labels).count(-1)
         
         print(f"发现簇数: {n_clusters}")
         print(f"噪声点数: {n_noise}")
         
-        # 统计每个簇的点数
+        # Count the points of each cluster
         cluster_counts = {}
         for label in pred_labels:
             if label != -1:
                 cluster_counts[label] = cluster_counts.get(label, 0) + 1
         
-        # 计算评价指标
+        # Compute the metrics
         metrics = {}
         mask = pred_labels_array != -1
         coords_valid = coords[mask]
         labels_valid = pred_labels_array[mask]
         
         if n_clusters > 1 and len(labels_valid) > 0:
-            # 轮廓系数
+            # Silhouette coefficient
             silhouette = silhouette_score(coords_valid, labels_valid, metric='euclidean')
             
-            # Calinski-Harabasz指数
+            # Calinski-Harabasz index
             ch_score = calinski_harabasz_score(coords_valid, labels_valid)
             
-            # Davies-Bouldin指数
+            # Davies-Bouldin index
             db_score = davies_bouldin_score(coords_valid, labels_valid)
             
-            # 簇内误差平方和
+            # Within-cluster sum of squares
             inertia = 0.0
             for label in np.unique(labels_valid):
                 cluster_points = coords_valid[labels_valid == label]
                 cluster_center = np.mean(cluster_points, axis=0)
                 inertia += np.sum(np.linalg.norm(cluster_points - cluster_center, axis=1) ** 2)
             
-            # 簇间距离
+            # Inter-cluster distance
             cluster_centers = []
             for label in np.unique(labels_valid):
                 cluster_points = coords_valid[labels_valid == label]
@@ -154,17 +154,17 @@ def perform_clustering():
                     'avg_inter_cluster_distance': float(inter_cluster_distances.mean())
                 }
         
-        # 准备返回数据
-        # 获取等值线多边形数据
+        # Prepare the return payload
+        # Get the contour polygon data
         contour_polygons = []
         for i, center in enumerate(cluster.density_centers):
-            # 获取该簇的点数
+            # Get the point count of this cluster
             cluster_points = [point for point, centers in cluster.point_to_density_center.items() 
                              if center in centers]
             if len(cluster_points) == 0:
                 continue
             
-            # 将多边形坐标转换为列表格式
+            # Convert the polygon coordinates to list form
             polygon_coords = center.polygon.tolist()
             
             contour_polygons.append({
@@ -181,8 +181,8 @@ def perform_clustering():
             'n_valid_points': len(labels_valid),
             'cluster_counts': cluster_counts,
             'metrics': metrics,
-            'labels': pred_labels,  # 每个客户的簇标签
-            'contour_polygons': contour_polygons  # 等值线多边形数据
+            'labels': pred_labels,  # Cluster label of each customer
+            'contour_polygons': contour_polygons  # Contour polygon data
         }
         
         print(f"✓ 聚类分析完成")

@@ -4,7 +4,7 @@ import numpy as np
 
 def lonlat_to_xy(lon, lat, lon_ref, lat_ref):
     """将经纬度转换为平面坐标（单位：公里）"""
-    R = 6371.0  # 地球半径（公里）
+    R = 6371.0  # Earth radius in kilometres
     
     lon_rad = np.radians(lon)
     lat_rad = np.radians(lat)
@@ -36,7 +36,7 @@ def normalize_coordinates(coords):
     
     return coords_normalized, scale_info
 
-# 测试：读取长沙市数据
+# Test: read the Changsha data
 print("="*80)
 print("测试经纬度转换和归一化")
 print("="*80)
@@ -47,14 +47,14 @@ with open('client_data_by_city/长沙市.json', 'r', encoding='utf-8') as f:
 print(f"\n数据集: 长沙市")
 print(f"客户数: {len(clients)}")
 
-# 提取经纬度
+# Extract longitude and latitude
 lonlat_coords = np.array([[client['lon'], client['lat']] for client in clients])
 
 print(f"\n原始经纬度范围:")
 print(f"  经度: [{lonlat_coords[:, 0].min():.6f}, {lonlat_coords[:, 0].max():.6f}]")
 print(f"  纬度: [{lonlat_coords[:, 1].min():.6f}, {lonlat_coords[:, 1].max():.6f}]")
 
-# 计算参考点
+# Compute the reference point
 lon_ref = np.mean(lonlat_coords[:, 0])
 lat_ref = np.mean(lonlat_coords[:, 1])
 
@@ -62,7 +62,7 @@ print(f"\n参考点（区域中心）:")
 print(f"  经度: {lon_ref:.6f}")
 print(f"  纬度: {lat_ref:.6f}")
 
-# 转换为平面坐标
+# Convert to planar coordinates
 xy_coords = np.array([lonlat_to_xy(lon, lat, lon_ref, lat_ref) 
                       for lon, lat in lonlat_coords])
 
@@ -72,7 +72,7 @@ print(f"  Y: [{xy_coords[:, 1].min():.3f}, {xy_coords[:, 1].max():.3f}] km")
 print(f"  X跨度: {xy_coords[:, 0].max() - xy_coords[:, 0].min():.3f} km")
 print(f"  Y跨度: {xy_coords[:, 1].max() - xy_coords[:, 1].min():.3f} km")
 
-# 归一化
+# Normalise
 coords_norm, scale_info = normalize_coordinates(xy_coords)
 
 print(f"\n归一化后坐标范围:")
@@ -85,7 +85,7 @@ print(f"  Y范围: {scale_info['y_range']:.3f} km -> 100")
 print(f"  缩放比例: 1 单位 = {scale_info['x_range']/100:.3f} km (X方向)")
 print(f"            1 单位 = {scale_info['y_range']/100:.3f} km (Y方向)")
 
-# 显示几个样本点
+# Show a few sample points
 print(f"\n样本点对比（前5个）:")
 print(f"{'序号':<6} {'经度':<12} {'纬度':<12} {'X(km)':<10} {'Y(km)':<10} {'X_norm':<10} {'Y_norm':<10}")
 print("-"*80)

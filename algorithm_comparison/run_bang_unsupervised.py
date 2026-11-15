@@ -21,18 +21,18 @@ from algorithm_comparison.utils import (
 )
 from algorithm_comparison.alg_bang import run_bang
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/real_data/常德市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Composite' 或 'CH'
+# Objective: 'Composite' or 'CH'
 OPTIMIZE_METRIC = 'Composite'
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'levels': (4, 50, 1),  # 网格层级：从4到100，步长1
-    'density_threshold': (0.01, 1, 0.05)  # 密度阈值：从0.01到1，步长0.05
+    'levels': (4, 50, 1),  # Grid levels: 4 to 100 in steps of 1
+    'density_threshold': (0.01, 1, 0.05)  # Density threshold: 0.01 to 1 in steps of 0.05
 }
 # ==============================================
 
@@ -54,7 +54,7 @@ def main():
     print(f"优化目标: {OPTIMIZE_METRIC}")
     print("="*70)
     
-    # 加载数据
+    # Load data
     X, y_true = load_dataset(DATASET)
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
     
@@ -69,7 +69,7 @@ def main():
         X = normalize_coordinates(X)
         print("✓ 坐标已归一化到[0, 100]")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for pname, (start, end, step) in PARAM_RANGES.items():
         param_grid[pname] = generate_param_values(start, end, step)
@@ -79,7 +79,7 @@ def main():
     best_params = None
     best_labels = None
     best_metrics = None
-    all_results = []  # 记录所有有效结果
+    all_results = []  # Record all valid results
     
     param_names = list(param_grid.keys())
     param_values = list(param_grid.values())
@@ -105,7 +105,7 @@ def main():
             
             score = metrics[OPTIMIZE_METRIC]
             
-            # 记录所有有效结果
+            # Record all valid results
             result_record = {
                 'params': params.copy(),
                 'metrics': metrics.copy(),
@@ -145,14 +145,14 @@ def main():
         print(f"用时: {elapsed:.2f}s")
         print(f"总评估次数: {len(all_results)}")
         
-        # 保存图表
+        # Save the figure
         plot_clustering_result(
             X, best_labels,
             f"BANG (Sil={best_metrics['Composite']:.3f})",
             f"{OUTPUT_DIR}/BANG_{dataset_name}.png", dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/BANG_{dataset_name}_best.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write(f"算法: BANG\n")
@@ -171,7 +171,7 @@ def main():
             f.write(f"  噪声点: {best_metrics['n_noise']}\n")
         print(f"  已保存: {txt_path}")
         
-        # 保存所有评估结果
+        # Save all evaluation results
         if all_results:
             all_results_path = f"{OUTPUT_DIR}/BANG_{dataset_name}_all_results.txt"
             with open(all_results_path, 'w', encoding='utf-8') as f:
@@ -197,7 +197,7 @@ def main():
                     f.write(f"-" * 100 + "\n")
             print(f"  已保存所有结果: {all_results_path}")
             
-            # 排序并显示/保存前10名
+            # Sort, show and save the top 10
             sorted_results = sorted(all_results, key=lambda x: x['score'], reverse=True)
             top10 = sorted_results[:10]
             
@@ -215,7 +215,7 @@ def main():
                     print(f", DBI: {dbi_val:.4f}", end="")
                 print(f", 簇数: {m['n_clusters']}")
             
-            # 保存前10名到txt
+            # Save the top 10 to txt
             top10_path = f"{OUTPUT_DIR}/BANG_{dataset_name}_top10.txt"
             with open(top10_path, 'w', encoding='utf-8') as f:
                 f.write(f"BANG - 排名前10的参数组合\n")

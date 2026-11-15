@@ -13,19 +13,19 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'n_clusters': (15, 15, 1),      # 簇数：从2到15，步长1
-    'n_init': (10, 50, 1),        # 初始化次数：从10到50，步长10
-    'max_iter': (300, 500, 50)    # 最大迭代：从300到500，步长50
+    'n_clusters': (15, 15, 1),      # Number of clusters: 2 to 15 in steps of 1
+    'n_init': (10, 50, 1),        # Number of initialisations: 10 to 50 in steps of 10
+    'max_iter': (300, 500, 50)    # Maximum iterations: 300 to 500 in steps of 50
 }
 
-# 优化目标
+# Optimisation objective
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -58,7 +58,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         param_grid[name] = generate_param_values(start, end, step)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         save_path, dpi=300
     )
     
-    # 保存最佳结果到txt
+    # Save the best result to txt
     txt_path = f"{OUTPUT_DIR}/KMeans_{dataset_name}_best.txt"
     save_best_result("K-means++", dataset_name, best_params, best_metrics, txt_path)
     

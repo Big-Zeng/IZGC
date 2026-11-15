@@ -5,14 +5,14 @@
 import json
 import numpy as np
 
-# 读取聚类后的客户数据
+# Read the clustered customer data
 print("正在读取聚类结果...")
 with open('client_data_clustered.json', 'r', encoding='utf-8') as f:
     clients = json.load(f)
 
 print(f"✓ 加载了 {len(clients)} 个客户")
 
-# 统计聚类信息
+# Summarise the clustering
 clusters = {}
 for client in clients:
     cluster_id = client['cluster']
@@ -26,7 +26,7 @@ n_noise = len(clusters.get(-1, []))
 print(f"  簇数: {n_clusters}")
 print(f"  噪声点: {n_noise}")
 
-# 为每个簇生成颜色
+# Assign a colour to each cluster
 def generate_colors(n):
     """生成n个不同的颜色"""
     colors = []
@@ -42,9 +42,9 @@ colors = generate_colors(len(valid_clusters))
 for i, cluster_id in enumerate(sorted(valid_clusters)):
     cluster_colors[cluster_id] = colors[i]
 
-cluster_colors[-1] = '#888888'  # 噪声点用灰色
+cluster_colors[-1] = '#888888'  # Noise points in grey
 
-# 生成HTML
+# Write HTML
 html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -129,7 +129,7 @@ html_content = f"""<!DOCTYPE html>
         <h4 style="margin: 0 0 10px 0;">聚类图例</h4>
 """
 
-# 添加图例项
+# Add the legend entries
 for cluster_id in sorted(valid_clusters):
     count = len(clusters[cluster_id])
     color = cluster_colors[cluster_id]
@@ -246,7 +246,7 @@ html_content += f"""    </div>
 </body>
 </html>"""
 
-# 保存HTML
+# Save HTML
 output_file = 'client_map_clustered.html'
 with open(output_file, 'w', encoding='utf-8') as f:
     f.write(html_content)

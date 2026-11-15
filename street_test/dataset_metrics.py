@@ -32,7 +32,7 @@ from typing import Dict, List, Tuple, Optional
 import numpy as np
 import pandas as pd
 
-# 项目根目录
+# Project root
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -62,14 +62,14 @@ except ImportError:
 
 
 # ============================================================
-# 配置: 数据集 & 算法参数 (来自论文LaTeX表格)
+# Configuration: datasets and algorithm parameters, taken from the LaTeX table
 # ============================================================
 
 ALGORITHMS = ["IZGC", "K-means++", "CLIQUE", "BANG", "DBSCAN", "GMM", "DPC-FWSN"]
 METRIC_COLUMNS = ["AMI", "ARI", "FMI", "Macro_F1", "Macro_Jaccard", "Completeness", "V_measure"]
 
-# 数据集配置: (csv文件名, 显示名称)
-# 第一组: uneven density datasets
+# Dataset configuration: (csv filename, display name)
+# First group: uneven-density datasets
 DATASETS = [
     ("jain.csv",       "Jain"),
     ("ring.csv",       "Ring"),
@@ -77,7 +77,7 @@ DATASETS = [
     ("ls.csv",         "Ls"),
     ("lineblobs.csv",  "LineBlobs"),
     ("2d_3c.csv",      "3c"),
-    # 第二组: complex-morphic datasets
+    # Second group: complex-morphology datasets
     ("flame.csv",      "Flame"),
     ("spiral.csv",     "Spiral"),
     ("complex8.csv",   "Complex8"),
@@ -86,16 +86,16 @@ DATASETS = [
     ("Aggregation.csv", "Aggregation"),
 ]
 
-# IZGC参数: Δg (grid_size), R=30, θ=5, max_buffer_distance=0, merge_small_clusters=True
+# IZGC parameters: dg (grid_size), R = 30, theta = 5, max_buffer_distance = 0, merge_small_clusters = True
 IZGC_PARAMS = {
-    # 第一组
+    # First group
     "Jain":        {"grid_size": 2.826, "R": 30.0, "theta": 5},
     "Ring":        {"grid_size": 3.043, "R": 30.0, "theta": 5},
     "Cth":         {"grid_size": 2.004, "R": 30.0, "theta": 5},
     "Ls":          {"grid_size": 2.170, "R": 30.0, "theta": 5},
     "LineBlobs":   {"grid_size": 2.923, "R": 30.0, "theta": 5},
     "3c":          {"grid_size": 1.742, "R": 30.0, "theta": 5},
-    # 第二组
+    # Second group
     "Flame":       {"grid_size": 3.160, "R": 30.0, "theta": 5},
     "Spiral":      {"grid_size": 2.460, "R": 30.0, "theta": 5},
     "Complex8":    {"grid_size": 1.144, "R": 30.0, "theta": 5},
@@ -104,16 +104,16 @@ IZGC_PARAMS = {
     "Aggregation": {"grid_size": 1.491, "R": 30.0, "theta": 5},
 }
 
-# CLIQUE参数: intervals, density_threshold
+# CLIQUE parameters: intervals, density_threshold
 CLIQUE_PARAMS = {
-    # 第一组
+    # First group
     "Jain":        {"intervals": 14, "density_threshold": 1},
     "Ring":        {"intervals": 14, "density_threshold": 1},
     "Cth":         {"intervals": 17, "density_threshold": 1},
     "Ls":          {"intervals": 22, "density_threshold": 1},
     "LineBlobs":   {"intervals": 10, "density_threshold": 1},
     "3c":          {"intervals": 21, "density_threshold": 1},
-    # 第二组
+    # Second group
     "Flame":       {"intervals": 13, "density_threshold": 1},
     "Spiral":      {"intervals": 15, "density_threshold": 1},
     "Complex8":    {"intervals": 36, "density_threshold": 1},
@@ -122,16 +122,16 @@ CLIQUE_PARAMS = {
     "Aggregation": {"intervals": 20, "density_threshold": 1},
 }
 
-# BANG参数: levels, density_threshold
+# BANG parameters: levels, density_threshold
 BANG_PARAMS = {
-    # 第一组
+    # First group
     "Jain":        {"levels": 11, "density_threshold": 0.01},
     "Ring":        {"levels": 11, "density_threshold": 0.01},
     "Cth":         {"levels": 11, "density_threshold": 0.01},
     "Ls":          {"levels": 11, "density_threshold": 0.01},
     "LineBlobs":   {"levels": 9,  "density_threshold": 0.01},
     "3c":          {"levels": 11, "density_threshold": 0.01},
-    # 第二组
+    # Second group
     "Flame":       {"levels": 10, "density_threshold": 0.01},
     "Spiral":      {"levels": 10, "density_threshold": 0.01},
     "Complex8":    {"levels": 13, "density_threshold": 0.01},
@@ -140,16 +140,16 @@ BANG_PARAMS = {
     "Aggregation": {"levels": 11, "density_threshold": 0.01},
 }
 
-# DBSCAN参数: eps, min_samples
+# DBSCAN parameters: eps, min_samples
 DBSCAN_PARAMS = {
-    # 第一组
+    # First group
     "Jain":        {"eps": 8.0, "min_samples": 2},
     "Ring":        {"eps": 6.0, "min_samples": 2},
     "Cth":         {"eps": 5.0, "min_samples": 2},
     "Ls":          {"eps": 5.0, "min_samples": 2},
     "LineBlobs":   {"eps": 7.0, "min_samples": 2},
     "3c":          {"eps": 4.0, "min_samples": 2},
-    # 第二组
+    # Second group
     "Flame":       {"eps": 10.0, "min_samples": 9},
     "Spiral":      {"eps": 4.0,  "min_samples": 2},
     "Complex8":    {"eps": 3.0,  "min_samples": 2},
@@ -158,17 +158,17 @@ DBSCAN_PARAMS = {
     "Aggregation": {"eps": 6.0,  "min_samples": 11},
 }
 
-# GMM参数: n_components (来自LaTeX表格的n=值), n_init=1, covariance_type=full
+# GMM parameters: n_components (the n= value from the LaTeX table), n_init = 1, covariance_type = full
 GMM_N_INIT = 1
 GMM_N_COMPONENTS = {
-    # 第一组 (n=1 表示 n_init=1, n_components=真实簇数)
+    # First group (n = 1 means n_init = 1 and n_components = true cluster count)
     "Jain":        None,   # None = auto (= true K)
     "Ring":        None,
     "Cth":         None,
     "Ls":          None,
     "LineBlobs":   None,
     "3c":          None,
-    # 第二组
+    # Second group
     "Flame":       2,
     "Spiral":      3,
     "Complex8":    8,
@@ -177,16 +177,16 @@ GMM_N_COMPONENTS = {
     "Aggregation": 10,
 }
 
-# DPC-FWSN参数: k
+# DPC-FWSN parameters: k
 DPC_K = {
-    # 第一组
+    # First group
     "Jain":        4,
     "Ring":        20,
     "Cth":         13,
     "Ls":          15,
     "LineBlobs":   21,
     "3c":          34,
-    # 第二组
+    # Second group
     "Flame":       44,
     "Spiral":      4,
     "Complex8":    12,
@@ -195,7 +195,7 @@ DPC_K = {
     "Aggregation": 30,
 }
 
-# K-means++: n_clusters=真实簇数, n_init=20, max_iter=300
+# K-means++: n_clusters = true cluster count, n_init = 20, max_iter = 300
 KMEANS_N_INIT = 20
 KMEANS_MAX_ITER = 300
 
@@ -203,7 +203,7 @@ RANDOM_SEED = 42
 
 
 # ============================================================
-# 工具函数
+# Helper functions
 # ============================================================
 
 def normalize_coordinates(X: np.ndarray) -> np.ndarray:
@@ -292,7 +292,7 @@ def load_dataset(csv_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     df = pd.read_csv(csv_path)
     X = df[["x", "y"]].values.astype(float)
     y_raw = df["target"].values.astype(int)
-    # 0基标签 (供Python算法和指标计算用)
+    # 0-based labels (for the Python algorithms and metrics)
     unique_labels = np.unique(y_raw)
     label_map = {old: new for new, old in enumerate(unique_labels)}
     y_zero = np.array([label_map[v] for v in y_raw])
@@ -301,7 +301,7 @@ def load_dataset(csv_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 # ============================================================
-# 算法运行函数
+# Algorithm runner
 # ============================================================
 
 def run_izgc(X, grid_size, R=30.0, theta=5, merge_small_clusters=True):
@@ -373,19 +373,19 @@ def run_dpc_fwsn(X, y_true_raw, k, matlab_runner=None):
         matlab_runner = MatlabRunner(method='auto')
     unique_labels = np.unique(y_true_raw)
     n_clusters = len(unique_labels)
-    # 重映射: 原始标签 -> 1, 2, 3, ...
+    # Remap the original labels to 1, 2, 3, ...
     remap = {old: new + 1 for new, old in enumerate(unique_labels)}
     y_remapped = np.array([remap[v] for v in y_true_raw], dtype=float)
     data_with_labels = np.column_stack([X, y_remapped])
     labels, metrics = matlab_runner.run_algorithm_pr(data_with_labels, n_clusters, k)
     if labels is None:
         raise RuntimeError("DPC-FWSN returned None")
-    # MATLAB返回1-based标签, 转为0-based
+    # MATLAB returns 1-based labels; convert them to 0-based
     return np.asarray(labels, dtype=int) - 1, matlab_runner
 
 
 # ============================================================
-# 主函数
+# Main function
 # ============================================================
 
 def main():
@@ -414,7 +414,7 @@ def main():
     print(f"  Metrics: {METRIC_COLUMNS}")
     print("=" * 90)
 
-    # 初始化MATLAB
+    # Initialise MATLAB
     matlab_runner = None
     if "DPC-FWSN" in algorithms and MATLAB_AVAILABLE:
         print("  Initializing MATLAB engine for DPC-FWSN...")
@@ -426,7 +426,7 @@ def main():
             algorithms = [a for a in algorithms if a != "DPC-FWSN"]
 
     all_rows = []
-    # 保存每个数据集的原始数据+预测标签 (NPZ)
+    # Save the raw data and predicted labels for each dataset (NPZ)
     dataset_predictions = {}
 
     for csv_name, display_name in DATASETS:
@@ -565,7 +565,7 @@ def main():
             k_val = DPC_K[display_name]
             print(f"  [DPC-FWSN] k={k_val} ...", end=" ")
             try:
-                # run_dpc_fwsn内部已将标签重映射为1-based并返回0-based标签
+                # run_dpc_fwsn relabels internally to 1-based and returns 0-based labels
                 y_pred, matlab_runner = run_dpc_fwsn(X, y_raw, k_val, matlab_runner)
                 m = evaluate_clustering(y_true, y_pred)
                 print(f"ARI={m['ARI']:.4f} FMI={m['FMI']:.4f} F1={m['Macro_F1']:.4f}")
@@ -580,24 +580,24 @@ def main():
                                  "True_K": k_true, "Pred_K": -1,
                                  **{mc: -1.0 for mc in METRIC_COLUMNS}})
 
-    # 关闭MATLAB
+    # Close MATLAB
     if matlab_runner is not None:
         try: matlab_runner.close()
         except: pass
 
     # ============================================================
-    # 保存结果
+    # Save results
     # ============================================================
 
     df = pd.DataFrame(all_rows)
 
-    # 1. CSV: 全部结果
+    # 1. CSV: all results
     csv_path = outdir / "dataset_metrics.csv"
     df.to_csv(csv_path, index=False, encoding="utf-8-sig")
     print(f"\n{'=' * 90}")
     print(f"  CSV saved: {csv_path} ({len(df)} rows)")
 
-    # 2. 控制台表格: 每数据集 × 算法 × 7指标
+    # 2. Console table: dataset x algorithm x 7 metrics
     print(f"\n{'=' * 120}")
     print("Results Summary")
     print(f"{'=' * 120}")
@@ -619,7 +619,7 @@ def main():
                     line += f" {val:>12.4f}"
             print(line)
 
-    # 3. LaTeX表格: 每数据集一个子表 (7指标)
+    # 3. LaTeX table: one sub-table per dataset (7 metrics)
     tex_lines = [
         r"\begin{table*}[ht!]",
         r"\centering",
@@ -645,7 +645,7 @@ def main():
                 if v == -1.0:
                     cells.append("--")
                 else:
-                    # 加粗最佳值 (后续手动调整也可)
+                    # Bold the best value; manual adjustment is also acceptable
                     cells.append(f"{v:.4f}")
             tex_lines.append(f"{row['Algorithm']} & " + " & ".join(cells) + r" \\")
         tex_lines.append(r"\addlinespace")
@@ -656,7 +656,7 @@ def main():
         f.write("\n".join(tex_lines))
     print(f"\n  LaTeX table saved: {tex_path}")
 
-    # 4. 保存原始数据 + 预测标签 (NPZ)
+    # 4. Save the raw data and predicted labels (NPZ)
     data_dir_out = outdir / "datasets"
     data_dir_out.mkdir(parents=True, exist_ok=True)
     for ds_name, rec in dataset_predictions.items():
@@ -669,7 +669,7 @@ def main():
         np.savez_compressed(data_dir_out / f"{ds_name}.npz", **save_dict)
     print(f"  Datasets + predictions saved: {data_dir_out} ({len(dataset_predictions)} files)")
 
-    # 5. JSON (方便程序读取)
+    # 5. JSON (machine-readable)
     json_path = outdir / "dataset_metrics.json"
     result_list = []
     for _, row in df.iterrows():
@@ -685,7 +685,7 @@ def main():
         json.dump(result_list, f, ensure_ascii=False, indent=2)
     print(f"  JSON saved: {json_path}")
 
-    # 6. 保存参数配置
+    # 6. Save the parameter configuration
     config_path = outdir / "parameters.json"
     config_data = {
         "IZGC": {k: v for k, v in IZGC_PARAMS.items()},

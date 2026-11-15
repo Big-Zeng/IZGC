@@ -25,7 +25,7 @@ import os
 import ContourBasedClusteringWithoutZ22 as ContourClustering
 from clustering_metrics import ClusteringMetrics
 
-# 尝试导入MATLAB集成
+# Try to import the MATLAB bridge
 try:
     from matlab_integration import MatlabRunner
     MATLAB_AVAILABLE = True
@@ -33,17 +33,17 @@ except ImportError:
     MATLAB_AVAILABLE = False
     print("警告: matlab_integration模块未找到，MATLAB算法将不可用")
 
-# ==================== 配置区域 ====================
-# 数据集配置
-DATASET = "data/Compound.csv"        # 数据集路径
-NORMALIZE_COORDS = True              # 是否归一化坐标到[0,100]范围
+# ==================== Configuration ====================
+# Dataset configuration
+DATASET = "data/Compound.csv"        # Dataset path
+NORMALIZE_COORDS = True              # Whether to normalise coordinates to [0, 100]
 
-# 算法参数
+# Algorithm parameters
 CONTOUR_PARAMS = {
-    'grid_size': 3.0,                # 网格大小
-    'max_buffer_distance': 0,        # 最大缓冲距离
-    'min_cluster_size': 5,           # 最小簇大小
-    'density_radius': 30             # 密度计算半径
+    'grid_size': 3.0,                # Grid size
+    'max_buffer_distance': 0,        # Maximum buffer distance
+    'min_cluster_size': 5,           # Minimum cluster size
+    'density_radius': 30             # Density computation radius
 }
 
 KMEANS_PARAMS = {
@@ -53,28 +53,28 @@ KMEANS_PARAMS = {
 }
 
 DBSCAN_PARAMS = {
-    'eps': 5.0,                      # 邻域半径
-    'min_samples': 5                 # 最小样本数
+    'eps': 5.0,                      # Neighbourhood radius
+    'min_samples': 5                 # Minimum samples
 }
 
 CLIQUE_PARAMS = {
-    'grid_size': 10,                 # 网格大小
-    'density_threshold': 3           # 密度阈值
+    'grid_size': 10,                 # Grid size
+    'density_threshold': 3           # Density threshold
 }
 
 STING_PARAMS = {
-    'grid_size': 10,                 # 网格大小
-    'density_threshold': 3           # 密度阈值
+    'grid_size': 10,                 # Grid size
+    'density_threshold': 3           # Density threshold
 }
 
 MATLAB_PARAMS = {
-    'k': 11,                         # DPC-FWSN的近邻数量
+    'k': 11,                         # Number of neighbours in DPC-FWSN
 }
 
-# 运行控制
-RUN_MATLAB = True                    # 是否运行MATLAB算法
-SAVE_RESULTS = True                  # 是否保存结果
-SHOW_PLOTS = True                    # 是否显示图表
+# Run settings
+RUN_MATLAB = True                    # Whether to run the MATLAB algorithms
+SAVE_RESULTS = True                  # Whether to save the results
+SHOW_PLOTS = True                    # Whether to show the figures
 # ==================================================
 
 
@@ -113,7 +113,7 @@ def evaluate_clustering(y_true, y_pred, X):
     """评估聚类结果"""
     metrics = ClusteringMetrics.evaluate_all(y_true, y_pred)
     
-    # 计算轮廓系数
+    # Compute the silhouette coefficient
     if len(set(y_pred)) > 1:
         mask = np.array(y_pred) != -1
         if np.sum(mask) > 0 and len(np.unique(np.array(y_pred)[mask])) > 1:
@@ -123,10 +123,10 @@ def evaluate_clustering(y_true, y_pred, X):
     else:
         silhouette = -1
     
-    # 计算Inertia
+    # Compute inertia
     inertia = calculate_inertia(X, np.array(y_pred))
     
-    # 统计簇数和噪声点
+    # Count the clusters and noise points
     n_clusters = len(set(y_pred)) - (1 if -1 in y_pred else 0)
     n_noise = list(y_pred).count(-1)
     
@@ -141,7 +141,7 @@ def evaluate_clustering(y_true, y_pred, X):
     }
 
 
-# ==================== 聚类算法实现 ====================
+# ==================== Clustering algorithm ====================
 
 class ClusteringAlgorithms:
     """聚类算法集合"""
@@ -196,18 +196,18 @@ class ClusteringAlgorithms:
         运行CLIQUE聚类算法（简化实现）
         CLIQUE是一种基于网格的子空间聚类算法
         """
-        # 计算网格
+        # Build the grid
         x_min, y_min = self.X.min(axis=0)
         x_max, y_max = self.X.max(axis=0)
         
         n_bins_x = max(1, int((x_max - x_min) / grid_size))
         n_bins_y = max(1, int((y_max - y_min) / grid_size))
         
-        # 将点分配到网格
+        # Assign points to cells
         grid_x = np.clip(((self.X[:, 0] - x_min) / grid_size).astype(int), 0, n_bins_x - 1)
         grid_y = np.clip(((self.X[:, 1] - y_min) / grid_size).astype(int), 0, n_bins_y - 1)
         
-        # 计算每个网格的密度
+        # Compute the density of each cell
         grid_density = {}
         point_to_grid = {}
         
@@ -218,10 +218,10 @@ class ClusteringAlgorithms:
             grid_density[key].append(i)
             point_to_grid[i] = key
         
-        # 找出密集网格
+        # Find dense cells
         dense_grids = {k: v for k, v in grid_density.items() if len(v) >= density_threshold}
         
-        # 连接相邻的密集网格形成簇
+        # Link adjacent dense cells into clusters
         labels = np.full(len(self.X), -1)
         cluster_id = 0
         visited = set()
@@ -230,7 +230,7 @@ class ClusteringAlgorithms:
             if grid_key in visited:
                 continue
             
-            # BFS找到所有连接的密集网格
+            # BFS to collect all connected dense cells
             queue = [grid_key]
             cluster_grids = []
             
@@ -244,7 +244,7 @@ class ClusteringAlgorithms:
                 visited.add(current)
                 cluster_grids.append(current)
                 
-                # 检查8个相邻网格
+                # Inspect the eight neighbouring cells
                 cx, cy = current
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
@@ -254,7 +254,7 @@ class ClusteringAlgorithms:
                         if neighbor in dense_grids and neighbor not in visited:
                             queue.append(neighbor)
             
-            # 分配标签
+            # Assign labels
             if cluster_grids:
                 for grid_key in cluster_grids:
                     for point_idx in dense_grids[grid_key]:
@@ -269,18 +269,18 @@ class ClusteringAlgorithms:
         运行STING聚类算法（简化实现）
         STING是一种基于网格的统计信息聚类算法
         """
-        # 计算网格
+        # Build the grid
         x_min, y_min = self.X.min(axis=0)
         x_max, y_max = self.X.max(axis=0)
         
         n_bins_x = max(1, int((x_max - x_min) / grid_size))
         n_bins_y = max(1, int((y_max - y_min) / grid_size))
         
-        # 将点分配到网格并计算统计信息
+        # Assign points to cells and compute the cell statistics
         grid_x = np.clip(((self.X[:, 0] - x_min) / grid_size).astype(int), 0, n_bins_x - 1)
         grid_y = np.clip(((self.X[:, 1] - y_min) / grid_size).astype(int), 0, n_bins_y - 1)
         
-        # 计算每个网格的统计信息
+        # Compute the statistics of each cell
         grid_stats = {}
         
         for i, (gx, gy) in enumerate(zip(grid_x, grid_y)):
@@ -302,7 +302,7 @@ class ClusteringAlgorithms:
             grid_stats[key]['sum_x2'] += self.X[i, 0] ** 2
             grid_stats[key]['sum_y2'] += self.X[i, 1] ** 2
         
-        # 计算每个网格的均值和方差
+        # Compute the mean and variance of each cell
         for key in grid_stats:
             n = grid_stats[key]['count']
             if n > 0:
@@ -313,10 +313,10 @@ class ClusteringAlgorithms:
                 grid_stats[key]['mean'] = (mean_x, mean_y)
                 grid_stats[key]['var'] = (max(0, var_x), max(0, var_y))
         
-        # 找出密集网格（基于统计信息）
+        # Identify dense cells from the statistics
         dense_grids = {k: v for k, v in grid_stats.items() if v['count'] >= density_threshold}
         
-        # 层次聚合：连接相邻的密集网格
+        # Hierarchical aggregation: link adjacent dense cells
         labels = np.full(len(self.X), -1)
         cluster_id = 0
         visited = set()
@@ -363,7 +363,7 @@ class ClusteringAlgorithms:
         
         print("  启动MATLAB...")
         
-        # 准备数据 [x, y, label]
+        # Prepare data as [x, y, label]
         data_with_labels = np.column_stack([self.X, self.y_true])
         
         if self.matlab_runner is None:
@@ -385,7 +385,7 @@ class ClusteringAlgorithms:
             self.matlab_runner.close()
 
 
-# ==================== 主程序 ====================
+# ==================== Main program ====================
 
 def run_comparison(dataset_path, normalize=True):
     """运行算法对比"""
@@ -394,7 +394,7 @@ def run_comparison(dataset_path, normalize=True):
     print("聚类算法综合对比测试")
     print("=" * 90)
     
-    # 读取数据
+    # Read data
     df = pd.read_csv(dataset_path)
     X = df[['x', 'y']].values.astype(float)
     y_true = df['target'].values
@@ -405,19 +405,19 @@ def run_comparison(dataset_path, normalize=True):
     print(f"X范围: [{X[:, 0].min():.2f}, {X[:, 0].max():.2f}]")
     print(f"Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
     
-    # 归一化
+    # Normalise
     X_original = X.copy()
     if normalize:
         X, scale_info = normalize_coordinates(X)
         print(f"\n✓ 坐标已归一化到[0, 100]范围")
     
-    # 创建算法实例
+    # Create the algorithm instance
     algorithms = ClusteringAlgorithms(X, y_true)
     
-    # 存储结果
+    # Store the results
     results = []
     
-    # 1. ContourBasedClustering (等值线聚类)
+    # 1. ContourBasedClustering (isoline clustering)
     print("\n" + "-" * 90)
     print("1. ContourBasedClustering (等值线聚类)")
     print("-" * 90)
@@ -594,7 +594,7 @@ def run_comparison(dataset_path, normalize=True):
         elif not MATLAB_AVAILABLE:
             print("\nMATLAB不可用，跳过DPC-FWSN算法")
     
-    # 关闭MATLAB
+    # Close MATLAB
     algorithms.close_matlab()
     
     return results, X_original, y_true
@@ -618,7 +618,7 @@ def print_summary(results):
     
     print("=" * 100)
     
-    # 找出最佳算法
+    # Find the best algorithm
     if results:
         best_ari = max(results, key=lambda x: x['metrics']['ARI'])
         best_ami = max(results, key=lambda x: x['metrics']['AMI'])
@@ -642,14 +642,14 @@ def plot_comparison(results, X, y_true, save_path=None):
     if n_rows == 1:
         axes = axes.reshape(1, -1)
     
-    # 真实标签
+    # Ground-truth labels
     ax = axes[0, 0]
     ax.scatter(X[:, 0], X[:, 1], c=y_true, cmap='tab10', s=20, alpha=0.7)
     ax.set_title('Ground Truth')
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     
-    # 各算法结果
+    # Results per algorithm
     for i, r in enumerate(results):
         row = (i + 1) // n_cols
         col = (i + 1) % n_cols
@@ -660,7 +660,7 @@ def plot_comparison(results, X, y_true, save_path=None):
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
     
-    # 隐藏多余的子图
+    # Hide the unused subplots
     for i in range(len(results) + 1, n_rows * n_cols):
         row = i // n_cols
         col = i % n_cols
@@ -683,7 +683,7 @@ def save_results_to_file(results, dataset_name, output_dir='results'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    # 保存CSV
+    # Save CSV
     data = []
     for r in results:
         m = r['metrics']
@@ -707,21 +707,21 @@ def save_results_to_file(results, dataset_name, output_dir='results'):
     return csv_path
 
 
-# ==================== 入口点 ====================
+# ==================== Entry point ====================
 
 if __name__ == "__main__":
-    # 运行对比
+    # Run the comparison
     results, X_original, y_true = run_comparison(DATASET, normalize=NORMALIZE_COORDS)
     
-    # 打印汇总
+    # Print the summary table
     print_summary(results)
     
-    # 绘制对比图
+    # Plot the comparison figure
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
     plot_path = f"comparison_{dataset_name}.png" if SAVE_RESULTS else None
     plot_comparison(results, X_original, y_true, save_path=plot_path)
     
-    # 保存结果
+    # Save results
     if SAVE_RESULTS:
         save_results_to_file(results, dataset_name)
     

@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
 
-# 项目根目录
+# Project root
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -74,7 +74,7 @@ except ImportError:
 class NoiseExperimentConfig:
     random_seed: int = 20260824
 
-    # IZGC parameters (与compareTest2.py一致)
+    # IZGC parameters (identical to compareTest2.py)
     R: float = 30.0
     theta: int = 5
     delta_g_star: float = 2.46
@@ -105,7 +105,7 @@ class NoiseExperimentConfig:
 
 ALGORITHMS = ["IZGC", "K-means++", "CLIQUE", "BANG", "DBSCAN", "GMM", "DPC-FWSN"]
 
-# 所有算法均跑 n_repeats 次，每次使用不同 Seed
+# Every algorithm runs n_repeats times, each with a different seed
 
 METRIC_COLUMNS = ["AMI", "ARI", "FMI", "Macro_F1", "Macro_Jaccard", "Completeness", "V_measure"]
 
@@ -416,7 +416,7 @@ def run_all_experiments(
     print(f"  Loaded {config.spiral_csv_path}: {len(X_base)} points, "
           f"{len(np.unique(y_base))} clusters")
 
-    # 初始化MATLAB runner (如果需要DPC-FWSN)
+    # Initialise the MATLAB runner (needed for DPC-FWSN)
     matlab_runner = None
     if "DPC-FWSN" in algorithms and MATLAB_AVAILABLE:
         print("  Initializing MATLAB engine for DPC-FWSN...")
@@ -436,7 +436,7 @@ def run_all_experiments(
         noise_start = time.time()
 
         for alg in algorithms:
-            # 所有算法均跑 n_repeats 次，Seed 不同
+            # Every algorithm runs n_repeats times with different seeds
             for rep in range(1, config.n_repeats + 1):
                 seed = config.random_seed + rep
                 try:
@@ -448,7 +448,7 @@ def run_all_experiments(
                 except Exception as e:
                     print(f"    {alg:12s} rep {rep}: ERROR - {e}")
 
-            # 打印该算法的平均结果
+            # Print the average result of this algorithm
             alg_rows = [r for r in frames if r["Algorithm"] == alg and r["noise_ratio"] == noise]
             if alg_rows:
                 means = {m: np.mean([r[m] for r in alg_rows]) for m in METRIC_COLUMNS}
@@ -462,7 +462,7 @@ def run_all_experiments(
         elapsed = time.time() - noise_start
         print(f"  (elapsed: {elapsed:.1f}s)")
 
-    # 关闭MATLAB
+    # Close MATLAB
     if matlab_runner is not None:
         try:
             matlab_runner.close()
@@ -493,7 +493,7 @@ def summarize_results(raw: pd.DataFrame) -> pd.DataFrame:
            .sort_values(["Algorithm", "noise_ratio"])
            .reset_index(drop=True)
     )
-    # 所有指标保留4位小数
+    # All metrics are reported to four decimals
     for m in METRIC_COLUMNS:
         summary[f"{m}_mean"] = summary[f"{m}_mean"].round(4)
         summary[f"{m}_std"] = summary[f"{m}_std"].round(4)

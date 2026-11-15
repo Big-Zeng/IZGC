@@ -5,7 +5,7 @@
 import os
 import re
 
-# 要更新的文件和算法名称映射
+# Files to update and their algorithm names
 files_config = {
     'run_kmeans_unsupervised.py': 'KMeans',
     'run_contour_unsupervised.py': 'ContourBased',
@@ -16,7 +16,7 @@ files_config = {
 
 base_dir = 'algorithm_comparison'
 
-# 生成保存all_results和top10的代码模板
+# Produce the template that saves all_results and the top 10
 def generate_save_code(alg_name):
     return f'''        
         # 保存所有评估结果
@@ -94,16 +94,16 @@ for filename, alg_name in files_config.items():
         print(f"跳过: {filename} (文件不存在)")
         continue
     
-    # 读取文件
+    # Read the file
     with open(filepath, 'w', encoding='utf-8') as f:
         content = f.read()
     
-    # 检查是否已经有 all_results_path
+    # Check whether all_results_path already exists
     if 'all_results_path' in content:
         print(f"跳过: {filename} (已添加完整保存代码)")
         continue
     
-    # 在 print(f"  已保存: {txt_path}") 后添加新代码
+    # Insert new code after print(f" saved: {txt_path}")
     save_code = generate_save_code(alg_name)
     content = re.sub(
         r'(print\(f"  已保存: \{txt_path\}"\))\n',
@@ -111,7 +111,7 @@ for filename, alg_name in files_config.items():
         content
     )
     
-    # 写回文件
+    # Write back to the file
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write(content)
     

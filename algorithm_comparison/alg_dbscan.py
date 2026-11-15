@@ -13,18 +13,18 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/real_data/长沙市_real.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'eps': (1.0, 50, 1.0),        # 邻域半径：从1.0到15.0，步长1.0
-    'min_samples': (2, 50, 1)       # 最小样本数：从3到15，步长2
+    'eps': (1.0, 50, 1.0),        # Neighbourhood radius: 1.0 to 15.0 in steps of 1.0
+    'min_samples': (2, 50, 1)       # Minimum samples: 3 to 15 in steps of 2
 }
 
-# 优化目标
+# Optimisation objective
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -50,7 +50,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         param_grid[name] = generate_param_values(start, end, step)
@@ -72,7 +72,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     for i, values in enumerate(product(*param_values), 1):
         params = dict(zip(param_names, values))
         
-        # 显示进度（每20次或最后一次）
+        # Report progress every 20 trials and on the last one
         if i % 20 == 0 or i == total_combinations:
             print(f"  进度: {i}/{total_combinations}, 当前最佳{optimize_metric}: {best_score:.4f}")
         
@@ -80,7 +80,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
             labels = run_dbscan(X, **params)
             metrics = evaluate_clustering(y_true, labels, X)
             
-            # 跳过只有一个簇或全是噪声的情况
+            # Skip the cases with a single cluster or nothing but noise
             if metrics['n_clusters'] < 2:
                 continue
             
@@ -131,7 +131,7 @@ if __name__ == "__main__":
             save_path, dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/DBSCAN_{dataset_name}_best.txt"
         save_best_result("DBSCAN", dataset_name, best_params, best_metrics, txt_path)
     else:

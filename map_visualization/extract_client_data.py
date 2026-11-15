@@ -15,21 +15,21 @@ with open(input_file, 'r', encoding='utf-8') as f:
 
 print(f"✓ 文件读取成功")
 
-# 提取所有INSERT语句（简化的正则表达式）
+# Extract every INSERT statement with a simplified regular expression
 insert_pattern = r"Insert into BBG\.CLIENT.*?values \((.*?)\);"
 inserts = re.findall(insert_pattern, content, re.DOTALL)
 
 print(f"找到 {len(inserts)} 条INSERT语句")
 
-# 解析数据
+# Parse the data
 clients = []
 valid_count = 0
 invalid_count = 0
 
 for insert_values in inserts:
     try:
-        # 分割值（处理引号内的逗号）
-        # 使用更简单的方法：按逗号分割，然后处理引号
+        # Split value, handling commas inside quotes
+        # Simpler approach: split on commas, then handle the quotes
         values = []
         current_value = ""
         in_quotes = False
@@ -46,7 +46,7 @@ for insert_values in inserts:
         if current_value:
             values.append(current_value.strip())
         
-        # 提取字段（按顺序）
+        # Extract the fields in order
         if len(values) >= 16:
             cli_name = values[0].strip("'")
             cli_degree = values[1].strip("'")
@@ -58,13 +58,13 @@ for insert_values in inserts:
             cli_street = values[11].strip("'") if values[11] != 'null' else None
             clientid = values[15].strip("'")
             
-            # 只保留有经纬度的记录
+            # Keep only records that carry coordinates
             if cli_lat and cli_lon:
                 try:
                     lat = float(cli_lat)
                     lon = float(cli_lon)
                     
-                    # 验证经纬度范围（湖南省大致范围）
+                    # Validate the coordinate range (approximately Hunan Province)
                     if 24 <= lat <= 31 and 108 <= lon <= 115:
                         clients.append({
                             'id': int(clientid),
@@ -93,13 +93,13 @@ print(f"  总记录数: {len(inserts)}")
 print(f"  有效记录: {valid_count}")
 print(f"  无效记录: {invalid_count}")
 
-# 保存为JSON
+# Save as JSON
 with open(output_json, 'w', encoding='utf-8') as f:
     json.dump(clients, f, ensure_ascii=False, indent=2)
 
 print(f"\n✓ 数据已保存到: {output_json}")
 
-# 统计城市分布
+# Summarise the distribution across cities
 if clients:
     city_count = {}
     for client in clients:

@@ -6,12 +6,12 @@
 import pandas as pd
 import os
 
-# 源目录和目标目录
+# Source and target directories
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE_DIR = os.path.join(SCRIPT_DIR, "..", "map_visualization", "client_data_by_city")
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "data", "real_data")
 
-# 只转换这些城市
+# Convert these cities only
 TARGET_CITIES = ['长沙市', '株洲市', '湘潭市', '衡阳市', '益阳市', '常德市']
 
 
@@ -19,7 +19,7 @@ def convert_file(input_path, output_path):
     """转换单个文件"""
     df = pd.read_csv(input_path)
     
-    # 提取经纬度，重命名为 x, y
+    # Extract the coordinates and rename them x and y
     df_out = pd.DataFrame({
         'x': df['lon'],
         'y': df['lat']

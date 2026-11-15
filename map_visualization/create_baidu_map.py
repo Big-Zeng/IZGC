@@ -4,14 +4,14 @@
 
 import json
 
-# 读取客户数据
+# Read the customer data
 print("正在读取客户数据...")
 with open('client_data.json', 'r', encoding='utf-8') as f:
     clients = json.load(f)
 
 print(f"✓ 加载了 {len(clients)} 个客户")
 
-# 生成HTML文件
+# Write the HTML file
 html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -200,7 +200,7 @@ html_content = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-# 保存HTML文件
+# Save the HTML file
 output_file = 'client_map_baidu.html'
 with open(output_file, 'w', encoding='utf-8') as f:
     f.write(html_content)

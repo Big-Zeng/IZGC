@@ -3,7 +3,7 @@
 使用轮廓系数和CH指数作为优化目标
 """
 
-# 禁用matplotlib交互模式
+# Disable matplotlib's interactive mode
 import matplotlib
 matplotlib.use('Agg')
 
@@ -28,22 +28,22 @@ from algorithm_comparison.alg_clique2 import run_clique2
 from algorithm_comparison.alg_gmm import run_gmm, COVARIANCE_TYPES
 from algorithm_comparison.alg_bang import run_bang, PYCLUSTERING_AVAILABLE as BANG_AVAILABLE
 
-# 尝试导入MATLAB
+# Try importing MATLAB
 try:
     from algorithm_comparison.alg_dpc_fwsn import run_dpc_fwsn, MATLAB_AVAILABLE
 except:
     MATLAB_AVAILABLE = False
 
-# ==================== 配置 ====================
-# 数据集路径（真实数据，无标签）
+# ==================== Configuration ====================
+# Dataset path (real data, no labels)
 DATASET = "../data/real_data/衡阳市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Composite' (复合得分), 'Silhouette_core', 'CH'
+# Objective: 'Composite', 'Silhouette_core' or 'CH'
 OPTIMIZE_METRIC = 'Composite'
 
-# 各算法参数搜索范围 (start, end, step)
+# Parameter search range of each algorithm (start, end, step)
 CONTOUR_RANGES = {
     'grid_size': (1, 5, 0.001),
     'max_buffer_distance': (0, 0, 1),
@@ -54,32 +54,32 @@ CONTOUR_RANGES = {
 
 KMEANS_RANGES = {
     'n_clusters': (2, 20, 1),
-    'n_init': (10, 50, 1),  # 初始化次数：从10到50，步长10
-    'max_iter': (300, 500, 50)  # 最大迭代：从300到500，步长50
+    'n_init': (10, 50, 1),  # Number of initialisations: 10 to 50 in steps of 10
+    'max_iter': (300, 500, 50)  # Maximum iterations: 300 to 500 in steps of 50
 }
 
 DBSCAN_RANGES = {
-    'eps': (1.0, 50, 1.0),  # 邻域半径：从1.0到50.0，步长1.0
-    'min_samples': (2, 50, 1)  # 最小样本数：从2到50，步长1
+    'eps': (1.0, 50, 1.0),  # Neighbourhood radius: 1.0 to 50.0 in steps of 1.0
+    'min_samples': (2, 50, 1)  # Minimum samples: 2 to 50 in steps of 1
 }
 
 CLIQUE_RANGES = {
-    'intervals': (4, 100, 1),  # 网格划分数：从4到100，步长1
-    'density_threshold': (1, 50, 1)  # 密度阈值：从1到50，步长1
+    'intervals': (4, 100, 1),  # Grid divisions: 4 to 100 in steps of 1
+    'density_threshold': (1, 50, 1)  # Density threshold: 1 to 50 in steps of 1
 }
 
 GMM_RANGES = {
-    'n_components': (2, 20, 1),  # 簇数：从2到15，步长1
-    'n_init': (10, 50, 1)  # 初始化次数：从5到20，步长5
+    'n_components': (2, 20, 1),  # Number of clusters: 2 to 15 in steps of 1
+    'n_init': (10, 50, 1)  # Number of initialisations: 5 to 20 in steps of 5
 }
 
 BANG_RANGES = {
-    'levels': (4, 50, 1),  # 网格层级：从4到100，步长1
-    'density_threshold': (0.01, 1, 0.05)  # 密度阈值：从0.01到1，步长0.05
+    'levels': (4, 50, 1),  # Grid levels: 4 to 100 in steps of 1
+    'density_threshold': (0.01, 1, 0.05)  # Density threshold: 0.01 to 1 in steps of 0.05
 }
 
 DPC_RANGES = {
-    'k': (2, 50, 1)  # 从1到50，步长1
+    'k': (2, 50, 1)  # From 1 to 50 in steps of 1
 }
 
 RUN_MATLAB = False
@@ -100,7 +100,7 @@ def optimize_algorithm_unsupervised(name, run_func, X, param_ranges, optimize_me
     print(f"优化 {name} (无监督)")
     print(f"{'='*60}")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for pname, (start, end, step) in param_ranges.items():
         param_grid[pname] = generate_param_values(start, end, step)
@@ -182,7 +182,7 @@ def main():
     print(f"优化目标: {OPTIMIZE_METRIC}")
     print("="*70)
     
-    # 加载数据
+    # Load data
     X, y_true = load_dataset(DATASET)
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
     
@@ -323,7 +323,7 @@ def main():
         print("优化 DPC-FWSN (MATLAB) - 无监督")
         print(f"{'='*60}")
         
-        # 参数搜索范围
+        # Parameter search range
         n_clusters_values = generate_param_values(2, 20, 1)
         k_values = generate_param_values(*DPC_RANGES['k'])
         print(f"  n_clusters: 2 -> 20, 步长=1, 共{len(n_clusters_values)}个值")
@@ -345,7 +345,7 @@ def main():
                 for k in k_values:
                     iteration += 1
                     try:
-                        # 使用无监督版本的MATLAB函数（仅传入坐标）
+                        # Use the unsupervised MATLAB variant, passing coordinates only
                         labels = matlab_runner.run_algorithm_pr_unsupervised(X, n_clusters, k)
                         
                         if labels is not None:
@@ -386,7 +386,7 @@ def main():
         except Exception as e:
             print(f"DPC-FWSN失败: {e}")
     
-    # 打印汇总
+    # Print the summary table
     print("\n" + "="*100)
     print("算法对比汇总（无监督 - 复合评估）")
     print("="*100)
@@ -403,7 +403,7 @@ def main():
     
     print("="*100)
     
-    # 保存结果到CSV
+    # Save results to CSV
     csv_data = []
     for r in results:
         m = r['metrics']
@@ -424,7 +424,7 @@ def main():
     df.to_csv(csv_path, index=False)
     print(f"\n结果已保存: {csv_path}")
     
-    # 保存每个算法的最佳结果到txt
+    # Save the best result of each algorithm to txt
     for r in results:
         txt_path = f"{OUTPUT_DIR}/{r['name']}_{dataset_name}_best.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:

@@ -41,7 +41,7 @@ from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
 from scipy.stats import norm
 
-# 项目根目录
+# Project root
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -84,11 +84,11 @@ class OverlapExperimentConfig:
     delta_g_star: float = 2.0
     max_buffer_distance: int = 0
 
-    # Experiment 1: 固定σ=1.0, 改变d
+    # Experiment 1: fix sigma = 1.0 and vary d
     d_values: Tuple[float, ...] = (6.0, 5.0, 4.0, 3.0, 2.0, 1.0)
     sigma_fixed: float = 1.0
 
-    # Experiment 2: 固定d=3, 改变σ
+    # Experiment 2: fix d = 3 and vary sigma
     sigma_values: Tuple[float, ...] = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0)
     d_fixed: float = 3.0
 
@@ -587,7 +587,7 @@ def run_experiment_group(
     outdir: Optional[Path] = None,
 ) -> Tuple[pd.DataFrame, Optional[object]]:
     frames = []
-    # 保存每个 (d, sigma, seed) 的原始数据 + 每算法预测标签
+    # Save the raw data and per-algorithm labels for each (d, sigma, seed)
     # data_records: { "d{d}_s{sigma}_seed{seed}": {"X": ..., "y_true": ..., "predictions": {alg: y_pred}} }
     data_records = {}
 
@@ -599,7 +599,7 @@ def run_experiment_group(
         for rep in range(1, config.n_repeats + 1):
             seed = config.random_seed + rep
             trial_key = f"d{d:.1f}_s{sigma:.2f}_seed{seed}"
-            # 该 seed 的数据只生成一次，供所有算法共用
+            # The data for this seed is generated once and shared by all algorithms
             X_trial, y_trial = generate_overlapping_blobs(seed, d, sigma, config.n_per_cluster)
             data_records[trial_key] = {
                 "d": d, "sigma": sigma, "seed": seed,
@@ -623,9 +623,9 @@ def run_experiment_group(
                 except Exception as e:
                     print(f"    {alg:12s} rep {rep}: ERROR - {e}")
 
-            # 打印该 rep 的结果（按算法汇总需要等所有 rep 完成）
+            # Print the result of this repetition; the per-algorithm summary waits for all repetitions
 
-        # 打印每个算法在该 (d, sigma) 下的平均结果
+        # Print the average result of each algorithm for this (d, sigma)
         for alg in algorithms:
             alg_rows = [r for r in frames if r["Algorithm"] == alg and r["d"] == d and r["sigma"] == sigma]
             if alg_rows:
@@ -638,7 +638,7 @@ def run_experiment_group(
 
         print(f"  (elapsed: {time.time() - iter_start:.1f}s)")
 
-    # 保存数据到磁盘（NPZ格式，紧凑且高效）
+    # Save the data to disk as a compact NPZ archive
     if outdir is not None:
         data_dir = outdir / "datasets" / param_name
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -655,7 +655,7 @@ def run_experiment_group(
             np.savez_compressed(data_dir / f"{trial_key}.npz", **save_dict)
         print(f"\n  Datasets saved: {data_dir} ({len(data_records)} files)")
 
-        # 同时保存一个汇总CSV：每个 (d, sigma, seed) 的元信息
+        # Also save a summary CSV with the metadata of each (d, sigma, seed)
         meta_rows = []
         for trial_key, rec in data_records.items():
             meta_rows.append({
@@ -936,7 +936,7 @@ def main():
     if not calib_path.is_absolute():
         calib_path = Path(args.outdir) / calib_path.name if not calib_path.exists() else calib_path
     if not calib_path.exists():
-        # 尝试相对于当前脚本位置的路径
+        # Try a path relative to this script
         alt_path = Path(__file__).resolve().parent / calib_path.name
         if alt_path.exists():
             calib_path = alt_path
@@ -950,7 +950,7 @@ def main():
     with open(calib_path, "r", encoding="utf-8") as f:
         calib_raw = json.load(f)
 
-    # 转换为内部格式
+    # Convert to the internal format
     calib = {}
     for alg, info in calib_raw.items():
         calib[alg] = {'params': info.get('params'), 'best_ari': info.get('best_ari', 0.0)}

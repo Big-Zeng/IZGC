@@ -3,7 +3,7 @@
 """
 import pandas as pd
 
-# 读取数据
+# Read data
 df = pd.read_csv('data/complex8.csv')
 
 print("修改前:")
@@ -17,6 +17,6 @@ print("\n修改后:")
 print(f"  target 范围: {df['target'].min()} ~ {df['target'].max()}")
 print(f"  唯一值: {sorted(df['target'].unique())}")
 
-# 保存
+# Save
 df.to_csv('data/complex8_1.csv', index=False)
 print("\n✓ 已保存到 data/complex8_1.csv")

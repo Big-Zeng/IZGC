@@ -15,7 +15,7 @@ with open(input_file, 'r', encoding='utf-8') as f:
 
 print(f"✓ 文件读取成功，共{len(lines)}行")
 
-# 解析数据
+# Parse the data
 clients = []
 valid_count = 0
 invalid_count = 0
@@ -23,14 +23,14 @@ invalid_count = 0
 for line in lines:
     if line.strip().startswith('Insert into BBG.CLIENT'):
         try:
-            # 提取values部分
+            # Extract the values part
             match = re.search(r"values \((.*?)\);", line)
             if not match:
                 continue
             
             values_str = match.group(1)
             
-            # 手动解析值（处理引号和逗号）
+            # Parse the value manually, handling quotes and commas
             values = []
             current = ""
             in_quote = False
@@ -55,7 +55,7 @@ for line in lines:
             if current:
                 values.append(current.strip())
             
-            # 提取字段
+            # Extract the fields
             if len(values) >= 16:
                 cli_name = values[0].strip("'")
                 cli_degree = values[1].strip("'")
@@ -67,7 +67,7 @@ for line in lines:
                 cli_street = values[11].strip("'") if values[11] != 'null' else None
                 clientid = values[15]
                 
-                # 提取经纬度
+                # Extract longitude and latitude
                 if cli_lat_str != 'null' and cli_lon_str != 'null':
                     cli_lat = cli_lat_str.strip("'")
                     cli_lon = cli_lon_str.strip("'")
@@ -76,7 +76,7 @@ for line in lines:
                         lat = float(cli_lat)
                         lon = float(cli_lon)
                         
-                        # 验证经纬度范围（湖南省大致范围）
+                        # Validate the coordinate range (approximately Hunan Province)
                         if 24 <= lat <= 31 and 108 <= lon <= 115:
                             clients.append({
                                 'id': int(clientid),
@@ -104,13 +104,13 @@ print(f"\n数据统计:")
 print(f"  有效记录: {valid_count}")
 print(f"  无效记录: {invalid_count}")
 
-# 保存为JSON
+# Save as JSON
 with open(output_json, 'w', encoding='utf-8') as f:
     json.dump(clients, f, ensure_ascii=False, indent=2)
 
 print(f"\n✓ 数据已保存到: {output_json}")
 
-# 统计城市分布
+# Summarise the distribution across cities
 if clients:
     city_count = {}
     for client in clients:
@@ -122,7 +122,7 @@ if clients:
     for city, count in sorted_cities[:10]:
         print(f"  {city}: {count}个客户")
     
-    # 显示前5个客户示例
+    # Show the first five customers
     print(f"\n前5个客户示例:")
     for i, client in enumerate(clients[:5], 1):
         print(f"  {i}. {client['name']} - {client['city']} ({client['lat']}, {client['lon']})")

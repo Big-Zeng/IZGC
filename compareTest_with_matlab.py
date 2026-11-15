@@ -15,7 +15,7 @@ matplotlib.use('TkAgg')
 import ContourBasedClusteringWithoutZ3 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
-# 尝试导入MATLAB集成
+# Try to import the MATLAB bridge
 try:
     from matlab_integration import MatlabRunner
     MATLAB_AVAILABLE = True
@@ -24,11 +24,11 @@ except ImportError:
     print("警告: matlab_integration模块未找到")
 
 
-# ==================== 配置区域 ====================
-DATASET = "data/jain.csv"          # 数据集路径
-N_CLUSTERS = 2                       # 真实簇数
+# ==================== Configuration ====================
+DATASET = "data/jain.csv"          # Dataset path
+N_CLUSTERS = 2                       # True number of clusters
 
-# 算法参数
+# Algorithm parameters
 KMEANS_PARAMS = {
     'n_clusters': N_CLUSTERS,
     'random_state': 42,
@@ -41,19 +41,19 @@ DBSCAN_PARAMS = {
 }
 
 CONTOUR_PARAMS = {
-    'grid_size': None,               # None表示自动计算，或指定具体值如1.2
+    'grid_size': None,               # None computes it automatically; otherwise give a value such as 1.2
     'max_buffer_distance': 5,
-    'auto_grid_multiplier': 2.0,     # 自动计算时：格子数 = 点数 × 此倍数
-    'optimize_grid': False           # True表示使用梯度下降优化grid_size
+    'auto_grid_multiplier': 2.0,     # When computed automatically: cells = number of points x this factor
+    'optimize_grid': False           # True optimises grid_size by gradient descent
 }
 
 MATLAB_PARAMS = {
-    'k': 11,                         # 近邻数量
+    'k': 11,                         # Number of neighbours
     'n_clusters': N_CLUSTERS
 }
 
-# 是否运行MATLAB算法
-RUN_MATLAB = True                    # 设置为False可跳过MATLAB
+# Whether to run the MATLAB algorithms
+RUN_MATLAB = True                    # Set False to skip MATLAB
 # ==================================================
 
 
@@ -78,21 +78,21 @@ class VRPAnalyzer:
         """
         n_points = len(self.coords)
         
-        # 计算包裹所有点的矩形
+        # Compute the bounding rectangle of all points
         x_min, y_min = self.coords.min(axis=0)
         x_max, y_max = self.coords.max(axis=0)
         
         width = x_max - x_min
         height = y_max - y_min
         
-        # 矩形面积
+        # Rectangle area
         area = width * height
         
-        # 目标格子数量
+        # Target number of cells
         target_grid_count = n_points * grid_multiplier
         
-        # 计算grid_size
-        # 格子数量 = (width/grid_size) × (height/grid_size) = area / grid_size²
+        # Compute grid_size
+        # cells = (width/grid_size) x (height/grid_size) = area / grid_size^2
         # grid_size² = area / target_grid_count
         # grid_size = sqrt(area / target_grid_count)
         grid_size = np.sqrt(area / target_grid_count)
@@ -164,7 +164,7 @@ class VRPAnalyzer:
             auto_grid_multiplier: 自动计算时的格子数量倍数（默认2.0）
             optimize_grid: 是否使用梯度下降优化grid_size
         """
-        # 如果启用优化
+        # If optimisation is enabled
         if optimize_grid:
             print("\n使用梯度下降优化grid_size...")
             from optimize_grid_size import GridSizeOptimizer
@@ -181,7 +181,7 @@ class VRPAnalyzer:
             )
             print(f"优化后的grid_size: {grid_size:.3f}\n")
         
-        # 如果未指定grid_size且未优化，则自动计算
+        # Computed automatically when grid_size is neither given nor optimised
         elif grid_size is None:
             grid_size = self.calculate_auto_grid_size(grid_multiplier=auto_grid_multiplier)
         else:
@@ -242,14 +242,14 @@ class VRPAnalyzer:
         
         print("\n启动MATLAB算法...")
         
-        # 准备数据 [x, y, label]
+        # Prepare data as [x, y, label]
         data_with_labels = np.column_stack([self.coords, self.true_labels])
         
-        # 初始化MATLAB运行器
+        # Initialise the MATLAB runner
         if self.matlab_runner is None:
             self.matlab_runner = MatlabRunner(method='auto')
         
-        # 运行算法
+        # Run the algorithm
         labels, matlab_metrics = self.matlab_runner.run_algorithm_pr(
             data_with_labels, n_clusters, k
         )
@@ -258,7 +258,7 @@ class VRPAnalyzer:
             print("MATLAB算法执行失败")
             return None, None, None, None, None, None, None
         
-        # 计算额外指标
+        # Compute the additional metrics
         inertia = self.calculate_inertia(self.coords, labels)
         
         if len(set(labels)) > 1:
@@ -266,7 +266,7 @@ class VRPAnalyzer:
         else:
             silhouette_avg = -1
         
-        # 使用MATLAB返回的指标
+        # Use the metrics returned by MATLAB
         ami = matlab_metrics['AMI']
         ari = matlab_metrics['ARI']
         fmi = matlab_metrics['FMI']
@@ -279,13 +279,13 @@ class VRPAnalyzer:
             self.matlab_runner.close()
 
 
-# ==================== 主程序 ====================
+# ==================== Main program ====================
 if __name__ == "__main__":
     print("=" * 80)
     print("聚类算法对比测试（包含MATLAB算法）")
     print("=" * 80)
     
-    # 读取数据
+    # Read data
     df = pd.read_csv(DATASET)
     X = df[['x', 'y']].values
     y_true = df['target'].values
@@ -296,12 +296,12 @@ if __name__ == "__main__":
     print(f"X范围: [{X[:, 0].min():.2f}, {X[:, 0].max():.2f}]")
     print(f"Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
     
-    # 创建分析器
+    # Create the analyser
     analyzer = VRPAnalyzer(X, y_true)
     
     results = []
     
-    # 1. KMeans聚类
+    # 1. K-means clustering
     print("\n" + "-" * 80)
     print("1. KMeans 聚类")
     print("-" * 80)
@@ -324,7 +324,7 @@ if __name__ == "__main__":
         'inertia': kmeans_inertia
     })
     
-    # 2. DBSCAN聚类
+    # 2. DBSCAN clustering
     print("\n" + "-" * 80)
     print("2. DBSCAN 聚类")
     print("-" * 80)
@@ -350,7 +350,7 @@ if __name__ == "__main__":
         'inertia': dbscan_inertia
     })
     
-    # 3. Contour-Based聚类
+    # 3. Contour-based clustering
     print("\n" + "-" * 80)
     print("3. Contour-Based 聚类")
     print("-" * 80)
@@ -420,10 +420,10 @@ if __name__ == "__main__":
         elif not MATLAB_AVAILABLE:
             print("\nMAT LAB不可用，跳过")
     
-    # 关闭MATLAB引擎
+    # Shut down the MATLAB engine
     analyzer.close_matlab()
     
-    # 汇总对比
+    # Summary comparison
     print("\n" + "=" * 90)
     print("算法对比汇总")
     print("=" * 90)
@@ -436,18 +436,18 @@ if __name__ == "__main__":
     
     print("=" * 90)
     
-    # 可视化对比
+    # Visual comparison
     n_plots = len(results) + 1
     fig = plt.figure(figsize=(4 * n_plots, 4))
     
-    # 真实标签
+    # Ground-truth labels
     plt.subplot(1, n_plots, 1)
     plt.scatter(X[:, 0], X[:, 1], c=y_true, cmap='tab10', s=20)
     plt.title('Ground Truth')
     plt.xlabel('X')
     plt.ylabel('Y')
     
-    # 各算法结果
+    # Results per algorithm
     for i, r in enumerate(results, 2):
         plt.subplot(1, n_plots, i)
         plt.scatter(X[:, 0], X[:, 1], c=r['labels'], cmap='tab10', s=20)

@@ -18,7 +18,7 @@ import os
 from datetime import datetime
 from functools import wraps
 
-# 添加父目录到路径
+# Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import ContourBasedClusteringWithoutZ22 as ContourClustering
@@ -28,7 +28,7 @@ from algorithm_comparison.utils import normalize_coordinates
 
 app = Flask(__name__)
 
-# 手动实现CORS支持
+# Implement CORS support manually
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
@@ -45,12 +45,12 @@ def handle_options():
         response = make_response()
         return add_cors_headers(response)
 
-# 全局变量
-data_points = None  # 原始数据点
-zero_points = []    # 手动添加的零值点
-current_dataset = None  # 当前数据集名称
+# Global variable
+data_points = None  # Raw data points
+zero_points = []    # Manually added zero points
+current_dataset = None  # Name of the current dataset
 
-# 数据目录
+# Data directory
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'real_data')
 
 
@@ -60,7 +60,7 @@ def load_data(dataset_name):
     
     filepath = os.path.join(DATA_DIR, f"{dataset_name}.csv")
     if not os.path.exists(filepath):
-        # 尝试带_real后缀
+        # Try the _real suffix
         filepath = os.path.join(DATA_DIR, f"{dataset_name}_real.csv")
     
     if not os.path.exists(filepath):
@@ -70,7 +70,7 @@ def load_data(dataset_name):
     data_points = df[['x', 'y']].values.tolist()
     current_dataset = dataset_name
     
-    # 尝试加载已保存的零值点
+    # Try loading the saved zero points
     zero_points_file = os.path.join(DATA_DIR, f"{dataset_name}_zero_points.csv")
     if os.path.exists(zero_points_file):
         zero_df = pd.read_csv(zero_points_file)
@@ -181,7 +181,7 @@ def add_zero_points_batch():
                 'error': '没有提供零值点数据'
             }), 400
         
-        # 批量添加
+        # Add in batch
         added_count = 0
         for p in points:
             x = float(p[0])
@@ -191,7 +191,7 @@ def add_zero_points_batch():
         
         print(f"✓ 批量添加 {added_count} 个零值点, 当前共 {len(zero_points)} 个")
         
-        # 自动保存到CSV
+        # Save to CSV automatically
         saved_file = None
         if auto_save and current_dataset:
             filename = f"{current_dataset}_zero_points.csv"
@@ -274,7 +274,7 @@ def save_zero_points():
                 'error': '没有零值点需要保存'
             }), 400
         
-        # 保存到CSV
+        # Save to CSV
         filename = f"{current_dataset}_zero_points.csv"
         filepath = os.path.join(DATA_DIR, filename)
         
@@ -306,11 +306,11 @@ def proxy_tile():
         if not tile_url:
             return jsonify({'success': False, 'error': '缺少url参数'}), 400
         
-        # 只允许百度地图域名
+        # Allow only the Baidu Maps domain
         if not any(domain in tile_url for domain in ['baidu.com', 'bdimg.com', 'bdstatic.com']):
             return jsonify({'success': False, 'error': '不允许的域名'}), 403
         
-        # 请求瓦片
+        # Request the tiles
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             'Referer': 'https://map.baidu.com/'
@@ -347,11 +347,11 @@ def export_map():
         if not bounds:
             return jsonify({'success': False, 'error': '缺少bounds参数'}), 400
         
-        # 计算中心点
+        # Compute the centre
         center_lng = (bounds['minLng'] + bounds['maxLng']) / 2
         center_lat = (bounds['minLat'] + bounds['maxLat']) / 2
         
-        # 计算缩放级别
+        # Compute the zoom level
         lng_range = bounds['maxLng'] - bounds['minLng']
         lat_range = bounds['maxLat'] - bounds['minLat']
         max_range = max(lng_range, lat_range)
@@ -364,7 +364,7 @@ def export_map():
         elif max_range > 0.02: zoom = 13
         else: zoom = 14
         
-        # 使用百度静态图API
+        # Use the Baidu static-map API
         ak = '7GJV8YHkODN1xUoziJd3jvkrIYmT05Oc'
         static_url = f"https://api.map.baidu.com/staticimage/v2?ak={ak}&center={center_lng},{center_lat}&width={width}&height={height}&zoom={zoom}&scale={scale}"
         
@@ -376,7 +376,7 @@ def export_map():
         resp = requests.get(static_url, headers=headers, timeout=30)
         
         if resp.status_code == 200:
-            # 返回图片的base64
+            # Return the image as base64
             import base64
             img_base64 = base64.b64encode(resp.content).decode('utf-8')
             
@@ -433,16 +433,16 @@ def perform_clustering():
                 'error': '请先加载数据'
             }), 400
         
-        # 获取参数
+        # Get the parameters
         params = request.json
         grid_size = float(params.get('grid_size', 0.01))
         max_buffer_distance = int(params.get('max_buffer_distance', 5))
         min_cluster_size = int(params.get('min_cluster_size', 5))
         merge_small_clusters = params.get('merge_small_clusters', True)
-        use_normalization = params.get('normalize', True)  # 默认启用归一化
-        use_zero_points = params.get('use_zero_points', True)  # 是否使用零值点
+        use_normalization = params.get('normalize', True)  # Normalisation is enabled by default
+        use_zero_points = params.get('use_zero_points', True)  # Whether to use zero points
         
-        # 根据参数决定实际使用的零值点
+        # Select the zero points actually used from the settings
         actual_zero_points = zero_points if use_zero_points else []
         
         print(f"\n{'='*80}")
@@ -457,14 +457,14 @@ def perform_clustering():
         print(f"  零值点数: {len(actual_zero_points)} (总共{len(zero_points)}个)")
         print(f"{'='*80}\n")
         
-        # 准备原始坐标
+        # Prepare the raw coordinates
         coords_orig = np.array(data_points)
         
-        # 保存原始坐标范围（用于反归一化）
+        # Store the original coordinate range for denormalisation
         x_min, y_min = coords_orig.min(axis=0)
         x_max, y_max = coords_orig.max(axis=0)
         
-        # 坐标归一化到[0, 100]范围
+        # Normalise the coordinates to [0, 100]
         if use_normalization:
             coords = normalize_coordinates(coords_orig)
             print(f"✓ 坐标已归一化到[0, 100]")
@@ -472,13 +472,13 @@ def perform_clustering():
         else:
             coords = coords_orig
         
-        # 计算密度作为z值（使用归一化后的坐标）
+        # Compute the density as the z value from the normalised coordinates
         tree = cKDTree(coords)
-        # 密度计算半径也需要根据归一化调整
+        # The density radius must follow the normalisation as well
         density_radius = 1.0 if use_normalization else 0.01
         density = np.array([len(tree.query_ball_point(p, density_radius)) for p in coords])
         
-        # 归一化密度到合理范围
+        # Rescale the density to a sensible range
         if density.max() > 0:
             density = density / density.max() * 10
         
@@ -486,12 +486,12 @@ def perform_clustering():
         for i, (x, y) in enumerate(coords):
             combined_data.append((x, y, float(density[i]), i))
         
-        # 准备零值点（手动添加的虚拟点）- 也需要归一化
+        # Prepare the manual zero points, which also need normalising
         manual_virtual_points = []
         if actual_zero_points:
             zero_coords_orig = np.array(actual_zero_points)
             if use_normalization:
-                # 使用相同的归一化参数
+                # Reuse the same normalisation parameters
                 x_range = x_max - x_min
                 y_range = y_max - y_min
                 zero_coords = np.zeros_like(zero_coords_orig)
@@ -501,11 +501,11 @@ def perform_clustering():
                 zero_coords = zero_coords_orig
             
             for x, y in zero_coords:
-                manual_virtual_points.append((x, y, 0.0, -2))  # -2表示手动添加
+                manual_virtual_points.append((x, y, 0.0, -2))  # -2 marks a manually added point
         
         print(f"准备聚类数据: {len(combined_data)} 个数据点, {len(manual_virtual_points)} 个零值点")
         
-        # 创建聚类实例（禁用交互式界面）
+        # Create the clustering instance with the interactive UI disabled
         import matplotlib
         matplotlib.use('Agg')
         
@@ -519,22 +519,22 @@ def perform_clustering():
             merge_small_clusters=merge_small_clusters
         )
         
-        # 执行聚类
+        # Run clustering
         cluster.perform_clustering()
         print("✓ 聚类完成")
         
-        # 获取聚类标签
+        # Get the cluster labels
         pred_labels = cluster.get_predicted_labels()
         pred_labels_array = np.array(pred_labels)
         
-        # 统计聚类结果
+        # Summarise the clustering results
         n_clusters = len(set(pred_labels)) - (1 if -1 in pred_labels else 0)
         n_noise = list(pred_labels).count(-1)
         
         print(f"发现簇数: {n_clusters}")
         print(f"噪声点数: {n_noise}")
         
-        # 计算评价指标（使用归一化后的坐标）
+        # Compute the metrics from the normalised coordinates
         metrics = {}
         mask = pred_labels_array != -1
         coords_valid = coords[mask]
@@ -554,7 +554,7 @@ def perform_clustering():
             except Exception as e:
                 print(f"计算指标失败: {e}")
         
-        # 获取等值线多边形数据（需要转换回原始坐标用于地图显示）
+        # Get the contour polygons and convert them back to the original coordinates for the map
         contour_polygons = []
         for i, center in enumerate(cluster.density_centers):
             cluster_points = [point for point, centers in cluster.point_to_density_center.items() 
@@ -562,10 +562,10 @@ def perform_clustering():
             if len(cluster_points) == 0:
                 continue
             
-            # 获取归一化坐标下的多边形
+            # Get the polygons in normalised coordinates
             polygon_norm = center.polygon
             
-            # 转换回原始坐标
+            # Convert back to the original coordinates
             if use_normalization:
                 polygon_orig = denormalize_coordinates(polygon_norm, x_min, x_max, y_min, y_max)
                 polygon_coords = polygon_orig.tolist()

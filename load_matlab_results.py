@@ -48,10 +48,10 @@ def load_matlab_results_from_mat(mat_file='compare/matlab_results/all_results.ma
     mat_data = loadmat(mat_file, struct_as_record=False, squeeze_me=True)
     results = {}
     
-    # 解析MAT文件结构
+    # Inspect the MAT-file structure
     all_results = mat_data['all_results']
     
-    # 获取所有字段名（数据集名称）
+    # Collect all field names (dataset names)
     field_names = all_results._fieldnames
     
     for name in field_names:
@@ -111,7 +111,7 @@ def get_matlab_result(dataset_name, prefer_format='json'):
             raise KeyError(f"数据集 '{dataset_name}' 不在结果中")
     
     except FileNotFoundError:
-        # 尝试另一种格式
+        # Try another format
         try:
             if prefer_format == 'json':
                 results = load_matlab_results_from_mat()
@@ -171,11 +171,11 @@ def print_matlab_results_summary():
     print("=" * 80)
 
 
-# 使用示例
+# Usage example
 if __name__ == "__main__":
     print("MATLAB结果加载工具\n")
     
-    # 列出可用数据集
+    # List the available datasets
     datasets = list_available_datasets()
     if datasets:
         print(f"找到 {len(datasets)} 个数据集:")
@@ -187,10 +187,10 @@ if __name__ == "__main__":
         print("请先在MATLAB中运行: compare/algorithm/run_and_save_results.m\n")
         exit(1)
     
-    # 打印汇总
+    # Print the summary table
     print_matlab_results_summary()
     
-    # 示例：加载单个数据集
+    # Example: load a single dataset
     print("\n示例：加载flame数据集")
     print("-" * 40)
     try:

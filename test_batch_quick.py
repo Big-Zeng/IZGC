@@ -5,17 +5,17 @@
 import os
 import shutil
 
-# 临时修改配置
+# Temporarily override the configuration
 import batch_test_all_datasets as batch_module
 
-# 只启用KMeans和Contour-Based（跳过DBSCAN和MATLAB以加快速度）
+# Enable only K-means and contour-based clustering; DBSCAN and MATLAB are skipped to speed up
 batch_module.ALGORITHMS_CONFIG['KMeans']['enabled'] = True
 batch_module.ALGORITHMS_CONFIG['DBSCAN']['enabled'] = False
 batch_module.ALGORITHMS_CONFIG['Contour-Based']['enabled'] = True
 batch_module.ALGORITHMS_CONFIG['Contour-Based']['params']['optimize_grid'] = False
 batch_module.ALGORITHMS_CONFIG['MATLAB-Algorithm_PR']['enabled'] = False
 
-# 修改输出文件名
+# Change the output filename
 batch_module.OUTPUT_FILE = "test_results.txt"
 
 print("="*80)
@@ -28,10 +28,10 @@ print("  - 不优化 grid_size")
 print("  - 只测试 data 文件夹中的数据集")
 print("="*80)
 
-# 创建测试器
+# Create the tester
 tester = batch_module.BatchTester(batch_module.DATA_FOLDER, batch_module.OUTPUT_FOLDER)
 
-# 获取数据集列表
+# Get the list of datasets
 datasets = tester.get_dataset_files()
 print(f"\n找到 {len(datasets)} 个数据集")
 
@@ -39,18 +39,18 @@ if len(datasets) == 0:
     print("错误: data 文件夹中没有CSV文件")
     exit(1)
 
-# 只测试前2个数据集
+# Test the first two datasets only
 test_datasets = datasets[:min(2, len(datasets))]
 print(f"将测试前 {len(test_datasets)} 个数据集: {[name for name, _ in test_datasets]}")
 
-# 测试
+# Test
 all_results = []
 for i, (filename, filepath) in enumerate(test_datasets, 1):
     print(f"\n[{i}/{len(test_datasets)}]", end=' ')
     result = tester.test_dataset(filename, filepath)
     all_results.append(result)
 
-# 保存结果
+# Save results
 print(f"\n{'='*80}")
 print("保存结果...")
 tester.save_results(all_results, batch_module.OUTPUT_FILE)

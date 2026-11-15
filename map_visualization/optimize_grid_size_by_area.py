@@ -11,13 +11,13 @@ from scipy.spatial import cKDTree
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('Agg')  # 非交互模式
+matplotlib.use('Agg')  # Non-interactive mode
 
-# 添加父目录到路径
+# Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import ContourBasedClusteringWithoutZ22_map as ContourClustering
 
-# ==================== 坐标转换函数 ====================
+# ==================== Coordinate conversion ====================
 def lonlat_to_xy(lon, lat, lon_ref, lat_ref):
     """
     将经纬度转换为平面坐标（单位：公里）
@@ -30,16 +30,16 @@ def lonlat_to_xy(lon, lat, lon_ref, lat_ref):
     返回:
         x, y: 平面坐标（公里）
     """
-    # 地球半径（公里）
+    # Earth radius in kilometres
     R = 6371.0
     
-    # 转换为弧度
+    # Convert to radians
     lon_rad = np.radians(lon)
     lat_rad = np.radians(lat)
     lon_ref_rad = np.radians(lon_ref)
     lat_ref_rad = np.radians(lat_ref)
     
-    # 计算平面坐标（公里）
+    # Compute planar coordinates in kilometres
     x = R * (lon_rad - lon_ref_rad) * np.cos(lat_ref_rad)
     y = R * (lat_rad - lat_ref_rad)
     
@@ -62,7 +62,7 @@ def normalize_coordinates(coords):
     x_range = x_max - x_min
     y_range = y_max - y_min
     
-    # 归一化到[0, 100]
+    # Normalise to [0, 100]
     coords_normalized = np.zeros_like(coords)
     coords_normalized[:, 0] = ((coords[:, 0] - x_min) / x_range * 100) if x_range > 0 else 50
     coords_normalized[:, 1] = ((coords[:, 1] - y_min) / y_range * 100) if y_range > 0 else 50
@@ -79,16 +79,16 @@ def normalize_coordinates(coords):
     return coords_normalized, scale_info
 # ======================================================
 
-# ==================== 配置参数 ====================
-# 城市选择（留空则处理所有城市）
-TARGET_CITY = "长沙市"            # 指定城市名称，如 "长沙市"，留空处理所有城市
+# ==================== Parameters ====================
+# City selection (leave empty to process all cities)
+TARGET_CITY = "长沙市"            # Give a city name such as "Changsha", or leave it empty to process all cities
 
-GRID_SIZE_START = 6      # grid_size起始值
-GRID_SIZE_END = 7         # grid_size结束值
-GRID_SIZE_STEP = 0.001       # grid_size步长
-MAX_BUFFER_DISTANCE = 0     # 最大缓冲距离
-MIN_CLUSTER_SIZE = 5       # 最小簇大小
-MIN_POINTS = 50             # 最少点数（少于此值的城市跳过）
+GRID_SIZE_START = 6      # grid_size start value
+GRID_SIZE_END = 7         # grid_size upper bound
+GRID_SIZE_STEP = 0.001       # grid_size step
+MAX_BUFFER_DISTANCE = 0     # Maximum buffer distance
+MIN_CLUSTER_SIZE = 5       # Minimum cluster size
+MIN_POINTS = 50             # Minimum point count; cities below it are skipped
 # ==================================================
 
 print("="*80)
@@ -107,15 +107,15 @@ print(f"  最少点数: {MIN_POINTS}")
 print(f"  评价指标: 轮廓系数 (Silhouette Score)")
 print("="*80)
 
-# 读取索引文件
+# Read the index file
 print("\n正在读取索引文件...")
 with open('client_data_by_city/index.json', 'r', encoding='utf-8') as f:
     index_data = json.load(f)
 
-# 筛选符合条件的城市（点数 >= MIN_POINTS）
+# Keep the cities with at least MIN_POINTS points
 valid_cities = [city for city in index_data['cities'] if city['count'] >= MIN_POINTS and city['city'] is not None]
 
-# 根据TARGET_CITY进一步筛选
+# Filter further by TARGET_CITY
 if TARGET_CITY:
     valid_cities = [city for city in valid_cities if city['city'] == TARGET_CITY]
     print(f"✓ 筛选城市: {TARGET_CITY}")
@@ -130,16 +130,16 @@ if len(valid_cities) == 0:
     print("  3. 查看 client_data_by_city/index.json 了解可用的城市")
     exit(1)
 
-# 创建输出目录
+# Create the output directory
 output_dir = 'grid_size_optimization_results'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
     print(f"✓ 创建输出目录: {output_dir}")
 
-# 存储所有结果
+# Store all results
 all_results = []
 
-# 对每个城市进行grid_size扫描
+# Sweep grid_size for every city
 for idx, city_info in enumerate(valid_cities, 1):
     city = city_info['city']
     count = city_info['count']
@@ -149,7 +149,7 @@ for idx, city_info in enumerate(valid_cities, 1):
     print(f"[{idx}/{len(valid_cities)}] 处理: {city} ({count}个客户)")
     print(f"{'='*80}")
     
-    # 读取城市数据
+    # Read the city data
     try:
         with open(json_file, 'r', encoding='utf-8') as f:
             clients = json.load(f)
@@ -157,33 +157,33 @@ for idx, city_info in enumerate(valid_cities, 1):
         print(f"✗ 读取文件失败: {e}")
         continue
     
-    # 提取经纬度坐标
+    # Extract the coordinates
     lonlat_coords = np.array([[client['lon'], client['lat']] for client in clients])
     
-    # 计算参考点（区域中心）
+    # Compute the reference point (the region centre)
     lon_ref = np.mean(lonlat_coords[:, 0])
     lat_ref = np.mean(lonlat_coords[:, 1])
     
     print(f"  参考点（区域中心）: 经度={lon_ref:.6f}, 纬度={lat_ref:.6f}")
     
-    # 将经纬度转换为平面坐标（公里）
+    # Convert longitude and latitude to planar coordinates in kilometres
     xy_coords = np.array([lonlat_to_xy(lon, lat, lon_ref, lat_ref) 
                           for lon, lat in lonlat_coords])
     
     print(f"  平面坐标范围: X=[{xy_coords[:, 0].min():.3f}, {xy_coords[:, 0].max():.3f}] km")
     print(f"                Y=[{xy_coords[:, 1].min():.3f}, {xy_coords[:, 1].max():.3f}] km")
     
-    # 归一化坐标到[0, 100]
+    # Normalise the coordinates to [0, 100]
     coords, scale_info = normalize_coordinates(xy_coords)
     
     print(f"  归一化后范围: X=[{coords[:, 0].min():.2f}, {coords[:, 0].max():.2f}]")
     print(f"                Y=[{coords[:, 1].min():.2f}, {coords[:, 1].max():.2f}]")
     
-    # 计算密度（使用归一化后的坐标）
+    # Compute the density from the normalised coordinates
     tree = cKDTree(coords)
     density = np.array([len(tree.query_ball_point(p, 5)) for p in coords])
     
-    # 准备聚类数据（使用归一化后的坐标）
+    # Prepare the clustering data from the normalised coordinates
     combined_data = []
     for i in range(len(coords)):
         combined_data.append((
@@ -193,7 +193,7 @@ for idx, city_info in enumerate(valid_cities, 1):
             i
         ))
     
-    # 扫描grid_size
+    # Sweep grid_size
     grid_sizes = np.arange(GRID_SIZE_START, GRID_SIZE_END + GRID_SIZE_STEP, GRID_SIZE_STEP)
     results = []
     
@@ -201,7 +201,7 @@ for idx, city_info in enumerate(valid_cities, 1):
     
     for grid_size in grid_sizes:
         try:
-            # 创建聚类实例
+            # Create clustering instance
             cluster = ContourClustering.ContourBasedClusteringWithoutZ(
                 combined_data,
                 grid_size=grid_size,
@@ -210,18 +210,18 @@ for idx, city_info in enumerate(valid_cities, 1):
                 interactive=False
             )
             
-            # 执行聚类
+            # Run clustering
             cluster.perform_clustering()
             
-            # 获取聚类标签
+            # Get the cluster labels
             labels = cluster.get_predicted_labels()
             labels_array = np.array(labels)
             
-            # 统计簇数
+            # Count the clusters
             n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
             n_noise = list(labels).count(-1)
             
-            # 计算轮廓系数
+            # Compute the silhouette coefficient
             silhouette = None
             if n_clusters > 1 and n_noise < len(labels):
                 mask = labels_array != -1
@@ -254,7 +254,7 @@ for idx, city_info in enumerate(valid_cities, 1):
                 'silhouette_score': None
             })
     
-    # 找到最佳grid_size
+    # Find the best grid_size
     valid_results = [r for r in results if r['silhouette_score'] is not None]
     
     if valid_results:
@@ -266,7 +266,7 @@ for idx, city_info in enumerate(valid_cities, 1):
         print(f"  簇数: {best_result['n_clusters']}")
         print(f"  噪声点: {best_result['n_noise']}")
         
-        # 保存结果
+        # Save results
         city_result = {
             'city': city,
             'count': count,
@@ -278,11 +278,11 @@ for idx, city_info in enumerate(valid_cities, 1):
         }
         all_results.append(city_result)
         
-        # 绘制grid_size vs 轮廓系数曲线
+        # Plot grid_size against the silhouette coefficient
         try:
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
             
-            # 轮廓系数曲线
+            # Silhouette curve
             grid_sizes_plot = [r['grid_size'] for r in results]
             silhouette_scores = [r['silhouette_score'] if r['silhouette_score'] is not None else 0 for r in results]
             
@@ -294,7 +294,7 @@ for idx, city_info in enumerate(valid_cities, 1):
             ax1.grid(True, alpha=0.3)
             ax1.legend()
             
-            # 簇数曲线
+            # Cluster-count curve
             n_clusters_plot = [r['n_clusters'] for r in results]
             ax2.plot(grid_sizes_plot, n_clusters_plot, 'g-s', linewidth=2, markersize=4)
             ax2.axvline(best_result['grid_size'], color='r', linestyle='--', label=f"最佳: {best_result['grid_size']:.3f}")
@@ -306,7 +306,7 @@ for idx, city_info in enumerate(valid_cities, 1):
             
             plt.tight_layout()
             
-            # 保存图片
+            # Save the image
             safe_city = city.replace('/', '_').replace('\\', '_') if city else '未知城市'
             plot_file = f"{output_dir}/{safe_city}.png"
             plt.savefig(plot_file, dpi=100, bbox_inches='tight')
@@ -318,18 +318,18 @@ for idx, city_info in enumerate(valid_cities, 1):
     else:
         print(f"\n✗ 未找到有效结果（所有grid_size都无法计算轮廓系数）")
 
-# 保存所有结果
+# Save all results
 print(f"\n{'='*80}")
 print("保存结果")
 print(f"{'='*80}")
 
-# 保存JSON格式
+# Save in JSON format
 json_file = f"{output_dir}/optimization_results.json"
 with open(json_file, 'w', encoding='utf-8') as f:
     json.dump(all_results, f, ensure_ascii=False, indent=2)
 print(f"✓ JSON结果已保存: {json_file}")
 
-# 生成汇总报告
+# Produce the summary report
 report_lines = []
 report_lines.append("# grid_size优化结果汇总报告\n\n")
 report_lines.append(f"## 参数设置\n\n")
@@ -350,7 +350,7 @@ for result in sorted(all_results, key=lambda x: x['best_silhouette_score'], reve
                        f"{result['best_grid_size']:.3f} | {result['best_silhouette_score']:.4f} | "
                        f"{result['best_n_clusters']} | {result['best_n_noise']} |\n")
 
-# 统计分析
+# Statistical analysis
 if all_results:
     best_grid_sizes = [r['best_grid_size'] for r in all_results]
     silhouette_scores = [r['best_silhouette_score'] for r in all_results]
@@ -365,7 +365,7 @@ if all_results:
     report_lines.append(f"- 轮廓系数中位数: {np.median(silhouette_scores):.4f}\n")
     report_lines.append(f"- 轮廓系数范围: [{min(silhouette_scores):.4f}, {max(silhouette_scores):.4f}]\n\n")
     
-    # 推荐grid_size
+    # Recommended grid_size
     recommended_grid_size = np.median(best_grid_sizes)
     report_lines.append(f"## 推荐参数\n\n")
     report_lines.append(f"基于所有城市的优化结果，推荐使用:\n\n")
@@ -381,12 +381,12 @@ with open(report_file, 'w', encoding='utf-8') as f:
     f.writelines(report_lines)
 print(f"✓ 汇总报告已保存: {report_file}")
 
-# 绘制汇总图表
+# Plot the summary figure
 if all_results:
     try:
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
         
-        # 1. 最佳grid_size分布
+        # 1. Distribution of the best grid_size
         best_grid_sizes = [r['best_grid_size'] for r in all_results]
         ax1.hist(best_grid_sizes, bins=20, color='skyblue', edgecolor='black')
         ax1.axvline(np.mean(best_grid_sizes), color='r', linestyle='--', label=f'平均值: {np.mean(best_grid_sizes):.3f}')
@@ -397,7 +397,7 @@ if all_results:
         ax1.legend()
         ax1.grid(True, alpha=0.3)
         
-        # 2. 轮廓系数分布
+        # 2. Distribution of the silhouette score
         silhouette_scores = [r['best_silhouette_score'] for r in all_results]
         ax2.hist(silhouette_scores, bins=20, color='lightgreen', edgecolor='black')
         ax2.axvline(np.mean(silhouette_scores), color='r', linestyle='--', label=f'平均值: {np.mean(silhouette_scores):.4f}')
@@ -407,14 +407,14 @@ if all_results:
         ax2.legend()
         ax2.grid(True, alpha=0.3)
         
-        # 3. grid_size vs 轮廓系数散点图
+        # 3. Scatter plot of grid_size against the silhouette score
         ax3.scatter(best_grid_sizes, silhouette_scores, alpha=0.6, s=50)
         ax3.set_xlabel('最佳grid_size')
         ax3.set_ylabel('轮廓系数')
         ax3.set_title('grid_size vs 轮廓系数')
         ax3.grid(True, alpha=0.3)
         
-        # 4. 客户数 vs 最佳grid_size
+        # 4. Number of customers against the best grid_size
         counts = [r['count'] for r in all_results]
         scatter = ax4.scatter(counts, best_grid_sizes, alpha=0.6, s=100, c=silhouette_scores, cmap='viridis')
         ax4.set_xlabel('客户数')
@@ -433,7 +433,7 @@ if all_results:
     except Exception as e:
         print(f"⚠ 绘制汇总图表失败: {e}")
 
-# 打印摘要
+# Print the summary
 print(f"\n{'='*80}")
 print("优化完成摘要")
 print(f"{'='*80}")

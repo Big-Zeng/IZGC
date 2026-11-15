@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Polygon
 
-# --- 数据与设置 ---
+# --- Data and settings ---
 grid_size = 4
 x_coords = np.arange(grid_size + 1)
 y_coords = np.arange(grid_size + 1)
@@ -26,7 +26,7 @@ def get_intersection(p1_coord, p2_coord, v1_val, v2_val, target_val):
     ratio = (target_val - v1_val) / (v2_val - v1_val)
     return p1_coord + ratio * (p2_coord - p1_coord)
 
-# --- 图 (a): 初始网格点值 ---
+# --- Panel (a): initial grid values ---
 def save_plot_a():
     fig, ax = plt.subplots(figsize=(8, 8))
     for i in range(grid_size):
@@ -51,28 +51,28 @@ def save_plot_a():
     plt.savefig('plot_a_grid_values.png', dpi=300)
     plt.close()
 
-# --- 图 (b): 局部边插值与线段生成 ---
+# --- Panel (b): local edge interpolation and segment generation ---
 def save_plot_b():
     fig, ax = plt.subplots(figsize=(8, 8))
     for i in range(grid_size):
         for j in range(grid_size):
-            # 1. 绘制网格
+            # 1. Plot the grid
             cell = Polygon([[j, i], [j+1, i], [j+1, i+1], [j, i+1]],
                            closed=True, fill=False, edgecolor='lightgray', lw=0.5)
             ax.add_patch(cell)
 
-            # 2. 获取顶点数据
+            # 2. Get the vertex data
             coords = [np.array([j, i]), np.array([j+1, i]), np.array([j+1, i+1]), np.array([j, i+1])]
             vals = [Z[i, j], Z[i, j+1], Z[i+1, j+1], Z[i+1, j]]
 
-            # 3. 绘制顶点
+            # 3. Draw the vertices
             for k in range(4):
                 color = 'red' if vals[k] < v_target else 'blue'
                 ax.scatter(coords[k][0], coords[k][1], c=color, s=100, edgecolors='black', zorder=5)
 
-            # 4. 计算并绘制插值交点与线段
+            # 4. Compute and draw the interpolated crossings and segments
             intersections = []
-            # 依次检查四条边: 底, 右, 顶, 左
+            # Check the four edges in turn: bottom, right, top, left
             edges = [(0,1), (1,2), (2,3), (3,0)]
             for e1, e2 in edges:
                 p = get_intersection(coords[e1], coords[e2], vals[e1], vals[e2], v_target)
@@ -83,7 +83,7 @@ def save_plot_b():
                            c='green', marker='x', s=120, lw=2.5, zorder=6)
                 ax.plot([intersections[0][0], intersections[1][0]], [intersections[0][1], intersections[1][1]],
                         color='green', linewidth=3, zorder=4)
-            elif len(intersections) == 4: # 鞍点
+            elif len(intersections) == 4: # Saddle point
                 ax.scatter([p[0] for p in intersections], [p[1] for p in intersections],
                            c='green', marker='x', s=120, lw=2.5, zorder=6)
                 ax.plot([intersections[0][0], intersections[2][0]], [intersections[0][1], intersections[2][1]],
@@ -100,7 +100,7 @@ def save_plot_b():
     plt.savefig('plot_b_interpolation.png', dpi=300)
     plt.close()
 
-# 执行生成
+# Run the generation
 save_plot_a()
 save_plot_b()
 print("已成功分别生成 plot_a_grid_values.png 和 plot_b_interpolation.png")

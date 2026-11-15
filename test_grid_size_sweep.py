@@ -16,28 +16,28 @@ import ContourBasedClusteringWithoutZ22 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
 
-# ==================== 配置区域 ====================
+# ==================== Configuration ====================
 #DATASET = "data/jain.csv"
-DATASET = "data/2d_3c.csv"               # 数据集路径 (支持.csv或.mat)
+DATASET = "data/2d_3c.csv"               # Dataset path (.csv or .mat)
 
-# GRID_SIZE_START 和 GRID_SIZE_END 将自动根据数据范围计算
-# GRID_SIZE_START = 最短边 / 100
-# GRID_SIZE_END = 最短边 / 2
-GRID_SIZE_STEP = 0.01                # 步长
-MAX_BUFFER_DISTANCE = 0                 # 最大缓冲距离
-INTERPOLATION_METHOD = 'linear'         # 插值方法: linear, cubic, idw
+# GRID_SIZE_START and GRID_SIZE_END are derived from the data range
+# GRID_SIZE_START = shortest side / 100
+# GRID_SIZE_END = shortest side / 2
+GRID_SIZE_STEP = 0.01                # Step size
+MAX_BUFFER_DISTANCE = 0                 # Maximum buffer distance
+INTERPOLATION_METHOD = 'linear'         # Interpolation method: linear, cubic or idw
 
-# 归一化选项
-NORMALIZE_COORDS = True                 # 是否归一化坐标到[0,100]范围
+# Normalisation option
+NORMALIZE_COORDS = True                 # Whether to normalise coordinates to [0, 100]
 
-# 是否显示每次测试的可视化（设为False可加快速度）
+# Whether to visualise every trial (set False to speed up)
 SHOW_VISUALIZATION = False
 # ==================================================
 
-# 归一化选项
-NORMALIZE_COORDS = True                 # 是否归一化坐标到[0,1]范围
+# Normalisation option
+NORMALIZE_COORDS = True                 # Whether to normalise the coordinates to [0, 1]
 
-# 是否显示每次测试的可视化（设为False可加快速度）
+# Whether to visualise every trial (set False to speed up)
 SHOW_VISUALIZATION = False
 # ==================================================
 
@@ -56,16 +56,16 @@ def load_dataset(filepath):
     file_ext = os.path.splitext(filepath)[1].lower()
     
     if file_ext == '.csv':
-        # 读取CSV文件
+        # Read the CSV file
         df = pd.read_csv(filepath)
         X = df[['x', 'y']].values
         y_true = df['target'].values
         
     elif file_ext == '.mat':
-        # 读取MAT文件
+        # Read the MAT file
         mat_data = loadmat(filepath)
         
-        # 尝试常见的变量名
+        # Try the common attribute names
         data_array = None
         if 'd' in mat_data:
             data_array = mat_data['d']
@@ -76,7 +76,7 @@ def load_dataset(filepath):
         elif 'points' in mat_data:
             data_array = mat_data['points']
         else:
-            # 找到第一个非系统变量
+            # Take the first non-system variable
             for key in mat_data.keys():
                 if not key.startswith('__'):
                     data_array = mat_data[key]
@@ -85,17 +85,17 @@ def load_dataset(filepath):
         if data_array is None:
             raise ValueError("MAT文件中找不到数据")
         
-        # 确保是2D数组
+        # Ensure a 2-D array
         if data_array.ndim == 1:
             data_array = data_array.reshape(-1, 2)
         
-        # 提取坐标（前两列）
+        # Extract the coordinates from the first two columns
         if data_array.shape[1] >= 2:
             X = data_array[:, :2]
         else:
             raise ValueError(f"MAT文件数据维度不正确: {data_array.shape}")
         
-        # 提取标签（最后一列或单独的变量）
+        # Extract the labels from the last column or a separate variable
         if 'y' in mat_data:
             y_true = mat_data['y'].flatten()
         elif 'labels' in mat_data:
@@ -110,7 +110,7 @@ def load_dataset(filepath):
     else:
         raise ValueError(f"不支持的文件格式: {file_ext}，仅支持.csv和.mat")
     
-    # 确保数据类型正确
+    # Ensure the data types are correct
     X = np.array(X, dtype=float)
     y_true = np.array(y_true, dtype=int)
     
@@ -134,7 +134,7 @@ def normalize_coordinates(X):
     x_range = x_max - x_min
     y_range = y_max - y_min
     
-    # 归一化到[0, 100]
+    # Normalise to [0, 100]
     X_normalized = np.zeros_like(X)
     X_normalized[:, 0] = ((X[:, 0] - x_min) / x_range * 100) if x_range > 0 else 0
     X_normalized[:, 1] = ((X[:, 1] - y_min) / y_range * 100) if y_range > 0 else 0
@@ -169,10 +169,10 @@ def calculate_grid_size_range(X):
     x_range = x_max - x_min
     y_range = y_max - y_min
     
-    # 找到最短边
+    # Find the shortest side
     min_edge = min(x_range, y_range)
     
-    # 计算grid_size范围
+    # Compute the grid_size range
     # grid_size_start = min_edge / 90
     # grid_size_end = min_edge / 86
     grid_size_start = 2
@@ -206,11 +206,11 @@ class GridSizeTester:
         return inertia
     
     def test_grid_size(self, grid_size, max_buffer_distance, interpolation_method='linear'):
-        #保留3位小数
+        #Keep three decimals
         grid_size = round(grid_size, 3)
         """测试单个grid_size值"""
         try:
-            # 计算密度（使用Voronoi）
+            # Compute density with Voronoi
             points = self.coords
             vor = Voronoi(points)
             tree = cKDTree(points)
@@ -229,15 +229,15 @@ class GridSizeTester:
             #     area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
             #     density[i] = 1.0 / area if area > 0 else 0
             
-            # 准备数据
+            # Prepare data
             combined_data = [(*point, density[i], i) for i, point in enumerate(points)]
             
-            # 禁用可视化（加快速度）
+            # Disable visualisation to speed up
             import matplotlib
             if not SHOW_VISUALIZATION:
                 matplotlib.use('Agg')
             
-            # 创建聚类实例
+            # Create clustering instance
             cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
                 combined_data,
                 grid_size=grid_size,
@@ -245,20 +245,20 @@ class GridSizeTester:
 
             )
             
-            # 临时禁用交互式虚拟点生成
+            # Temporarily disable interactive virtual-point generation
 
             cluster.perform_clustering()
             
-            # 获取标签
+            # Get labels
             pred_labels = cluster.get_predicted_labels()
             
-            # 统计信息
+            # Statistics
             n_clusters = len(set(pred_labels)) - (1 if -1 in pred_labels else 0)
             n_noise = list(pred_labels).count(-1)
             
-            # 检查聚类是否有效
+            # Check whether the clustering is valid
             if n_clusters == 0:
-                # 所有点都是噪声
+                # Every point is noise
                 return {
                     'success': False,
                     'grid_size': grid_size,
@@ -266,18 +266,18 @@ class GridSizeTester:
                 }
             
             if n_clusters == 1 and n_noise == 0:
-                # 只有一个簇，没有分离
+                # A single cluster: no separation
                 return {
                     'success': False,
                     'grid_size': grid_size,
                     'error': f'只产生了一个簇，没有分离 (n_points={len(pred_labels)})'
                 }
             
-            # 计算指标
+            # Compute the metrics
             metrics = ClusteringMetrics.evaluate_all(self.true_labels, pred_labels)
             inertia = self.calculate_inertia(self.coords, pred_labels)
             
-            # 计算轮廓系数
+            # Compute the silhouette coefficient
             from sklearn.metrics import silhouette_score
             if len(set(pred_labels)) > 1:
                 mask = np.array(pred_labels) != -1
@@ -357,7 +357,7 @@ class GridSizeTester:
             print("所有测试都失败了，无法找到最佳grid_size")
             return None
         
-        # 按ARI排序
+        # Sort by ARI
         sorted_results = sorted(self.results, key=lambda x: x['ARI'], reverse=True)
         best = sorted_results[0]
         
@@ -373,7 +373,7 @@ class GridSizeTester:
         print(f"噪声点数:      {best['n_noise']}")
         print("="*80)
         
-        # 显示前5名
+        # Show the top five
         if len(sorted_results) > 1:
             print("\n前5名结果:")
             print(f"{'排名':<6} {'grid_size':<12} {'ARI':<10} {'簇数':<8} {'噪声':<8}")
@@ -404,7 +404,7 @@ class GridSizeTester:
         axes[0, 0].set_title('ARI vs grid_size')
         axes[0, 0].grid(True, alpha=0.3)
         
-        # 标记最大值
+        # Mark the maximum
         max_idx = np.argmax(aris)
         axes[0, 0].plot(grid_sizes[max_idx], aris[max_idx], 'r*', 
                        markersize=15, label=f'Max ARI={aris[max_idx]:.4f}')
@@ -424,7 +424,7 @@ class GridSizeTester:
         axes[1, 0].set_title('FMI vs grid_size')
         axes[1, 0].grid(True, alpha=0.3)
         
-        # 所有指标对比
+        # Comparison across all metrics
         axes[1, 1].plot(grid_sizes, aris, 'b-', linewidth=2, label='ARI')
         axes[1, 1].plot(grid_sizes, amis, 'g-', linewidth=2, label='AMI')
         axes[1, 1].plot(grid_sizes, fmis, 'm-', linewidth=2, label='FMI')
@@ -461,7 +461,7 @@ class GridSizeTester:
             f.write(f"测试数量: {len(self.results)}\n")
             f.write("="*80 + "\n\n")
             
-            # 详细结果
+            # Detailed results
             f.write("详细结果\n")
             f.write("-"*80 + "\n")
             f.write(f"{'grid_size':<12} {'簇数':<8} {'噪声':<8} {'ARI':<10} {'AMI':<10} "
@@ -475,7 +475,7 @@ class GridSizeTester:
             
             f.write("="*80 + "\n\n")
             
-            # 最佳结果
+            # Best result
             best = max(self.results, key=lambda x: x['ARI'])
             f.write("最佳结果（ARI最大）\n")
             f.write("-"*80 + "\n")
@@ -491,13 +491,13 @@ class GridSizeTester:
         print(f"\n结果已保存到: {filename}")
 
 
-# ==================== 主程序 ====================
+# ==================== Main program ====================
 if __name__ == "__main__":
     print("="*80)
     print("Grid Size扫描测试")
     print("="*80)
     
-    # 读取数据
+    # Read data
     print(f"\n正在加载数据集: {DATASET}")
     try:
         X, y_true = load_dataset(DATASET)
@@ -512,14 +512,14 @@ if __name__ == "__main__":
     print(f"  X范围: [{X[:, 0].min():.2f}, {X[:, 0].max():.2f}]")
     print(f"  Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
     
-    # 计算grid_size范围（在归一化之前，基于原始数据）
+    # Compute the grid_size range from the raw data, before normalisation
     grid_size_start, grid_size_end, min_edge = calculate_grid_size_range(X)
     print(f"\n自动计算grid_size范围:")
     print(f"  数据最短边: {min_edge:.3f}")
     print(f"  grid_size起始值: {grid_size_start:.3f} (最短边 / 100)")
     print(f"  grid_size结束值: {grid_size_end:.3f} (最短边 / 2)")
     
-    # 归一化坐标
+    # Normalised coordinates
     scale_info = None
     if NORMALIZE_COORDS:
         print(f"\n正在归一化坐标...")
@@ -530,22 +530,22 @@ if __name__ == "__main__":
         print(f"  归一化后Y范围: [{X[:, 1].min():.2f}, {X[:, 1].max():.2f}]")
         print(f"  缩放信息: X范围={scale_info['x_range']:.2f}, Y范围={scale_info['y_range']:.2f}")
         
-        # 归一化后重新计算grid_size范围
+        # Recompute the grid_size range after normalisation
         grid_size_start_norm, grid_size_end_norm, min_edge_norm = calculate_grid_size_range(X)
         print(f"\n归一化后grid_size范围:")
         print(f"  数据最短边: {min_edge_norm:.2f}")
         print(f"  grid_size起始值: {grid_size_start_norm:.2f} (最短边 / 100)")
         print(f"  grid_size结束值: {grid_size_end_norm:.2f} (最短边 / 2)")
         
-        # 使用归一化后的范围
+        # Use the normalised range
         grid_size_start = grid_size_start_norm
         grid_size_end = grid_size_end_norm
         min_edge = min_edge_norm
     
-    # 创建测试器
+    # Create the tester
     tester = GridSizeTester(X, y_true, normalized=NORMALIZE_COORDS, scale_info=scale_info)
     
-    # 扫描grid_size
+    # Sweep grid_size
     tester.sweep_grid_size(
         start=grid_size_start,
         end=grid_size_end,
@@ -554,14 +554,14 @@ if __name__ == "__main__":
         interpolation_method=INTERPOLATION_METHOD
     )
     
-    # 找到最佳grid_size
+    # Find the best grid_size
     best = tester.find_best_grid_size()
     
     if best:
-        # 绘制结果
+        # Plot the results
         tester.plot_results()
         
-        # 保存结果
+        # Save results
         tester.save_results(
             grid_size_start=grid_size_start,
             grid_size_end=grid_size_end,

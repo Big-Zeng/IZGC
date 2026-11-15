@@ -15,7 +15,7 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# 尝试导入MATLAB集成
+# Try to import the MATLAB bridge
 try:
     from matlab_integration import MatlabRunner
     MATLAB_AVAILABLE = True
@@ -23,17 +23,17 @@ except ImportError:
     MATLAB_AVAILABLE = False
     print("警告: matlab_integration模块未找到，MATLAB算法将不可用")
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/2d_3c.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'k': (1, 50, 1)  # 近邻数量: 从5到20，步长2
+    'k': (1, 50, 1)  # Neighbour count: 5 to 20 in steps of 2
 }
 
-# 优化目标: 'ARI', 'AMI', 'FMI', 'Silhouette'
+# Objective: 'ARI', 'AMI', 'FMI' or 'Silhouette'
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -73,7 +73,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         param_grid[name] = generate_param_values(start, end, step)
@@ -168,7 +168,7 @@ if __name__ == "__main__":
             save_path, dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/DPC-FWSN_{dataset_name}_best.txt"
         save_best_result("DPC-FWSN", dataset_name, best_params, best_metrics, txt_path)
     else:

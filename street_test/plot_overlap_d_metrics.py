@@ -57,7 +57,7 @@ D_VALUES_DESC = [6.0, 5.0, 4.0, 3.0, 2.0, 1.0]
 
 
 # ============================================================
-# Four figure specs (与噪声图对应)
+# Four figure specifications matching the noise figures
 # ============================================================
 FIGURE_SPECS = [
     {
@@ -131,7 +131,7 @@ def plot_one_metric(summary, algorithms, spec, output_dir):
     for alg in algorithms:
         sub = (
             summary[summary["Algorithm"] == alg]
-            .sort_values("d", ascending=False)   # d 从大到小
+            .sort_values("d", ascending=False)   # d in descending order
         )
         if sub.empty:
             continue
@@ -175,7 +175,7 @@ def plot_one_metric(summary, algorithms, spec, output_dir):
             label=rf"True $K={TRUE_K}$",
         )
 
-    # ---- Legend: 图外下方 ----
+    # ---- Legend: below the axes ----
     ax.legend(
         frameon=False,
         fontsize=10,

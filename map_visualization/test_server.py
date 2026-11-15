@@ -36,7 +36,7 @@ def test_clustering():
     print("="*60)
     
     params = {
-        "grid_size": 0.1,  # 使用较大的grid_size加快测试
+        "grid_size": 0.1,  # Use a larger grid_size to speed up testing
         "max_buffer_distance": 5,
         "min_cluster_size": 10
     }
@@ -94,13 +94,13 @@ def main():
     print(f"服务器地址: {BASE_URL}")
     print("="*60)
     
-    # 测试1: 获取客户数据
+    # Test 1: retrieve the customer data
     test1_passed = test_get_clients()
     
-    # 测试2: 执行聚类
+    # Test 2: run the clustering
     test2_passed = test_clustering()
     
-    # 总结
+    # Summary
     print("\n" + "="*60)
     print("测试总结")
     print("="*60)

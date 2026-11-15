@@ -108,7 +108,7 @@ for metric in metric_list:
         others = subset[subset["Algorithm"] != "IZGC"]
         score_dict = dict(zip(others["Algorithm"], others[metric]))
 
-        # 找次优
+        # Find the runner-up
         second_name = max(score_dict, key=score_dict.get)
         second_s = score_dict[second_name]
 
@@ -127,7 +127,7 @@ for metric in metric_list:
 res_df = pd.DataFrame(results)
 print(res_df.to_string())
 
-# Bonferroni校正
+# Bonferroni correction
 alpha_raw = 0.05
 n_test = len(metric_list)
 alpha_bonf = alpha_raw / n_test

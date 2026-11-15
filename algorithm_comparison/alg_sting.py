@@ -12,18 +12,18 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/ls.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = False
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'grid_size': (2, 5, 0.001),           # 网格大小：从5到25，步长2
-    'density_threshold': (1, 1, 1)    # 密度阈值：从2到12，步长2
+    'grid_size': (2, 5, 0.001),           # Grid size: 5 to 25 in steps of 2
+    'density_threshold': (1, 1, 1)    # Density threshold: 2 to 12 in steps of 2
 }
 
-# 优化目标
+# Optimisation objective
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -50,7 +50,7 @@ def run_sting(X, grid_size, density_threshold):
     grid_x = np.clip(((X[:, 0] - x_min) / grid_size).astype(int), 0, n_bins_x - 1)
     grid_y = np.clip(((X[:, 1] - y_min) / grid_size).astype(int), 0, n_bins_y - 1)
     
-    # 计算每个网格的统计信息
+    # Compute the statistics of each cell
     grid_stats = {}
     
     for i, (gx, gy) in enumerate(zip(grid_x, grid_y)):
@@ -70,7 +70,7 @@ def run_sting(X, grid_size, density_threshold):
         grid_stats[key]['sum_x2'] += X[i, 0] ** 2
         grid_stats[key]['sum_y2'] += X[i, 1] ** 2
     
-    # 计算统计量
+    # Compute the statistics
     for key in grid_stats:
         n = grid_stats[key]['count']
         if n > 0:
@@ -81,10 +81,10 @@ def run_sting(X, grid_size, density_threshold):
             grid_stats[key]['mean'] = (mean_x, mean_y)
             grid_stats[key]['var'] = (var_x, var_y)
     
-    # 找出密集网格
+    # Find dense cells
     dense_grids = {k: v for k, v in grid_stats.items() if v['count'] >= density_threshold}
     
-    # 层次聚合
+    # Hierarchical aggregation
     labels = np.full(len(X), -1)
     cluster_id = 0
     visited = set()
@@ -127,7 +127,7 @@ def grid_search(X, y_true, param_ranges, optimize_metric='ARI'):
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值，grid_size保留3位小数
+    # Generate parameter values with grid_size rounded to three decimals
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         values = generate_param_values(start, end, step)
@@ -209,7 +209,7 @@ if __name__ == "__main__":
             save_path, dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/STING_{dataset_name}_best.txt"
         save_best_result("STING", dataset_name, best_params, best_metrics, txt_path)
     else:

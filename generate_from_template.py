@@ -5,11 +5,11 @@
 import os
 import re
 
-# 读取DBSCAN模板
+# Read the DBSCAN template
 with open('algorithm_comparison/run_dbscan_unsupervised.py', 'r', encoding='utf-8') as f:
     template = f.read()
 
-# 算法配置
+# Algorithm configuration
 algorithms = {
     'run_kmeans_unsupervised.py': {
         'name': 'KMeans',
@@ -57,7 +57,7 @@ algorithms = {
     'n_init': (10, 50, 10)
 }""",
         'progress_mod': 20,
-        'special': 'gmm'  # GMM需要特殊处理covariance_type
+        'special': 'gmm'  # GMM needs special handling of covariance_type
     },
     'run_bang_unsupervised.py': {
         'name': 'BANG',
@@ -76,23 +76,23 @@ algorithms = {
 for filename, config in algorithms.items():
     print(f"\n生成 {filename}...")
     
-    # 替换基本信息
+    # Replace the basic information
     content = template.replace('DBSCAN', config['name'])
     content = content.replace('run_dbscan', config['import_func'])
     content = content.replace('from algorithm_comparison.alg_dbscan import run_dbscan',
                             f"from algorithm_comparison.{config['import_module']} import {config['import_func']}{config.get('additional_import', '')}")
     
-    # 只在标题中使用display_name
+    # Use display_name in the title only
     content = re.sub(
         r'print\("DBSCAN 聚类算法 - 无监督版本"\)',
         f'print("{config["display_name"]} 聚类算法 - 无监督版本")',
         content, count=1
     )
     
-    # 替换参数范围（保留原有配置）
-    # 我们不替换PARAM_RANGES，保持用户已设置的参数
+    # Replace the parameter ranges, keeping the rest of the configuration
+    # PARAM_RANGES is left untouched so that the user settings survive
     
-    # 替换进度显示频率
+    # Replace the progress-report interval
     if 'progress_mod' in config:
         content = re.sub(
             r'if i % \d+ == 0 or i == total:',
@@ -100,7 +100,7 @@ for filename, config in algorithms.items():
             content
         )
     
-    # 保存文件（备份原文件）
+    # Save the file, keeping a backup of the original
     output_path = f'algorithm_comparison/{filename}'
     if os.path.exists(output_path):
         backup_path = f'algorithm_comparison/{filename}.backup'

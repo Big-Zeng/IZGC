@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 简单的测试函数
+# Simple test function
 def calculate_auto_grid_size(coords, grid_multiplier=2.0):
     """
     自动计算grid_size
@@ -20,23 +20,23 @@ def calculate_auto_grid_size(coords, grid_multiplier=2.0):
     """
     n_points = len(coords)
     
-    # 计算包裹所有点的矩形
+    # Compute the bounding rectangle of all points
     x_min, y_min = coords.min(axis=0)
     x_max, y_max = coords.max(axis=0)
     
     width = x_max - x_min
     height = y_max - y_min
     
-    # 矩形面积
+    # Rectangle area
     area = width * height
     
-    # 目标格子数量
+    # Target number of cells
     target_grid_count = n_points * grid_multiplier
     
-    # 计算grid_size
+    # Compute grid_size
     grid_size = np.sqrt(area / target_grid_count)
     
-    # 实际格子数
+    # Actual number of cells
     actual_grid_count = int(width / grid_size) * int(height / grid_size)
     
     return {
@@ -59,29 +59,29 @@ def visualize_grid(coords, grid_size, title="Grid Visualization"):
     x_min, y_min = coords.min(axis=0)
     x_max, y_max = coords.max(axis=0)
     
-    # 扩展边界
+    # Expand the extent
     x_start = x_min - 2 * grid_size
     x_end = x_max + 2 * grid_size
     y_start = y_min - 2 * grid_size
     y_end = y_max + 2 * grid_size
     
-    # 创建网格线
+    # Create the grid lines
     x_ticks = np.arange(x_start, x_end + grid_size, grid_size)
     y_ticks = np.arange(y_start, y_end + grid_size, grid_size)
     
-    # 绘图
+    # Plot
     plt.figure(figsize=(10, 8))
     
-    # 绘制网格线
+    # Draw the grid lines
     for x in x_ticks:
         plt.axvline(x, color='gray', linestyle='--', linewidth=0.5, alpha=0.5)
     for y in y_ticks:
         plt.axhline(y, color='gray', linestyle='--', linewidth=0.5, alpha=0.5)
     
-    # 绘制点
+    # Plot the points
     plt.scatter(coords[:, 0], coords[:, 1], c='red', s=50, zorder=5, label='数据点')
     
-    # 绘制边界矩形
+    # Draw the bounding rectangle
     plt.plot([x_min, x_max, x_max, x_min, x_min],
              [y_min, y_min, y_max, y_max, y_min],
              'b-', linewidth=2, label='数据边界')
@@ -101,7 +101,7 @@ def test_dataset(dataset_name, dataset_file, multipliers=[1.0, 2.0, 3.0]):
     print(f"测试数据集: {dataset_name}")
     print("=" * 80)
     
-    # 读取数据
+    # Read data
     df = pd.read_csv(dataset_file)
     coords = df[['x', 'y']].values
     
@@ -110,7 +110,7 @@ def test_dataset(dataset_name, dataset_file, multipliers=[1.0, 2.0, 3.0]):
     print(f"  X范围: [{coords[:, 0].min():.2f}, {coords[:, 0].max():.2f}]")
     print(f"  Y范围: [{coords[:, 1].min():.2f}, {coords[:, 1].max():.2f}]")
     
-    # 测试不同的multiplier
+    # Test several multipliers
     results = []
     for multiplier in multipliers:
         result = calculate_auto_grid_size(coords, multiplier)
@@ -123,7 +123,7 @@ def test_dataset(dataset_name, dataset_file, multipliers=[1.0, 2.0, 3.0]):
         print(f"  误差: {abs(result['actual_grids'] - result['target_grids']):.0f} "
               f"({abs(result['actual_grids'] - result['target_grids']) / result['target_grids'] * 100:.1f}%)")
     
-    # 可视化推荐的grid_size（multiplier=2.0）
+    # Visualise the recommended grid_size (multiplier = 2.0)
     recommended = results[1] if len(results) > 1 else results[0]
     visualize_grid(coords, recommended['grid_size'],
                   f"{dataset_name} - grid_size={recommended['grid_size']:.4f} (倍数=2.0)")
@@ -168,18 +168,18 @@ def compare_multipliers():
 if __name__ == "__main__":
     print("自动计算grid_size功能测试\n")
     
-    # 测试1: 单个数据集详细测试
+    # Test 1: detailed test on a single dataset
     try:
         test_dataset('jain', 'data/jain.csv', multipliers=[1.0, 2.0, 3.0])
         plt.show()
     except FileNotFoundError:
         print("错误: data/flame.csv 未找到")
     
-    # 测试2: 对比不同数据集和倍数
+    # Test 2: compare datasets and multipliers
     print("\n")
     compare_multipliers()
     
-    # 测试3: 推荐配置
+    # Test 3: recommended configuration
     print("\n" + "=" * 80)
     print("推荐配置")
     print("=" * 80)

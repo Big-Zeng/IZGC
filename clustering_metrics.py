@@ -57,33 +57,33 @@ class ClusteringMetrics:
         """
         contingency, _, _ = ClusteringMetrics.contingency_table(true_labels, pred_labels)
         
-        # 计算各项统计量
+        # Compute the statistics
         n = np.sum(contingency)
         
-        # 行和列的和
+        # Row and column sums
         sum_rows = np.sum(contingency, axis=1)
         sum_cols = np.sum(contingency, axis=0)
         
-        # 计算组合数
-        # C(n_ij, 2) 的和
+        # Compute the binomial coefficient
+        # Sum of C(n_ij, 2)
         sum_comb_c = np.sum(comb(contingency, 2))
         
-        # C(a_i, 2) 的和
+        # Sum of C(a_i, 2)
         sum_comb_rows = np.sum(comb(sum_rows, 2))
         
-        # C(b_j, 2) 的和
+        # Sum of C(b_j, 2)
         sum_comb_cols = np.sum(comb(sum_cols, 2))
         
         # C(n, 2)
         comb_n = comb(n, 2)
         
-        # 计算期望值
+        # Compute the expected value
         expected_index = sum_comb_rows * sum_comb_cols / comb_n
         
-        # 计算最大值
+        # Compute the maximum
         max_index = (sum_comb_rows + sum_comb_cols) / 2.0
         
-        # 计算ARI
+        # Compute ARI
         if max_index - expected_index == 0:
             return 0.0
         
@@ -107,11 +107,11 @@ class ClusteringMetrics:
         
         n = np.sum(contingency)
         
-        # 行和列的和
+        # Row and column sums
         sum_rows = np.sum(contingency, axis=1)
         sum_cols = np.sum(contingency, axis=0)
         
-        # 计算MI
+        # Compute MI
         mi = 0.0
         for i in range(contingency.shape[0]):
             for j in range(contingency.shape[1]):
@@ -162,18 +162,18 @@ class ClusteringMetrics:
         
         n = np.sum(contingency)
         
-        # 行和列的和
+        # Row and column sums
         sum_rows = np.sum(contingency, axis=1)
         sum_cols = np.sum(contingency, axis=0)
         
-        # 计算MI
+        # Compute MI
         mi = ClusteringMetrics.mutual_information(true_labels, pred_labels)
         
-        # 计算熵
+        # Compute the entropy
         h_true = ClusteringMetrics.entropy(true_labels)
         h_pred = ClusteringMetrics.entropy(pred_labels)
         
-        # 计算期望互信息 (EMI)
+        # Compute the expected mutual information (EMI)
         emi = 0.0
         for i in range(len(sum_rows)):
             for j in range(len(sum_cols)):
@@ -181,7 +181,7 @@ class ClusteringMetrics:
                 max_nij = min(sum_rows[i], sum_cols[j])
                 
                 for nij in range(int(min_nij), int(max_nij) + 1):
-                    # 计算超几何分布的概率
+                    # Compute the hypergeometric probability
                     prob = (comb(sum_rows[i], nij, exact=True) * 
                            comb(n - sum_rows[i], sum_cols[j] - nij, exact=True) / 
                            comb(n, sum_cols[j], exact=True))
@@ -189,11 +189,11 @@ class ClusteringMetrics:
                     if prob > 0 and nij > 0:
                         emi += (nij / n) * np.log((nij * n) / (sum_rows[i] * sum_cols[j])) * prob
         
-        # 计算AMI
+        # Compute AMI
         denominator = max(h_true, h_pred) - emi
         
         if abs(denominator) < 1e-10:
-            # 如果分母接近0，返回NMI
+            # Return the NMI when the denominator approaches zero
             if h_true * h_pred == 0:
                 return 0.0
             return mi / np.sqrt(h_true * h_pred)
@@ -221,11 +221,11 @@ class ClusteringMetrics:
         
         n = np.sum(contingency)
         
-        # 计算每个真实类别的样本数
+        # Count the samples of each true class
         sum_rows = np.sum(contingency, axis=1)  # P_j
         sum_cols = np.sum(contingency, axis=0)  # C_i
         
-        # 计算precision和recall
+        # Compute precision and recall
         # precision[i,j] = contingency[i,j] / sum_cols[j]
         # recall[i,j] = contingency[i,j] / sum_rows[i]
         
@@ -240,19 +240,19 @@ class ClusteringMetrics:
                 if sum_rows[i] > 0:
                     recall[i, j] = contingency[i, j] / sum_rows[i]
                 
-                # 计算F值
+                # Compute the F value
                 if precision[i, j] + recall[i, j] > 0:
                     f_matrix[i, j] = (2 * precision[i, j] * recall[i, j] / 
                                      (precision[i, j] + recall[i, j]))
         
-        # 对每个真实类别，选择最大的F值
+        # Take the highest F value for each true class
         max_f_per_class = np.max(f_matrix, axis=1)
         
-        # 加权平均
+        # Weighted average
         weights = sum_rows / n
         f_measure = np.sum(weights * max_f_per_class)
         
-        # 计算准确率
+        # Compute the accuracy
         max_per_pred_class = np.max(contingency, axis=0)
         accuracy = np.sum(max_per_pred_class) / n
         
@@ -273,20 +273,20 @@ class ClusteringMetrics:
         """
         contingency, _, _ = ClusteringMetrics.contingency_table(true_labels, pred_labels)
         
-        # 计算TP (True Positives): 同一真实类别且同一预测类别的点对数
+        # TP (true positives): point pairs sharing both the true and the predicted class
         tp = np.sum(comb(contingency, 2))
         
-        # 计算FP (False Positives): 不同真实类别但同一预测类别的点对数
+        # FP (false positives): point pairs of different true classes sharing a predicted class
         # FP = sum_j C(n_j, 2) - TP
         sum_cols = np.sum(contingency, axis=0)
         fp = np.sum(comb(sum_cols, 2)) - tp
         
-        # 计算FN (False Negatives): 同一真实类别但不同预测类别的点对数
+        # FN (false negatives): point pairs of one true class split across predicted classes
         # FN = sum_i C(n_i, 2) - TP
         sum_rows = np.sum(contingency, axis=1)
         fn = np.sum(comb(sum_rows, 2)) - tp
         
-        # 计算FMI
+        # Compute FMI
         denominator = np.sqrt((tp + fp) * (tp + fn))
         
         if denominator == 0:
@@ -330,16 +330,16 @@ class ClusteringMetrics:
         return result
 
 
-# 示例使用
+# Example usage
 if __name__ == "__main__":
-    # 测试数据
+    # Test data
     true_labels = [0, 0, 0, 1, 1, 1, 2, 2, 2]
     pred_labels = [0, 0, 1, 1, 1, 1, 2, 2, 2]
     
     print("聚类评估指标测试:")
     print("-" * 50)
     
-    # 计算各项指标
+    # Compute the metrics
     metrics = ClusteringMetrics.evaluate_all(true_labels, pred_labels)
     
     print(f"AMI (Adjusted Mutual Information): {metrics['AMI']:.4f}")

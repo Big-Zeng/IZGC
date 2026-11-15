@@ -8,7 +8,7 @@ import socketserver
 import webbrowser
 import os
 
-# 配置
+# Configuration
 PORT = 8000
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,7 +17,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
     
     def end_headers(self):
-        # 添加CORS头
+        # Add the CORS headers
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
@@ -38,18 +38,18 @@ def start_server():
             print("\n按 Ctrl+C 停止服务器")
             print("="*60)
             
-            # 自动打开浏览器
+            # Open the browser automatically
             url = f"http://localhost:{PORT}/client_map_baidu.html"
             print(f"\n正在打开浏览器: {url}")
             webbrowser.open(url)
             
-            # 启动服务器
+            # Start the server
             httpd.serve_forever()
             
     except KeyboardInterrupt:
         print("\n\n服务器已停止")
     except OSError as e:
-        if e.errno == 10048:  # 端口已被占用
+        if e.errno == 10048:  # The port is already in use
             print(f"\n错误: 端口 {PORT} 已被占用")
             print(f"请尝试:")
             print(f"  1. 关闭占用端口的程序")

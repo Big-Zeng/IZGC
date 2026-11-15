@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from optimize_grid_size import GridSizeOptimizer
 
-# 测试数据集
+# Test datasets
 DATASETS = [
     "data/flame.csv",
     "data/jain.csv",
@@ -20,7 +20,7 @@ def test_single_dataset(dataset_path):
     print(f"测试数据集: {dataset_path}")
     print("=" * 80)
     
-    # 读取数据
+    # Read data
     df = pd.read_csv(dataset_path)
     X = df[['x', 'y']].values
     y_true = df['target'].values
@@ -28,14 +28,14 @@ def test_single_dataset(dataset_path):
     print(f"样本数: {len(X)}")
     print(f"真实簇数: {len(np.unique(y_true))}")
     
-    # 创建优化器
+    # Create the optimiser
     optimizer = GridSizeOptimizer(X, y_true, max_buffer_distance=5)
     
     print(f"\n初始grid_size: {optimizer.initial_grid_size:.4f}")
     
-    # 运行优化
+    # Run the optimisation
     best_grid_size, best_ari, best_labels = optimizer.optimize(
-        initial_step=None,      # 自动设置
+        initial_step=None,      # Set automatically
         min_step=0.01,
         step_decay=0.5,
         max_iterations=15,
@@ -44,7 +44,7 @@ def test_single_dataset(dataset_path):
         verbose=True
     )
     
-    # 打印历史
+    # Print the history
     optimizer.print_history()
     
     return optimizer, best_grid_size, best_ari
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     
     results = []
     
-    # 测试第一个数据集（详细输出）
+    # Test the first dataset with detailed output
     optimizer, best_grid_size, best_ari = test_single_dataset(DATASETS[0])
     results.append({
         'dataset': DATASETS[0],
@@ -66,11 +66,11 @@ if __name__ == "__main__":
         'best_ari': best_ari
     })
     
-    # 绘制优化过程
+    # Plot the optimisation trace
     print("\n绘制优化过程...")
     optimizer.plot_history()
     
-    # 汇总结果
+    # Summarise the results
     print("\n" + "=" * 80)
     print("优化结果汇总")
     print("=" * 80)

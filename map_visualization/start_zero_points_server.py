@@ -5,13 +5,13 @@
 import os
 import sys
 
-# 切换到正确的目录
+# Switch to the correct directory
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# 添加父目录到路径
+# Add the parent directory to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# 导入并运行服务器
+# Import and start the server
 from clustering_server_with_zero_points import app
 
 if __name__ == '__main__':

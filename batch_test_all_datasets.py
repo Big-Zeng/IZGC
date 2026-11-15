@@ -15,7 +15,7 @@ from datetime import datetime
 import ContourBasedClusteringWithoutZ3 as ContourBasedClusteringWithoutZ
 from clustering_metrics import ClusteringMetrics
 
-# 尝试导入MATLAB集成
+# Try to import the MATLAB bridge
 try:
     from matlab_integration import MatlabRunner
     MATLAB_AVAILABLE = True
@@ -24,12 +24,12 @@ except ImportError:
     print("警告: matlab_integration模块未找到，MATLAB算法将被跳过")
 
 
-# ==================== 配置区域 ====================
-DATA_FOLDER = "data"                    # 数据文件夹
-OUTPUT_FOLDER = "results"               # 结果输出文件夹
-OUTPUT_FILE = "clustering_results.txt"  # 结果文件名
+# ==================== Configuration ====================
+DATA_FOLDER = "data"                    # Data folder
+OUTPUT_FOLDER = "results"               # Result output folder
+OUTPUT_FILE = "clustering_results.txt"  # Result filename
 
-# 算法参数配置
+# Algorithm parameter settings
 ALGORITHMS_CONFIG = {
     'KMeans': {
         'enabled': True,
@@ -48,21 +48,21 @@ ALGORITHMS_CONFIG = {
     'Contour-Based': {
         'enabled': True,
         'params': {
-            'grid_size': None,              # None表示自动计算
+            'grid_size': None,              # None computes it automatically
             'max_buffer_distance': 5,
             'auto_grid_multiplier': 2.0,
-            'optimize_grid': False          # 是否优化grid_size
+            'optimize_grid': False          # Whether to optimise grid_size
         }
     },
     'MATLAB-Algorithm_PR': {
-        'enabled': True,                    # 设为False可跳过MATLAB算法
+        'enabled': True,                    # Set False to skip the MATLAB algorithms
         'params': {
-            'k': 11,                        # 近邻数量
+            'k': 11,                        # Number of neighbours
         }
     }
 }
 
-# 是否显示详细输出（设为False可加快运行速度）
+# Whether to print detailed output (set False to run faster)
 VERBOSE = False
 # ==================================================
 
@@ -75,11 +75,11 @@ class BatchTester:
         self.output_folder = output_folder
         self.matlab_runner = None
         
-        # 创建输出文件夹
+        # Create the output folder
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
         
-        # 初始化MATLAB运行器
+        # Initialise the MATLAB runner
         if MATLAB_AVAILABLE and ALGORITHMS_CONFIG['MATLAB-Algorithm_PR']['enabled']:
             try:
                 self.matlab_runner = MatlabRunner(method='auto')
@@ -192,7 +192,7 @@ class BatchTester:
     def run_contour(self, X, y_true, params):
         """运行Contour-Based聚类"""
         try:
-            # 计算grid_size
+            # Compute grid_size
             if params.get('optimize_grid', False):
                 from optimize_grid_size import GridSizeOptimizer
                 optimizer = GridSizeOptimizer(X, y_true, params['max_buffer_distance'])
@@ -210,7 +210,7 @@ class BatchTester:
             else:
                 grid_size = params['grid_size']
             
-            # 计算密度
+            # Compute density
             vor = Voronoi(X)
             density = np.zeros(len(X))
             
@@ -226,12 +226,12 @@ class BatchTester:
                 area = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
                 density[i] = 1.0 / area if area > 0 else 0
             
-            # 准备数据
+            # Prepare data
             combined_data = [(*point, density[i], i) for i, point in enumerate(X)]
             
-            # 运行聚类（禁用可视化）
+            # Run clustering with visualisation disabled
             import matplotlib
-            matplotlib.use('Agg')  # 使用非交互式后端
+            matplotlib.use('Agg')  # Use a non-interactive backend
             
             cluster = ContourBasedClusteringWithoutZ.ContourBasedClusteringWithoutZ(
                 combined_data,
@@ -239,10 +239,10 @@ class BatchTester:
                 max_buffer_distance=params['max_buffer_distance']
             )
             
-            # 临时禁用可视化
+            # Temporarily disable visualisation
             original_generate = cluster.generate_virtual_points
             def silent_generate():
-                # 简化版本，不显示交互窗口
+                # Simplified version without the interactive window
                 if not cluster.actual_points:
                     return []
                 
@@ -285,11 +285,11 @@ class BatchTester:
             
             cluster.generate_virtual_points = silent_generate
             
-            # 执行聚类
+            # Run clustering
             cluster.perform_clustering()
             labels = cluster.get_predicted_labels()
             
-            # 计算指标
+            # Compute the metrics
             inertia = self.calculate_inertia(X, labels)
             
             if len(set(labels)) > 1:
@@ -327,10 +327,10 @@ class BatchTester:
             return {'success': False, 'error': 'MATLAB运行器未初始化'}
         
         try:
-            # 准备数据 [x, y, label]
+            # Prepare data as [x, y, label]
             data_with_labels = np.column_stack([X, y_true])
             
-            # 运行算法
+            # Run the algorithm
             labels, matlab_metrics = self.matlab_runner.run_algorithm_pr(
                 data_with_labels, n_clusters, params['k']
             )
@@ -338,7 +338,7 @@ class BatchTester:
             if labels is None:
                 return {'success': False, 'error': 'MATLAB算法执行失败'}
             
-            # 计算额外指标
+            # Compute the additional metrics
             inertia = self.calculate_inertia(X, labels)
             
             if len(set(labels)) > 1:
@@ -367,7 +367,7 @@ class BatchTester:
         print(f"测试数据集: {filename}")
         print(f"{'='*80}")
         
-        # 加载数据
+        # Load data
         X, y_true = self.load_dataset(filepath)
         n_true_clusters = len(np.unique(y_true))
         
@@ -380,7 +380,7 @@ class BatchTester:
             'algorithms': {}
         }
         
-        # 测试KMeans
+        # Test K-means
         if ALGORITHMS_CONFIG['KMeans']['enabled']:
             print("  运行 KMeans...", end=' ')
             start_time = time.time()
@@ -394,7 +394,7 @@ class BatchTester:
             else:
                 print(f"失败: {result['error']}")
         
-        # 测试DBSCAN
+        # Test DBSCAN
         if ALGORITHMS_CONFIG['DBSCAN']['enabled']:
             print("  运行 DBSCAN...", end=' ')
             start_time = time.time()
@@ -408,7 +408,7 @@ class BatchTester:
             else:
                 print(f"失败: {result['error']}")
         
-        # 测试Contour-Based
+        # Test contour-based clustering
         if ALGORITHMS_CONFIG['Contour-Based']['enabled']:
             print("  运行 Contour-Based...", end=' ')
             start_time = time.time()
@@ -422,7 +422,7 @@ class BatchTester:
             else:
                 print(f"失败: {result['error']}")
         
-        # 测试MATLAB Algorithm_PR
+        # Test MATLAB Algorithm_PR
         if ALGORITHMS_CONFIG['MATLAB-Algorithm_PR']['enabled'] and MATLAB_AVAILABLE:
             print("  运行 MATLAB Algorithm_PR...", end=' ')
             start_time = time.time()
@@ -443,7 +443,7 @@ class BatchTester:
         filepath = os.path.join(self.output_folder, output_file)
         
         with open(filepath, 'w', encoding='utf-8') as f:
-            # 写入标题
+            # Write the title
             f.write("="*100 + "\n")
             f.write("聚类算法批量测试结果\n")
             f.write("="*100 + "\n")
@@ -452,7 +452,7 @@ class BatchTester:
             f.write(f"算法: {', '.join([k for k, v in ALGORITHMS_CONFIG.items() if v['enabled']])}\n")
             f.write("="*100 + "\n\n")
             
-            # 写入每个数据集的详细结果
+            # Write the detailed results of each dataset
             for result in all_results:
                 f.write(f"\n{'='*100}\n")
                 f.write(f"数据集: {result['filename']}\n")
@@ -482,17 +482,17 @@ class BatchTester:
                 
                 f.write(f"\n")
             
-            # 写入汇总表格
+            # Write the summary table
             f.write(f"\n{'='*100}\n")
             f.write("汇总对比表\n")
             f.write(f"{'='*100}\n\n")
             
-            # 表头
+            # Header
             f.write(f"{'数据集':<20} {'算法':<20} {'ARI':<10} {'AMI':<10} {'FMI':<10} "
                    f"{'Silhouette':<12} {'时间(s)':<10}\n")
             f.write(f"{'-'*100}\n")
             
-            # 数据行
+            # Data rows
             for result in all_results:
                 for algo_name, algo_result in result['algorithms'].items():
                     if algo_result['success']:
@@ -507,7 +507,7 @@ class BatchTester:
             
             f.write(f"{'='*100}\n")
             
-            # 计算平均值
+            # Compute the mean
             f.write(f"\n平均性能指标\n")
             f.write(f"{'-'*100}\n")
             
@@ -543,18 +543,18 @@ class BatchTester:
         print("开始批量测试")
         print("="*80)
         
-        # 获取所有数据集
+        # Collect all datasets
         datasets = self.get_dataset_files()
         print(f"找到 {len(datasets)} 个数据集")
         
-        # 测试每个数据集
+        # Test every dataset
         all_results = []
         for i, (filename, filepath) in enumerate(datasets, 1):
             print(f"\n[{i}/{len(datasets)}]", end=' ')
             result = self.test_dataset(filename, filepath)
             all_results.append(result)
         
-        # 保存结果
+        # Save results
         print(f"\n{'='*80}")
         print("保存结果...")
         self.save_results(all_results, OUTPUT_FILE)
@@ -563,7 +563,7 @@ class BatchTester:
         print("批量测试完成！")
         print(f"{'='*80}")
         
-        # 关闭MATLAB运行器
+        # Close the MATLAB runner
         if self.matlab_runner:
             try:
                 self.matlab_runner.close()
@@ -574,12 +574,12 @@ class BatchTester:
         return all_results
 
 
-# ==================== 主程序 ====================
+# ==================== Main program ====================
 if __name__ == "__main__":
-    # 创建测试器
+    # Create the tester
     tester = BatchTester(DATA_FOLDER, OUTPUT_FOLDER)
     
-    # 运行批量测试
+    # Run the batch tests
     results = tester.run_batch_test()
     
     print(f"\n测试完成！共测试 {len(results)} 个数据集")

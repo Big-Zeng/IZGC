@@ -98,7 +98,7 @@ IZGC_PARAMS = {
 
 
 
-# 固定参数
+# Fixed parameters
 MAX_BUFFER_DISTANCE = 0
 
 MIN_CLUSTER_SIZE = 5

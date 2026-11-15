@@ -16,16 +16,16 @@ def polygon_concave_vertices(poly):
         v2 = p_next - p_curr
 
         cross = v1[0]*v2[1] - v1[1]*v2[0]
-        if cross < 0:  # 凹点
+        if cross < 0:  # Concave vertex
             concave.append(p_curr)
 
     return np.array(concave)
 
 
-# ===== 示例：从等值线中取一个 path =====
+# ===== Example: take one path from the contours =====
 fig, ax = plt.subplots()
 
-# 随便搞个函数
+# Placeholder function
 x = np.linspace(-2, 2, 200)
 y = np.linspace(-2, 2, 200)
 X, Y = np.meshgrid(x, y)
@@ -34,10 +34,10 @@ Z = np.sin(X) + np.cos(Y)
 cs = ax.contour(X, Y, Z, levels=[0.2])
 paths = cs.get_paths()
 poly = paths[0].verticesll
-# 找多边形凹点
+# Locate the concave vertex of the polygon
 concave = polygon_concave_vertices(poly)
 
-# 显示结果
+# Show the results
 ax.plot(poly[:,0], poly[:,1], '-k')
 ax.scatter(concave[:,0], concave[:,1], color='red', s=40)
 

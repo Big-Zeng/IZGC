@@ -11,20 +11,20 @@ print("="*80)
 print("按城市和区域分割客户数据")
 print("="*80)
 
-# 读取客户数据
+# Read the customer data
 print("\n正在读取客户数据...")
 with open('client_data.json', 'r', encoding='utf-8') as f:
     clients = json.load(f)
 
 print(f"✓ 加载了 {len(clients)} 个客户")
 
-# 创建输出目录
+# Create the output directory
 output_dir = 'client_data_by_city'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
     print(f"✓ 创建输出目录: {output_dir}")
 
-# 按城市分组
+# Group by city
 city_groups = defaultdict(list)
 city_area_groups = defaultdict(lambda: defaultdict(list))
 
@@ -32,34 +32,34 @@ for client in clients:
     city = client.get('city', '未知城市')
     area = client.get('area', '未知区域')
     
-    # 按城市分组
+    # Group by city
     city_groups[city].append(client)
     
-    # 按城市+区域分组
+    # Group by city and district
     city_area_groups[city][area].append(client)
 
-# 统计信息
+# Statistics
 print(f"\n发现 {len(city_groups)} 个城市")
 print(f"发现 {sum(len(areas) for areas in city_area_groups.values())} 个城市-区域组合")
 
-# 保存按城市分组的数据
+# Save the data grouped by city
 print("\n" + "="*80)
 print("保存按城市分组的数据")
 print("="*80)
 
 city_stats = []
 for city, city_clients in sorted(city_groups.items(), key=lambda x: len(x[1]), reverse=True):
-    # 保存JSON文件
+    # Save the JSON file
     filename = f"{output_dir}/{city}.json"
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(city_clients, f, ensure_ascii=False, indent=2)
     
-    # 保存CSV文件（用于聚类算法）
+    # Save the CSV file used by the clustering algorithms
     csv_filename = f"{output_dir}/{city}.csv"
     with open(csv_filename, 'w', encoding='utf-8') as f:
-        # 写入表头
+        # Write the header
         f.write("lon,lat,id,name,degree,city,area,street\n")
-        # 写入数据
+        # Write the data
         for client in city_clients:
             f.write(f"{client['lon']},{client['lat']},{client['id']},{client['name']},"
                    f"{client.get('degree', '')},"
@@ -78,12 +78,12 @@ for city, city_clients in sorted(city_groups.items(), key=lambda x: len(x[1]), r
     print(f"  - JSON: {filename}")
     print(f"  - CSV:  {csv_filename}")
 
-# 保存按城市+区域分组的数据
+# Save the data grouped by city and district
 print("\n" + "="*80)
 print("保存按城市+区域分组的数据")
 print("="*80)
 
-# 创建城市-区域子目录
+# Create the city-and-district subdirectories
 city_area_dir = f"{output_dir}/by_area"
 if not os.path.exists(city_area_dir):
     os.makedirs(city_area_dir)
@@ -94,21 +94,21 @@ for city in sorted(city_area_groups.keys(), key=lambda x: (x is None, x)):
     print(f"\n城市: {city if city else '未知城市'}")
     
     for area, area_clients in sorted(areas.items(), key=lambda x: len(x[1]), reverse=True):
-        # 创建安全的文件名
+        # Build a safe filename
         safe_city = (city if city else '未知城市').replace('/', '_').replace('\\', '_')
         safe_area = (area if area else '未知区域').replace('/', '_').replace('\\', '_')
         
-        # 保存JSON文件
+        # Save the JSON file
         filename = f"{city_area_dir}/{safe_city}_{safe_area}.json"
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(area_clients, f, ensure_ascii=False, indent=2)
         
-        # 保存CSV文件
+        # Save the CSV file
         csv_filename = f"{city_area_dir}/{safe_city}_{safe_area}.csv"
         with open(csv_filename, 'w', encoding='utf-8') as f:
-            # 写入表头
+            # Write the header
             f.write("lon,lat,id,name,degree,city,area,street\n")
-            # 写入数据
+            # Write the data
             for client in area_clients:
                 f.write(f"{client['lon']},{client['lat']},{client['id']},{client['name']},"
                        f"{client.get('degree', '')},"
@@ -126,7 +126,7 @@ for city in sorted(city_area_groups.keys(), key=lambda x: (x is None, x)):
         
         print(f"  ✓ {area}: {len(area_clients)} 个客户")
 
-# 生成统计报告
+# Produce the statistics report
 print("\n" + "="*80)
 print("生成统计报告")
 print("="*80)
@@ -155,14 +155,14 @@ for stat in sorted(area_stats, key=lambda x: x['count'], reverse=True)[:20]:
     report_lines.append(f"| {stat['city']} | {stat['area']} | {stat['count']} | "
                        f"{percentage:.2f}% | {stat['json_file']} |\n")
 
-# 保存报告
+# Save the report
 report_file = f"{output_dir}/分组统计报告.md"
 with open(report_file, 'w', encoding='utf-8') as f:
     f.writelines(report_lines)
 
 print(f"✓ 统计报告已保存: {report_file}")
 
-# 生成索引文件
+# Write the index file
 print("\n生成索引文件...")
 index_data = {
     'total_clients': len(clients),
@@ -178,7 +178,7 @@ with open(index_file, 'w', encoding='utf-8') as f:
 
 print(f"✓ 索引文件已保存: {index_file}")
 
-# 打印摘要
+# Print the summary
 print("\n" + "="*80)
 print("分组完成摘要")
 print("="*80)

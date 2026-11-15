@@ -5,13 +5,13 @@
 import pandas as pd
 import numpy as np
 
-# 读取CSV文件
+# Read the CSV file
 
 df = pd.read_csv('data/2d_3c.csv')
 
 print(f"✓ 读取成功，共 {len(df)} 个点")
 
-# 提取数据
+# Extract the data
 x = df['x'].values
 y = df['y'].values
 target = df['target'].values
@@ -19,13 +19,13 @@ target = df['target'].values
 print(f"  原始target范围: [{target.min()}, {target.max()}]")
 print(f"  原始簇数: {len(np.unique(target))}")
 
-# 将target值+1
+# Shift the target values by +1
 target_new = target + 1
 
 print(f"  新target范围: [{target_new.min()}, {target_new.max()}]")
 print(f"  新簇数: {len(np.unique(target_new))}")
 
-# 保存为txt文件（空格分隔）
+# Save as a space-separated txt file
 output_file = 'data/2d_3c.txt'
 with open(output_file, 'w') as f:
     for i in range(len(x)):
@@ -33,7 +33,7 @@ with open(output_file, 'w') as f:
 
 print(f"\n✓ 已保存为 {output_file} (空格分隔)")
 
-# 显示前几行
+# Show the first rows
 print("\n前5行数据:")
 for i in range(min(5, len(x))):
     print(f"{x[i]} {y[i]} {target_new[i]}")

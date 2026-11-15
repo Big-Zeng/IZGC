@@ -21,18 +21,18 @@ from algorithm_comparison.utils import (
     save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/real_data/常德市_real.csv"
 OUTPUT_DIR = "results_unsupervised"
 NORMALIZE = True
 
-# 优化目标: 'Composite', 'Silhouette', 'CH'
+# Objective: 'Composite', 'Silhouette' or 'CH'
 OPTIMIZE_METRIC = 'Composite'
 
-# 参数搜索范围 (start, end, step)
+# Parameter search range (start, end, step)
 PARAM_RANGES = {
-    'n_clusters': (2, 20, 1),  # 簇数量
-    'k': (3, 30, 2)            # 近邻数量
+    'n_clusters': (2, 20, 1),  # Number of clusters
+    'k': (3, 30, 2)            # Number of neighbours
 }
 # ==============================================
 
@@ -58,14 +58,14 @@ def run_dpc_unsupervised(X, n_clusters, k, matlab_runner):
     返回:
         labels: 聚类标签
     """
-    # 调用无监督版本的MATLAB函数（仅传入坐标）
+    # Use the unsupervised MATLAB variant, passing coordinates only
     labels = matlab_runner.run_algorithm_pr_unsupervised(X, n_clusters, k)
     return labels
 
 
 def main():
     """主函数"""
-    # 尝试导入MATLAB集成模块
+    # Try importing the MATLAB bridge
     try:
         sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         from matlab_integration import MatlabRunner
@@ -85,7 +85,7 @@ def main():
     print(f"优化目标: {OPTIMIZE_METRIC}")
     print("="*70)
     
-    # 加载数据
+    # Load data
     X, y_true = load_dataset(DATASET)
     dataset_name = os.path.splitext(os.path.basename(DATASET))[0]
     
@@ -100,7 +100,7 @@ def main():
         X = normalize_coordinates(X)
         print("✓ 坐标已归一化到[0, 100]")
     
-    # 生成参数值
+    # Generate parameter values
     n_clusters_values = generate_param_values(*PARAM_RANGES['n_clusters'])
     k_values = generate_param_values(*PARAM_RANGES['k'])
     
@@ -113,7 +113,7 @@ def main():
     print(f"\n开始优化...")
     
     try:
-        # 初始化MATLAB运行器
+        # Initialise the MATLAB runner
         matlab_runner = MatlabRunner(method='auto')
         print(f"MATLAB方法: {matlab_runner.method}")
         
@@ -121,7 +121,7 @@ def main():
         best_params = None
         best_labels = None
         best_metrics = None
-        all_results = []  # 记录所有有效结果
+        all_results = []  # Record all valid results
         
         start_time = time.time()
         iteration = 0
@@ -131,11 +131,11 @@ def main():
                 iteration += 1
                 
                 try:
-                    # 运行无监督DPC-FWSN
+                    # Run unsupervised DPC-FWSN
                     labels = run_dpc_unsupervised(X, n_clusters, k, matlab_runner)
                     
                     if labels is not None:
-                        # 使用Python计算无监督评估指标
+                        # Compute the unsupervised metrics in Python
                         metrics = evaluate_clustering_unsupervised(labels, X)
                         
                         if metrics['n_clusters'] < 2:
@@ -143,7 +143,7 @@ def main():
                         
                         score = metrics[OPTIMIZE_METRIC]
                         
-                        # 记录所有有效结果
+                        # Record all valid results
                         result_record = {
                             'params': {'n_clusters': n_clusters, 'k': k},
                             'metrics': metrics.copy(),
@@ -166,12 +166,12 @@ def main():
                     if iteration % 20 == 0:
                         print(f"  n_clusters={n_clusters}, k={k}: 失败 - {str(e)[:50]}")
         
-        # 关闭MATLAB运行器
+        # Close the MATLAB runner
         matlab_runner.close()
         elapsed = time.time() - start_time
         
         if best_params:
-            # 打印最佳结果
+            # Print the best result
             print(f"\n{'='*70}")
             print("最佳结果")
             print(f"{'='*70}")
@@ -189,14 +189,14 @@ def main():
             print(f"总用时: {elapsed:.2f}s")
             print(f"总评估次数: {len(all_results)}")
             
-            # 保存图表
+            # Save the figure
             plot_clustering_result(
                 X, best_labels,
                 f"DPC-FWSN (Composite={best_metrics['Composite']:.3f})",
                 f"{OUTPUT_DIR}/DPC-FWSN_{dataset_name}.png", dpi=300
             )
             
-            # 保存最佳结果到txt
+            # Save the best result to txt
             txt_path = f"{OUTPUT_DIR}/DPC-FWSN_{dataset_name}_best.txt"
             with open(txt_path, 'w', encoding='utf-8') as f:
                 f.write(f"算法: DPC-FWSN\n")
@@ -215,7 +215,7 @@ def main():
                 f.write(f"  噪声点: {best_metrics['n_noise']}\n")
             print(f"  已保存: {txt_path}")
             
-            # 保存所有评估结果
+            # Save all evaluation results
             if all_results:
                 all_results_path = f"{OUTPUT_DIR}/DPC-FWSN_{dataset_name}_all_results.txt"
                 with open(all_results_path, 'w', encoding='utf-8') as f:
@@ -241,7 +241,7 @@ def main():
                         f.write(f"-" * 100 + "\n")
                 print(f"  已保存所有结果: {all_results_path}")
                 
-                # 排序并显示/保存前10名
+                # Sort, show and save the top 10
                 sorted_results = sorted(all_results, key=lambda x: x['score'], reverse=True)
                 top10 = sorted_results[:10]
                 
@@ -259,7 +259,7 @@ def main():
                         print(f", DBI: {dbi_val:.4f}", end="")
                     print(f", 簇数: {m['n_clusters']}")
                 
-                # 保存前10名到txt
+                # Save the top 10 to txt
                 top10_path = f"{OUTPUT_DIR}/DPC-FWSN_{dataset_name}_top10.txt"
                 with open(top10_path, 'w', encoding='utf-8') as f:
                     f.write(f"DPC-FWSN - 排名前10的参数组合\n")

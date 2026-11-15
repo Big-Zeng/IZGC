@@ -16,22 +16,22 @@ def convert_txt_to_csv(input_file, output_file):
         output_file: 输出的csv文件路径
     """
     try:
-        # 读取txt文件（制表符分隔）
+        # Read a tab-separated txt file
         data = pd.read_csv(input_file, sep='\t', header=None)
         
-        # 检查列数
+        # Check the number of columns
         if data.shape[1] == 3:
-            # 三列：x, y, target
+            # Three columns: x, y, target
             data.columns = ['x', 'y', 'target']
         elif data.shape[1] > 3:
-            # 多列：前n-1列是特征，最后一列是标签
+            # Multiple columns: the first n-1 are features, the last holds the labels
             feature_cols = [f'feature_{i}' for i in range(data.shape[1] - 1)]
             data.columns = feature_cols + ['target']
         else:
             print(f"警告: {input_file} 列数不足3列，跳过")
             return False
         
-        # 保存为CSV
+        # Save as CSV
         data.to_csv(output_file, index=False)
         print(f"✓ 转换成功: {os.path.basename(input_file)} -> {os.path.basename(output_file)}")
         print(f"  样本数: {len(data)}, 类别数: {data['target'].nunique()}")
@@ -46,14 +46,14 @@ def convert_txt_to_csv(input_file, output_file):
 def batch_convert_datasets():
     """批量转换数据集"""
     
-    # 源目录和目标目录
+    # Source and target directories
     source_dir = "compare/dataset/shape"
     target_dir = "data"
     
-    # 确保目标目录存在
+    # Ensure the target directory exists
     os.makedirs(target_dir, exist_ok=True)
     
-    # 获取所有txt文件
+    # Collect all txt files
     txt_files = glob.glob(os.path.join(source_dir, "*.txt"))
     
     print("=" * 70)
@@ -67,13 +67,13 @@ def batch_convert_datasets():
     fail_count = 0
     
     for txt_file in txt_files:
-        # 获取文件名（不含扩展名）
+        # Get the filename without its extension
         base_name = os.path.splitext(os.path.basename(txt_file))[0]
         
-        # 输出文件路径
+        # Output file path
         csv_file = os.path.join(target_dir, f"{base_name}.csv")
         
-        # 转换
+        # Convert
         if convert_txt_to_csv(txt_file, csv_file):
             success_count += 1
         else:
@@ -83,7 +83,7 @@ def batch_convert_datasets():
     print(f"转换完成！成功: {success_count}, 失败: {fail_count}")
     print("=" * 70)
     
-    # 列出转换后的文件
+    # List the converted files
     print("\n转换后的CSV文件:")
     csv_files = sorted(glob.glob(os.path.join(target_dir, "*.csv")))
     for i, csv_file in enumerate(csv_files, 1):
@@ -113,9 +113,9 @@ if __name__ == "__main__":
     import sys
     
     if len(sys.argv) > 1:
-        # 转换指定的数据集
+        # Convert the selected datasets
         dataset_name = sys.argv[1]
         convert_single_dataset(dataset_name)
     else:
-        # 批量转换所有数据集
+        # Convert all datasets in batch
         batch_convert_datasets()

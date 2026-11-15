@@ -7,15 +7,15 @@ import json
 import folium
 from folium.plugins import MarkerCluster, HeatMap
 
-# 读取客户数据
+# Read the customer data
 print("正在读取客户数据...")
 with open('client_data.json', 'r', encoding='utf-8') as f:
     clients = json.load(f)
 
 print(f"✓ 加载了 {len(clients)} 个客户")
 
-# 创建地图，中心设置在湖南长沙
-# 长沙坐标: 28.2282, 112.9388
+# Create the map centred on Changsha, Hunan
+# Changsha coordinates: 28.2282, 112.9388
 map_center = [28.2282, 112.9388]
 m = folium.Map(
     location=map_center,
@@ -23,7 +23,7 @@ m = folium.Map(
     tiles='OpenStreetMap'
 )
 
-# 添加标题
+# Add the title
 title_html = '''
 <div style="position: fixed; 
             top: 10px; left: 50px; width: 300px; height: 60px; 
@@ -35,12 +35,12 @@ title_html = '''
 '''.format(count=len(clients))
 m.get_root().html.add_child(folium.Element(title_html))
 
-# 方法1: 使用MarkerCluster（聚合标记）
+# Option 1: MarkerCluster with clustered markers
 print("创建聚合标记图层...")
 marker_cluster = MarkerCluster(name='客户标记（聚合）').add_to(m)
 
 for client in clients:
-    # 创建弹出窗口内容
+    # Build the pop-up content
     popup_html = f"""
     <div style="width: 200px;">
         <h4>{client['name']}</h4>
@@ -53,7 +53,7 @@ for client in clients:
     </div>
     """
     
-    # 根据客户等级设置颜色
+    # Colour the points by customer tier
     color = 'red' if client['degree'] == '2' else 'blue'
     
     folium.Marker(
@@ -63,7 +63,7 @@ for client in clients:
         icon=folium.Icon(color=color, icon='info-sign')
     ).add_to(marker_cluster)
 
-# 方法2: 创建热力图图层
+# Option 2: build a heat-map layer
 print("创建热力图图层...")
 heat_data = [[client['lat'], client['lon']] for client in clients]
 HeatMap(
@@ -75,7 +75,7 @@ HeatMap(
     max_zoom=13
 ).add_to(m)
 
-# 方法3: 按城市分组的图层
+# Option 3: one layer per city
 print("创建城市分组图层...")
 city_groups = {}
 for client in clients:
@@ -95,18 +95,18 @@ for client in clients:
         fillOpacity=0.6
     ).add_to(city_groups[city])
 
-# 添加图层控制
+# Add the layer control
 folium.LayerControl().add_to(m)
 
-# 添加全屏按钮
+# Add a full-screen button
 from folium.plugins import Fullscreen
 Fullscreen().add_to(m)
 
-# 添加鼠标位置显示
+# Show the cursor position
 from folium.plugins import MousePosition
 MousePosition().add_to(m)
 
-# 保存地图
+# Save the map
 output_file = 'client_map.html'
 m.save(output_file)
 

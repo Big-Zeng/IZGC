@@ -14,25 +14,25 @@ from algorithm_comparison.utils import (
     plot_clustering_result, print_best_result, save_best_result
 )
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 DATASET = "../data/s1.csv"
 OUTPUT_DIR = "results"
 NORMALIZE = True
 
-# 参数搜索范围 (start, end, step)
-# GaussianMixture参数:
-# - n_components: 高斯分量数（簇数）
-# - covariance_type: 协方差类型 ('full', 'tied', 'diag', 'spherical')
-# - n_init: 初始化次数
+# Parameter search range (start, end, step)
+# GaussianMixture parameters:
+# - n_components: number of Gaussian components (clusters)
+# - covariance_type: covariance type ('full', 'tied', 'diag', 'spherical')
+# - n_init: number of initialisations
 PARAM_RANGES = {
-    'n_components': (15, 15, 1),    # 簇数：从2到15，步长1
-    'n_init': (10, 10, 1)           # 初始化次数：从5到20，步长5
+    'n_components': (15, 15, 1),    # Number of clusters: 2 to 15 in steps of 1
+    'n_init': (10, 10, 1)           # Number of initialisations: 5 to 20 in steps of 5
 }
 
-# 协方差类型列表（单独处理）
+# List of covariance types, handled separately
 COVARIANCE_TYPES = ['full', 'tied', 'diag', 'spherical']
 
-# 优化目标
+# Optimisation objective
 OPTIMIZE_METRIC = 'ARI'
 # ==============================================
 
@@ -72,7 +72,7 @@ def grid_search(X, y_true, param_ranges, covariance_types, optimize_metric='ARI'
     print("\n开始参数搜索...")
     print(f"优化目标: {optimize_metric}")
     
-    # 生成参数值
+    # Generate parameter values
     param_grid = {}
     for name, (start, end, step) in param_ranges.items():
         param_grid[name] = generate_param_values(start, end, step)
@@ -85,7 +85,7 @@ def grid_search(X, y_true, param_ranges, covariance_types, optimize_metric='ARI'
     best_labels = None
     best_metrics = None
     
-    # 计算总组合数
+    # Count the total number of combinations
     total_combinations = (len(param_grid['n_components']) * 
                          len(param_grid['n_init']) * 
                          len(covariance_types))
@@ -165,7 +165,7 @@ if __name__ == "__main__":
             save_path, dpi=300
         )
         
-        # 保存最佳结果到txt
+        # Save the best result to txt
         txt_path = f"{OUTPUT_DIR}/GMM_{dataset_name}_best.txt"
         save_best_result("GMM", dataset_name, best_params, best_metrics, txt_path)
     else:

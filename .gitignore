@@ -33,6 +33,12 @@ desktop.ini
 *.tmp
 ~$*
 
+# Local comment-translation helpers and pre-translation backup: not part of the code base
+_zh_comments.py
+_tr_map.json
+_cjk_comments.json
+_backup_py_*.zip
+
 # Case-study coordinates supplied under a data-sharing agreement: not published.
 # Place the original {city}_real.csv files here to reproduce the case study.
 data/real_data/

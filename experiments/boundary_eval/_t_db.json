@@ -1,0 +1,19 @@
+{
+ "scene": "gap_2",
+ "method": "DBSCAN",
+ "params": {
+  "eps": 5.0,
+  "min_samples": 26
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 2450,
+ "n_done": 2450,
+ "timed_out": false,
+ "n_tied": 36,
+ "val_BF": 0.9424,
+ "alpha": 0.05,
+ "seconds": 36.1,
+ "stage1_seconds": 23.1,
+ "stage2_seconds": 13.0
+}

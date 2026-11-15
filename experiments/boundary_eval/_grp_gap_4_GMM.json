@@ -1,0 +1,21 @@
+{
+ "scene": "gap_4",
+ "method": "GMM",
+ "params": {
+  "covariance_type": "diag",
+  "n_init": 11
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 40,
+ "n_done": 40,
+ "timed_out": false,
+ "n_tied": 40,
+ "val_BF": 0.9424,
+ "alpha": 0.05,
+ "bf_mode": "full",
+ "n_bf": 40,
+ "seconds": 28.7,
+ "stage1_seconds": 12.2,
+ "stage2_seconds": 16.5
+}

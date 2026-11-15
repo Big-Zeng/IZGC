@@ -1,0 +1,19 @@
+{
+ "scene": "density_3",
+ "method": "CLIQUE",
+ "params": {
+  "intervals": 9,
+  "thr": 2
+ },
+ "val_ARI": 0.9971,
+ "val_k": 2,
+ "n_grid": 4850,
+ "n_done": 4850,
+ "timed_out": false,
+ "n_tied": 2,
+ "val_BF": 0.9637,
+ "alpha": 0.05,
+ "seconds": 546.7,
+ "stage1_seconds": 535.5,
+ "stage2_seconds": 11.2
+}

@@ -1,0 +1,596 @@
+{
+ "nonconvex_c|K-means++": {
+  "params": {},
+  "val_ARI": 0.5886,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "nonconvex_c|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "nonconvex_c|DBSCAN": {
+  "params": {
+   "eps": 5.0,
+   "min_samples": 7
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.8166,
+  "n_tied": 11,
+  "alpha": 0.05,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "nonconvex_c|GMM": {
+  "params": {
+   "covariance_type": "spherical",
+   "n_init": 31
+  },
+  "val_ARI": 0.8271,
+  "val_k": 2,
+  "val_BF": 0.6764,
+  "n_tied": 7,
+  "alpha": 0.05,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "nonconvex_c|BANG": {
+  "params": {
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9937,
+  "val_k": 3,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "nonconvex_c|IZGC-Full": {
+  "params": {
+   "grid_size": 1.46,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.8272,
+  "n_tied": 77,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "nonconvex_u|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "nonconvex_u|K-means++": {
+  "params": {},
+  "val_ARI": 0.3713,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "nonconvex_c|CLIQUE": {
+  "params": {
+   "intervals": 18,
+   "thr": 1
+  },
+  "val_ARI": 0.8675,
+  "val_k": 3,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ },
+ "nonconvex_u|GMM": {
+  "params": {
+   "covariance_type": "full",
+   "n_init": 46
+  },
+  "val_ARI": 0.402,
+  "val_k": 2,
+  "val_BF": 0.7441,
+  "n_tied": 19,
+  "alpha": 0.05,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "nonconvex_u|IZGC-Full": {
+  "params": {
+   "grid_size": 1.72,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 0.9515,
+  "val_k": 3,
+  "val_BF": 0.6788,
+  "n_tied": 3,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "nonconvex_u|DBSCAN": {
+  "params": {
+   "eps": 4.0,
+   "min_samples": 3
+  },
+  "val_ARI": 0.9511,
+  "val_k": 4,
+  "val_BF": 0.8277,
+  "n_tied": 3,
+  "alpha": 0.05,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "nonconvex_u|BANG": {
+  "params": {
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.8869,
+  "val_k": 8,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "gap_4|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "gap_4|K-means++": {
+  "params": {},
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "gap_4|IZGC-Full": {
+  "params": {
+   "grid_size": 1.21,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9339,
+  "n_tied": 168,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "gap_4|DBSCAN": {
+  "params": {
+   "eps": 5.0,
+   "min_samples": 20
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 81,
+  "alpha": 0.05,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "gap_4|GMM": {
+  "params": {
+   "covariance_type": "tied",
+   "n_init": 36
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 40,
+  "alpha": 0.05,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "gap_4|BANG": {
+  "params": {
+   "levels": 10,
+   "thr": 0.01
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 2,
+  "alpha": 0.05,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "nonconvex_u|CLIQUE": {
+  "params": {
+   "intervals": 17,
+   "thr": 1
+  },
+  "val_ARI": 0.8234,
+  "val_k": 6,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ },
+ "gap_2|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "gap_2|K-means++": {
+  "params": {},
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "gap_2|GMM": {
+  "params": {
+   "covariance_type": "tied",
+   "n_init": 36
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 40,
+  "alpha": 0.05,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "gap_2|IZGC-Full": {
+  "params": {
+   "grid_size": 1.21,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9352,
+  "n_tied": 65,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "gap_2|DBSCAN": {
+  "params": {
+   "eps": 5.0,
+   "min_samples": 26
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 36,
+  "alpha": 0.05,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "gap_4|CLIQUE": {
+  "params": {
+   "intervals": 14,
+   "thr": 1
+  },
+  "val_ARI": 0.9857,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ },
+ "gap_2|BANG": {
+  "params": {
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9826,
+  "val_k": 3,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "density_3|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "density_3|K-means++": {
+  "params": {},
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "density_3|GMM": {
+  "params": {
+   "covariance_type": "diag",
+   "n_init": 26
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9637,
+  "n_tied": 30,
+  "alpha": 0.05,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "density_3|DBSCAN": {
+  "params": {
+   "eps": 9.0,
+   "min_samples": 28
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9637,
+  "n_tied": 220,
+  "alpha": 0.05,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "gap_2|CLIQUE": {
+  "params": {
+   "intervals": 14,
+   "thr": 1
+  },
+  "val_ARI": 0.9717,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ },
+ "density_3|IZGC-Full": {
+  "params": {
+   "grid_size": 1.46,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.7631,
+  "n_tied": 296,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "density_3|BANG": {
+  "params": {
+   "levels": 10,
+   "thr": 0.01
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9637,
+  "n_tied": 2,
+  "alpha": 0.05,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "density_8|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "density_8|K-means++": {
+  "params": {},
+  "val_ARI": 0.9779,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "density_8|GMM": {
+  "params": {
+   "covariance_type": "diag",
+   "n_init": 26
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9331,
+  "n_tied": 30,
+  "alpha": 0.05,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "density_8|DBSCAN": {
+  "params": {
+   "eps": 11.0,
+   "min_samples": 11
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9331,
+  "n_tied": 262,
+  "alpha": 0.05,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "density_3|CLIQUE": {
+  "params": {
+   "intervals": 9,
+   "thr": 2
+  },
+  "val_ARI": 0.9971,
+  "val_k": 2,
+  "val_BF": 0.9637,
+  "n_tied": 2,
+  "alpha": 0.05,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ },
+ "density_8|BANG": {
+  "params": {
+   "levels": 9,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9784,
+  "val_k": 2,
+  "val_BF": 0.8769,
+  "n_tied": 4,
+  "alpha": 0.05,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "density_8|IZGC-Full": {
+  "params": {
+   "grid_size": 1.69,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.6216,
+  "n_tied": 320,
+  "alpha": null,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": ""
+ },
+ "density_8|CLIQUE": {
+  "params": {
+   "intervals": 8,
+   "thr": 2
+  },
+  "val_ARI": 0.9975,
+  "val_k": 2,
+  "val_BF": 0.8942,
+  "n_tied": 2,
+  "alpha": 0.05,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ }
+}

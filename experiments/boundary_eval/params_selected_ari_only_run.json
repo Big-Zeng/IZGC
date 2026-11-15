@@ -1,0 +1,506 @@
+{
+ "density_3|BANG": {
+  "params": {
+   "alpha": 0.05,
+   "levels": 9,
+   "thr": 0.01
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 357,
+  "n_done": 356,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_3|CLIQUE": {
+  "params": {
+   "alpha": 0.05,
+   "intervals": 9,
+   "thr": 2
+  },
+  "val_ARI": 0.9971,
+  "val_k": 2,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_3|DBSCAN": {
+  "params": {
+   "alpha": 0.05,
+   "eps": 4.0,
+   "min_samples": 2
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_3|GMM": {
+  "params": {
+   "alpha": 0.05,
+   "covariance_type": "full",
+   "n_init": 1
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 44,
+  "n_done": 44,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_3|IZGC-Full": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_3|IZGC-NoZP": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_3|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|BANG": {
+  "params": {
+   "alpha": 0.05,
+   "levels": 7,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9784,
+  "val_k": 2,
+  "n_grid": 357,
+  "n_done": 357,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|CLIQUE": {
+  "params": {
+   "alpha": 0.05,
+   "intervals": 8,
+   "thr": 1
+  },
+  "val_ARI": 0.9975,
+  "val_k": 2,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|DBSCAN": {
+  "params": {
+   "alpha": 0.05,
+   "eps": 4.0,
+   "min_samples": 2
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|GMM": {
+  "params": {
+   "alpha": 0.05,
+   "covariance_type": "full",
+   "n_init": 1
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 44,
+  "n_done": 44,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|IZGC-Full": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.5,
+   "min_size": 5
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|IZGC-NoZP": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "density_8|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|BANG": {
+  "params": {
+   "alpha": 0.05,
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9826,
+  "val_k": 3,
+  "n_grid": 357,
+  "n_done": 357,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|CLIQUE": {
+  "params": {
+   "alpha": 0.05,
+   "intervals": 14,
+   "thr": 1
+  },
+  "val_ARI": 0.9717,
+  "val_k": 2,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|DBSCAN": {
+  "params": {
+   "alpha": 0.05,
+   "eps": 3.0,
+   "min_samples": 3
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|GMM": {
+  "params": {
+   "alpha": 0.05,
+   "covariance_type": "full",
+   "n_init": 1
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 44,
+  "n_done": 44,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|IZGC-Full": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 1.0,
+   "min_size": 5
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|IZGC-NoZP": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_2|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|BANG": {
+  "params": {
+   "alpha": 0.05,
+   "levels": 9,
+   "thr": 0.01
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 357,
+  "n_done": 357,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|CLIQUE": {
+  "params": {
+   "alpha": 0.05,
+   "intervals": 14,
+   "thr": 1
+  },
+  "val_ARI": 0.9857,
+  "val_k": 2,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|DBSCAN": {
+  "params": {
+   "alpha": 0.05,
+   "eps": 3.0,
+   "min_samples": 2
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|GMM": {
+  "params": {
+   "alpha": 0.05,
+   "covariance_type": "full",
+   "n_init": 1
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 44,
+  "n_done": 44,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|IZGC-Full": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|IZGC-NoZP": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "gap_4|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|BANG": {
+  "params": {
+   "alpha": 0.05,
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9937,
+  "val_k": 3,
+  "n_grid": 357,
+  "n_done": 356,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|CLIQUE": {
+  "params": {
+   "alpha": 0.05,
+   "intervals": 18,
+   "thr": 1
+  },
+  "val_ARI": 0.8675,
+  "val_k": 3,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|DBSCAN": {
+  "params": {
+   "alpha": 0.05,
+   "eps": 5.0,
+   "min_samples": 2
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|GMM": {
+  "params": {
+   "alpha": 0.05,
+   "covariance_type": "spherical",
+   "n_init": 16
+  },
+  "val_ARI": 0.8271,
+  "val_k": 2,
+  "n_grid": 44,
+  "n_done": 44,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|IZGC-Full": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 1.5,
+   "min_size": 5
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|IZGC-NoZP": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_c|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|BANG": {
+  "params": {
+   "alpha": 0.05,
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.8869,
+  "val_k": 8,
+  "n_grid": 357,
+  "n_done": 357,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|CLIQUE": {
+  "params": {
+   "alpha": 0.05,
+   "intervals": 17,
+   "thr": 1
+  },
+  "val_ARI": 0.8234,
+  "val_k": 6,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|DBSCAN": {
+  "params": {
+   "alpha": 0.05,
+   "eps": 4.0,
+   "min_samples": 2
+  },
+  "val_ARI": 0.9511,
+  "val_k": 4,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|GMM": {
+  "params": {
+   "alpha": 0.05,
+   "covariance_type": "full",
+   "n_init": 1
+  },
+  "val_ARI": 0.402,
+  "val_k": 2,
+  "n_grid": 44,
+  "n_done": 44,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|IZGC-Full": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": 0.9515,
+  "val_k": 3,
+  "n_grid": 451,
+  "n_done": 451,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|IZGC-NoZP": {
+  "params": {
+   "R": 30.0,
+   "buffer": 0,
+   "grid_size": 2.0,
+   "min_size": 5
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ },
+ "nonconvex_u|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_ARI": null,
+  "val_k": null,
+  "n_grid": 0,
+  "n_done": 0,
+  "note": "rebuilt from results_boundary.csv"
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "scene": "gap_4",
+ "method": "K-means++",
+ "params": {},
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 1,
+ "n_done": 1,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "bf_mode": "none",
+ "n_bf": 0,
+ "seconds": 9.3,
+ "stage1_seconds": 9.3,
+ "stage2_seconds": 0.0
+}

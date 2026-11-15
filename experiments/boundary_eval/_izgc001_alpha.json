@@ -1,0 +1,26 @@
+{
+ "gap_4": {
+  "alpha": null,
+  "val_IoU": -1.0
+ },
+ "nonconvex_c": {
+  "alpha": null,
+  "val_IoU": -1.0
+ },
+ "nonconvex_u": {
+  "alpha": null,
+  "val_IoU": -1.0
+ },
+ "gap_2": {
+  "alpha": null,
+  "val_IoU": -1.0
+ },
+ "density_3": {
+  "alpha": null,
+  "val_IoU": -1.0
+ },
+ "density_8": {
+  "alpha": null,
+  "val_IoU": -1.0
+ }
+}

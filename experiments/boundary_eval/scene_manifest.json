@@ -1,0 +1,152 @@
+[
+ {
+  "scene": "nonconvex_c",
+  "family": "A",
+  "k": 2,
+  "n": 800,
+  "counts": [
+   500,
+   300
+  ],
+  "area": [
+   1971.3,
+   1063.0
+  ],
+  "density": [
+   0.254,
+   0.282
+  ],
+  "gap": null,
+  "target_ratio": null,
+  "measured_ratio": null,
+  "perimeter": [
+   242.3,
+   130.5
+  ]
+ },
+ {
+  "scene": "nonconvex_u",
+  "family": "A",
+  "k": 2,
+  "n": 800,
+  "counts": [
+   500,
+   300
+  ],
+  "area": [
+   1992.0,
+   1155.0
+  ],
+  "density": [
+   0.251,
+   0.26
+  ],
+  "gap": null,
+  "target_ratio": null,
+  "measured_ratio": null,
+  "perimeter": [
+   332.0,
+   136.0
+  ]
+ },
+ {
+  "scene": "gap_4",
+  "family": "B",
+  "k": 2,
+  "n": 606,
+  "counts": [
+   306,
+   300
+  ],
+  "area": [
+   627.5,
+   614.7
+  ],
+  "density": [
+   0.488,
+   0.488
+  ],
+  "gap": 4.0,
+  "target_ratio": null,
+  "measured_ratio": null,
+  "perimeter": [
+   109.4,
+   102.8
+  ]
+ },
+ {
+  "scene": "gap_2",
+  "family": "B",
+  "k": 2,
+  "n": 606,
+  "counts": [
+   306,
+   300
+  ],
+  "area": [
+   627.5,
+   614.7
+  ],
+  "density": [
+   0.488,
+   0.488
+  ],
+  "gap": 2.0,
+  "target_ratio": null,
+  "measured_ratio": null,
+  "perimeter": [
+   109.4,
+   102.8
+  ]
+ },
+ {
+  "scene": "density_3",
+  "family": "C",
+  "k": 2,
+  "n": 680,
+  "counts": [
+   340,
+   340
+  ],
+  "area": [
+   1808.3,
+   615.3
+  ],
+  "density": [
+   0.188,
+   0.553
+  ],
+  "gap": null,
+  "target_ratio": 3.0,
+  "measured_ratio": 2.94,
+  "perimeter": [
+   150.8,
+   87.9
+  ]
+ },
+ {
+  "scene": "density_8",
+  "family": "C",
+  "k": 2,
+  "n": 720,
+  "counts": [
+   320,
+   400
+  ],
+  "area": [
+   2288.6,
+   346.1
+  ],
+  "density": [
+   0.14,
+   1.156
+  ],
+  "gap": null,
+  "target_ratio": 8.0,
+  "measured_ratio": 8.27,
+  "perimeter": [
+   169.6,
+   66.0
+  ]
+ }
+]

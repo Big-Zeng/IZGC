@@ -25,6 +25,7 @@ and the scripts behind the experiments, tables and figures in the manuscript.
 | `data/` | Benchmark point sets in CSV format (`x, y, target`) |
 | `data/real_data/` | **Not distributed** — the case-study coordinates are withheld (see [Case-study data](#case-study-data)); the expected file names are listed there |
 | `street_test/` | Scripts behind the noise, overlap and per-dataset metric tables, plus figure generation |
+| `experiments/boundary_eval/` | Boundary-quality benchmark on six analytic-polygon scenes: boundary F1, HD95 and penalised IoU, plus the zero-value-point ablation. Protocol in its own [README](experiments/boundary_eval/README.md) |
 | `addedExperiment/` | Stress-test script with the full seven-metric protocol |
 | `docs/README.zh-CN.md` | Notes in Chinese (development history, parameter tuning hints) |
 
@@ -144,6 +145,7 @@ can be re-run.
 | Per-dataset seven-metric comparison | `python street_test/dataset_metrics.py` | `street_test/results_dataset_metrics/` |
 | Noise robustness study | `python street_test/noise_experiment_spiral.py` | `street_test/results_noise_spiral/` |
 | Overlap robustness study | `python street_test/overlap_experiment.py` | `street_test/results_overlap/` |
+| Boundary-quality benchmark (six scenes, 20 seeds) | `cd experiments/boundary_eval && python run_boundary.py --seeds 20 --workers 12` then `python summarise_boundary.py` | `results_boundary.csv`, `summary_boundary.md` |
 | Calibrated stress test (Δg calibration plus repeated runs) | `python addedExperiment/run_izgc_stress_test.py --repeats 30` | `results_stress_test/` |
 | Case-study zoning maps | `python algorithm_comparison/run_contour_unsupervised.py` | `algorithm_comparison/results_unsupervised/` (requires the case-study coordinates, available on request) |
 | Global sensitivity analysis (Sobol) | `python sobol_sensitivity_test.py` | `sobol_results/` |

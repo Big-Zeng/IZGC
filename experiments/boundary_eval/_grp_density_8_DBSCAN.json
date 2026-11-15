@@ -1,0 +1,19 @@
+{
+ "scene": "density_8",
+ "method": "DBSCAN",
+ "params": {
+  "eps": 11.0,
+  "min_samples": 11
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 2450,
+ "n_done": 2450,
+ "timed_out": false,
+ "n_tied": 262,
+ "val_BF": 0.9331,
+ "alpha": 0.05,
+ "seconds": 98.7,
+ "stage1_seconds": 38.7,
+ "stage2_seconds": 60.0
+}

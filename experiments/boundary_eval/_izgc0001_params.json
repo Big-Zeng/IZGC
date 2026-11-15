@@ -1,0 +1,218 @@
+{
+ "gap_4|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "gap_2|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4501,
+  "n_done": 0,
+  "note": "no virtual points: k=1 at every Delta_g, so the step cannot be selected"
+ },
+ "gap_2|IZGC-Full": {
+  "params": {
+   "grid_size": 1.201,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9416,
+  "n_tied": 681,
+  "alpha": null,
+  "bf_mode": "coarse+refine",
+  "n_bf": 100,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "gap_4|IZGC-Full": {
+  "params": {
+   "grid_size": 1.204,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9441,
+  "n_tied": 1638,
+  "alpha": null,
+  "bf_mode": "coarse+refine",
+  "n_bf": 204,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "nonconvex_c|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "nonconvex_c|IZGC-Full": {
+  "params": {
+   "grid_size": 1.46,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.8272,
+  "n_tied": 748,
+  "alpha": null,
+  "bf_mode": "coarse+refine",
+  "n_bf": 113,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "nonconvex_u|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "nonconvex_u|IZGC-Full": {
+  "params": {
+   "grid_size": 1.723,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 0.9515,
+  "val_k": 3,
+  "val_BF": 0.6937,
+  "n_tied": 30,
+  "alpha": null,
+  "bf_mode": "full",
+  "n_bf": 30,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "density_3|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "density_3|IZGC-Full": {
+  "params": {
+   "grid_size": 1.46,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.7631,
+  "n_tied": 2960,
+  "alpha": null,
+  "bf_mode": "coarse+refine",
+  "n_bf": 309,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "density_8|IZGC-NoZP": {
+  "params": {
+   "grid_size": 2.0,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": -1.0,
+  "val_k": 0,
+  "val_BF": null,
+  "n_tied": 0,
+  "alpha": null,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ },
+ "density_8|IZGC-Full": {
+  "params": {
+   "grid_size": 1.69,
+   "R": 30.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.6216,
+  "n_tied": 3231,
+  "alpha": null,
+  "bf_mode": "coarse+refine",
+  "n_bf": 347,
+  "n_grid": 4501,
+  "n_done": 4501,
+  "note": ""
+ }
+}

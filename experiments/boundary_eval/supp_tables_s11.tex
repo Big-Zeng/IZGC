@@ -1,0 +1,171 @@
+% ===== Table S11.1: per-scene metrics =====
+\begin{table}[tbp]
+\centering
+\caption{Per-scene boundary and clustering metrics on the six controlled geometric scenes (mean$\pm$standard deviation over 20 test seeds).}
+\label{tab:S11_scene_metrics}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.95}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Method & BF$_{\alpha}$ & HD95$_{\alpha}$ & IoU$_{\mathrm{pen}}$ & ARI & $\bar{K}_{\mathrm{pred}}$ \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{nonconvex\_c} ($K_{\mathrm{gt}}=2$, 20 seeds)} \\
+\textbf{IZGC-Full} & \textbf{0.840$\pm$0.034} & \textbf{2.673$\pm$0.605} & \textbf{0.817$\pm$0.018} & \textbf{0.979$\pm$0.026} & 2.50$\pm$0.69 \\
+IZGC-NoZP & 0.678$\pm$0.024 & 16.403$\pm$0.172 & 0.537$\pm$0.009 & 0.000$\pm$0.000 & 1.00$\pm$0.00 \\
+DPC-FWSN & 0.793$\pm$0.074 & 4.097$\pm$2.039 & 0.772$\pm$0.113 & 0.806$\pm$0.352 & 2.00$\pm$0.00 \\
+K-means++ & 0.694$\pm$0.114 & 5.577$\pm$2.618 & 0.705$\pm$0.095 & 0.536$\pm$0.262 & 2.00$\pm$0.00 \\
+GMM & 0.621$\pm$0.046 & 7.180$\pm$2.400 & 0.670$\pm$0.130 & 0.443$\pm$0.314 & 2.00$\pm$0.00 \\
+DBSCAN & 0.689$\pm$0.048 & 15.024$\pm$4.018 & 0.565$\pm$0.085 & 0.098$\pm$0.304 & 1.10$\pm$0.31 \\
+CLIQUE & 0.633$\pm$0.052 & 11.272$\pm$5.000 & 0.527$\pm$0.097 & 0.136$\pm$0.298 & 3.75$\pm$1.37 \\
+BANG & 0.832$\pm$0.034 & 2.684$\pm$0.648 & 0.802$\pm$0.019 & 0.962$\pm$0.029 & 4.55$\pm$1.36 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{nonconvex\_u} ($K_{\mathrm{gt}}=2$, 20 seeds)} \\
+\textbf{IZGC-Full} & 0.798$\pm$0.068 & 5.622$\pm$5.105 & 0.724$\pm$0.124 & 0.708$\pm$0.423 & 2.90$\pm$0.97 \\
+IZGC-NoZP & 0.674$\pm$0.018 & 14.474$\pm$0.138 & 0.525$\pm$0.007 & 0.000$\pm$0.000 & 1.00$\pm$0.00 \\
+DPC-FWSN & 0.778$\pm$0.059 & 4.329$\pm$1.903 & 0.749$\pm$0.105 & 0.722$\pm$0.366 & 2.00$\pm$0.00 \\
+K-means++ & 0.632$\pm$0.024 & 5.253$\pm$0.392 & 0.654$\pm$0.013 & 0.351$\pm$0.051 & 2.00$\pm$0.00 \\
+GMM & 0.752$\pm$0.046 & 5.188$\pm$0.931 & 0.653$\pm$0.037 & 0.365$\pm$0.090 & 2.00$\pm$0.00 \\
+DBSCAN & \textbf{0.830$\pm$0.019} & \textbf{3.031$\pm$0.518} & \textbf{0.791$\pm$0.017} & \textbf{0.956$\pm$0.018} & 3.90$\pm$0.85 \\
+CLIQUE & 0.778$\pm$0.056 & 4.249$\pm$2.944 & 0.710$\pm$0.090 & 0.754$\pm$0.268 & 5.10$\pm$1.29 \\
+BANG & 0.811$\pm$0.031 & 3.206$\pm$0.452 & 0.755$\pm$0.042 & 0.912$\pm$0.059 & 9.15$\pm$2.21 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{gap\_4} ($K_{\mathrm{gt}}=2$, 20 seeds)} \\
+\textbf{IZGC-Full} & \textbf{0.945$\pm$0.035} & \textbf{1.164$\pm$0.383} & \textbf{0.966$\pm$0.020} & \textbf{1.000$\pm$0.000} & 2.00$\pm$0.00 \\
+IZGC-NoZP & 0.728$\pm$0.053 & 6.236$\pm$1.154 & 0.537$\pm$0.055 & 0.000$\pm$0.000 & 1.00$\pm$0.00 \\
+DPC-FWSN & 0.935$\pm$0.063 & 1.355$\pm$1.024 & 0.943$\pm$0.107 & 0.949$\pm$0.228 & 2.00$\pm$0.00 \\
+K-means++ & 0.933$\pm$0.042 & 1.303$\pm$0.451 & 0.965$\pm$0.020 & 0.996$\pm$0.011 & 2.00$\pm$0.00 \\
+GMM & 0.934$\pm$0.046 & 1.260$\pm$0.464 & 0.965$\pm$0.020 & 0.995$\pm$0.010 & 2.00$\pm$0.00 \\
+DBSCAN & 0.899$\pm$0.086 & 2.363$\pm$2.419 & 0.880$\pm$0.177 & 0.800$\pm$0.410 & 1.80$\pm$0.41 \\
+CLIQUE & 0.839$\pm$0.115 & 3.450$\pm$2.699 & 0.769$\pm$0.215 & 0.528$\pm$0.489 & 1.70$\pm$0.73 \\
+BANG & 0.806$\pm$0.111 & 4.431$\pm$2.536 & 0.685$\pm$0.201 & 0.345$\pm$0.482 & 1.75$\pm$0.64 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{gap\_2} ($K_{\mathrm{gt}}=2$, 20 seeds)} \\
+\textbf{IZGC-Full} & 0.913$\pm$0.079 & 2.045$\pm$2.165 & 0.899$\pm$0.166 & 0.850$\pm$0.366 & 1.85$\pm$0.37 \\
+IZGC-NoZP & 0.725$\pm$0.051 & 6.325$\pm$1.129 & 0.537$\pm$0.054 & 0.000$\pm$0.000 & 1.00$\pm$0.00 \\
+DPC-FWSN & 0.921$\pm$0.078 & 1.586$\pm$1.353 & 0.948$\pm$0.064 & 0.943$\pm$0.175 & 2.00$\pm$0.00 \\
+K-means++ & \textbf{0.923$\pm$0.057} & \textbf{1.412$\pm$0.739} & \textbf{0.962$\pm$0.019} & \textbf{0.985$\pm$0.029} & 2.00$\pm$0.00 \\
+GMM & 0.915$\pm$0.049 & \textbf{1.412$\pm$0.488} & \textbf{0.962$\pm$0.018} & 0.984$\pm$0.024 & 2.00$\pm$0.00 \\
+DBSCAN & 0.857$\pm$0.099 & 3.245$\pm$2.661 & 0.813$\pm$0.199 & 0.641$\pm$0.483 & 1.70$\pm$0.57 \\
+CLIQUE & 0.755$\pm$0.074 & 5.644$\pm$2.002 & 0.601$\pm$0.152 & 0.144$\pm$0.350 & 1.25$\pm$0.55 \\
+BANG & 0.882$\pm$0.085 & 2.609$\pm$2.197 & 0.820$\pm$0.191 & 0.724$\pm$0.431 & 3.40$\pm$1.23 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{density\_3} ($K_{\mathrm{gt}}=2$, 20 seeds)} \\
+\textbf{IZGC-Full} & 0.945$\pm$0.038 & 1.094$\pm$0.166 & 0.782$\pm$0.011 & 0.999$\pm$0.006 & 2.05$\pm$0.22 \\
+IZGC-NoZP & 0.756$\pm$0.032 & 6.118$\pm$0.470 & 0.536$\pm$0.010 & 0.000$\pm$0.000 & 1.00$\pm$0.00 \\
+DPC-FWSN & 0.939$\pm$0.060 & 1.296$\pm$1.052 & 0.774$\pm$0.046 & 0.953$\pm$0.212 & 2.00$\pm$0.00 \\
+K-means++ & 0.943$\pm$0.041 & 1.112$\pm$0.191 & \textbf{0.784$\pm$0.011} & 0.999$\pm$0.002 & 2.00$\pm$0.00 \\
+GMM & \textbf{0.949$\pm$0.039} & \textbf{1.062$\pm$0.147} & \textbf{0.784$\pm$0.011} & \textbf{1.000$\pm$0.000} & 2.00$\pm$0.00 \\
+DBSCAN & \textbf{0.949$\pm$0.039} & \textbf{1.062$\pm$0.147} & \textbf{0.784$\pm$0.011} & \textbf{1.000$\pm$0.000} & 2.00$\pm$0.00 \\
+CLIQUE & 0.935$\pm$0.048 & 1.180$\pm$0.318 & 0.779$\pm$0.012 & 0.988$\pm$0.008 & 2.00$\pm$0.00 \\
+BANG & 0.943$\pm$0.038 & 1.081$\pm$0.135 & 0.782$\pm$0.011 & 0.996$\pm$0.003 & 2.10$\pm$0.31 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{density\_8} ($K_{\mathrm{gt}}=2$, 20 seeds)} \\
+\textbf{IZGC-Full} & 0.890$\pm$0.062 & 1.731$\pm$1.526 & 0.651$\pm$0.033 & 0.993$\pm$0.025 & 2.25$\pm$0.72 \\
+IZGC-NoZP & 0.736$\pm$0.043 & 5.753$\pm$0.402 & 0.533$\pm$0.011 & 0.000$\pm$0.000 & 1.00$\pm$0.00 \\
+DPC-FWSN & \textbf{0.904$\pm$0.044} & \textbf{1.273$\pm$0.203} & \textbf{0.659$\pm$0.011} & \textbf{1.000$\pm$0.000} & 2.00$\pm$0.00 \\
+K-means++ & 0.770$\pm$0.060 & 2.643$\pm$0.404 & 0.651$\pm$0.012 & 0.970$\pm$0.017 & 2.00$\pm$0.00 \\
+GMM & \textbf{0.904$\pm$0.044} & \textbf{1.273$\pm$0.203} & \textbf{0.659$\pm$0.011} & \textbf{1.000$\pm$0.000} & 2.00$\pm$0.00 \\
+DBSCAN & \textbf{0.904$\pm$0.044} & \textbf{1.273$\pm$0.203} & \textbf{0.659$\pm$0.011} & \textbf{1.000$\pm$0.000} & 2.00$\pm$0.00 \\
+CLIQUE & 0.893$\pm$0.046 & 1.298$\pm$0.203 & 0.656$\pm$0.012 & 0.994$\pm$0.003 & 2.00$\pm$0.00 \\
+BANG & 0.863$\pm$0.053 & 1.460$\pm$0.297 & 0.651$\pm$0.011 & 0.987$\pm$0.007 & 2.00$\pm$0.00 \\
+\bottomrule
+\end{tabular*}
+
+\vspace{2pt}
+\noindent\footnotesize{Notes: BF$_{\alpha}$ and HD95$_{\alpha}$ are computed after a common alpha-shape polygonisation of the cluster labels ($\alpha=0.05$, matching tolerance $\tau=1.5$ spatial units). HD95$_{\alpha}$ is the pooled bidirectional 95th-percentile boundary distance, expressed as a percentage of the scene diagonal. Bold marks the best value of each metric within a scene; ties are bolded jointly. The predicted cluster number is given as mean$\pm$standard deviation over the 20 seeds ($K_{\mathrm{gt}}=2$ throughout).}
+\end{table}
+
+% ===== Table S11.2: representation + tolerance =====
+\begin{table}[tbp]
+\centering
+\caption{Boundary representation and evaluation sensitivity of IZGC-Full. (a) Native Marching Squares contours versus the shared alpha-shape representation of the same labels. (b) Boundary F1 under three matching tolerances for all eight methods.}
+\label{tab:S11_native_alpha}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.95}
+\noindent\textit{(a) Native contours versus alpha-shape}
+\par\vspace{2pt}
+\begin{tabular*}{0.92\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+Scene & BF$_{\mathrm{nat}}$ & BF$_{\alpha}$ & $P_{\mathrm{nat}}$ & $R_{\mathrm{nat}}$ & HD95$_{\mathrm{nat}}$ & HD95$_{\alpha}$ \\
+\midrule
+nonconvex\_c & 0.744 & 0.840 & 0.672 & 0.835 & 2.538 & 2.673 \\
+nonconvex\_u & 0.636 & 0.798 & 0.602 & 0.674 & 2.139 & 5.622 \\
+gap\_4 & 0.899 & 0.945 & 0.847 & 0.960 & 1.504 & 1.164 \\
+gap\_2 & 0.901 & 0.913 & 0.848 & 0.963 & 1.491 & 2.045 \\
+density\_3 & 0.691 & 0.945 & 0.577 & 0.867 & 4.712 & 1.094 \\
+density\_8 & 0.535 & 0.890 & 0.434 & 0.712 & 6.662 & 1.731 \\
+\midrule
+All & 0.734 & 0.888 & 0.663 & 0.835 & 3.174 & 2.388 \\
+\bottomrule
+\end{tabular*}
+
+\vspace{6pt}
+\noindent\textit{(b) Sensitivity of boundary F1 to the matching tolerance}
+\par\vspace{2pt}
+\begin{tabular*}{0.66\textwidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+Method & BF@1.0 & BF@1.5 & BF@2.5 \\
+\midrule
+IZGC-Full & 0.765 & 0.888 & 0.951 \\
+IZGC-NoZP & 0.610 & 0.716 & 0.782 \\
+DPC-FWSN & 0.754 & 0.878 & 0.942 \\
+K-means++ & 0.693 & 0.816 & 0.897 \\
+GMM & 0.721 & 0.846 & 0.916 \\
+DBSCAN & 0.733 & 0.855 & 0.915 \\
+CLIQUE & 0.666 & 0.806 & 0.885 \\
+BANG & 0.730 & 0.856 & 0.929 \\
+\bottomrule
+\end{tabular*}
+
+\vspace{2pt}
+\noindent\footnotesize{Notes: In panel (a), BF$_{\mathrm{nat}}$ uses the accepted density contours directly and BF$_{\alpha}$ re-polygonises the same predicted labels with the shared alpha-shape; $P_{\mathrm{nat}}$ and $R_{\mathrm{nat}}$ are the boundary precision and recall of the native contours. $\mathrm{IoU}_{\mathrm{pen}}$ is not repeated here because it is computed from the rasterised labels and is therefore identical under both representations. HD95 is the pooled bidirectional 95th-percentile boundary distance, as a percentage of the scene diagonal. In panel (b), $\tau=1.5$ is used throughout the paper and corresponds to 1.5\% of the 100-unit scene side (about 1\% of the diagonal).}
+\end{table}
+
+% ===== Table S11.3: significance =====
+\begin{table}[tbp]
+\centering
+\caption{Friedman test, Nemenyi critical difference ($k=8$, $N=120$), and Holm-corrected paired Wilcoxon tests against IZGC-Full.}
+\label{tab:S11_significance}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.95}
+\noindent\textit{(a) Mean Friedman ranks (1 = best)}
+\par\vspace{2pt}
+\begin{tabular*}{0.82\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Method & BF$_{\alpha}$ & IoU$_{\mathrm{pen}}$ & ARI & HD95$_{\alpha}$ \\
+\midrule
+\textbf{IZGC-Full} & 3.01 & 2.93 & 2.89 & 3.18 \\
+IZGC-NoZP & 7.02 & 7.31 & 7.50 & 7.74 \\
+DPC-FWSN & 3.23 & 2.77 & 2.95 & 3.39 \\
+K-means++ & 5.15 & 4.35 & 4.46 & 4.55 \\
+GMM & 4.27 & 3.78 & 3.78 & 4.10 \\
+DBSCAN & 3.60 & 3.69 & 3.63 & 4.00 \\
+CLIQUE & 5.45 & 6.35 & 6.07 & 4.93 \\
+BANG & 4.28 & 4.82 & 4.72 & 4.09 \\
+\midrule
+Friedman $\chi^2(7)$ & 292.95 & 415.67 & 401.75 & 324.79 \\
+$p$ & $<$0.001 & $<$0.001 & $<$0.001 & $<$0.001 \\
+Nemenyi CD$_{0.05}$ & \multicolumn{4}{c}{0.958} \\
+\bottomrule
+\end{tabular*}
+
+\vspace{6pt}
+\noindent\textit{(b) Holm-corrected paired Wilcoxon $p$ values against IZGC-Full}
+\par\vspace{2pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccc@{}}
+\toprule
+Metric & NoZP & DPC-FWSN & K-means++ & GMM & DBSCAN & CLIQUE & BANG \\
+\midrule
+BF$_{\alpha}$ & $<$0.001 & 0.081 & $<$0.001 & $<$0.001 & $<$0.001 & $<$0.001 & $<$0.001 \\
+IoU$_{\mathrm{pen}}$ & $<$0.001 & 0.459 & $<$0.001 & 0.003 & 0.001 & $<$0.001 & $<$0.001 \\
+ARI & $<$0.001 & 0.505 & $<$0.001 & $<$0.001 & 0.002 & $<$0.001 & $<$0.001 \\
+HD95$_{\alpha}$ & $<$0.001 & 0.236 & $<$0.001 & 0.009 & 0.001 & $<$0.001 & 0.016 \\
+\bottomrule
+\end{tabular*}
+
+\vspace{2pt}
+\noindent\footnotesize{Notes: Ranks are computed within each of the 120 scene--seed blocks, so $N=120$ refers to six fixed scene geometries evaluated with 20 seeds each; the inference therefore applies to these controlled scenes and not to arbitrary spatial geometries. HD95 is inverted before ranking because lower is better. Holm correction is applied separately within each metric across the seven comparisons, and the $p$ values reported above are the Holm-adjusted ones. Nemenyi provides a family-wise view over all eight methods and is more conservative than the paired tests, which exploit the pairing and are reported as the primary evidence.}
+\end{table}

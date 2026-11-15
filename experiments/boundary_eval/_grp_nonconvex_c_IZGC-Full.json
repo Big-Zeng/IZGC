@@ -1,0 +1,23 @@
+{
+ "scene": "nonconvex_c",
+ "method": "IZGC-Full",
+ "params": {
+  "grid_size": 1.46,
+  "R": 30.0,
+  "min_size": 5,
+  "buffer": 0
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 4501,
+ "n_done": 4501,
+ "timed_out": false,
+ "n_tied": 748,
+ "val_BF": 0.8272,
+ "alpha": null,
+ "bf_mode": "coarse+refine",
+ "n_bf": 113,
+ "seconds": 1114.6,
+ "stage1_seconds": 1086.8,
+ "stage2_seconds": 27.8
+}

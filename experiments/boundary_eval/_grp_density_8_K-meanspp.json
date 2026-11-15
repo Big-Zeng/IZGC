@@ -1,0 +1,16 @@
+{
+ "scene": "density_8",
+ "method": "K-means++",
+ "params": {},
+ "val_ARI": 0.9779,
+ "val_k": 2,
+ "n_grid": 1,
+ "n_done": 1,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "seconds": 14.4,
+ "stage1_seconds": 14.4,
+ "stage2_seconds": 0.0
+}

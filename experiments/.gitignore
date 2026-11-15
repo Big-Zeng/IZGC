@@ -1,0 +1,21 @@
+# Numerical results, scripts and protocol notes are versioned; figures and
+# intermediate outputs are not, because the plotting scripts regenerate them
+# deterministically from the cached search results.
+*.png
+*.pdf
+paper_figures/
+
+# Bytecode and run logs
+__pycache__/
+*.pyc
+*.log
+
+# Superseded first version of the benchmark, kept locally for provenance only
+_archive/
+
+# Working notes written while the supplementary tables were assembled: the
+# published form of the same numbers is summary_boundary.md and
+# supp_tables_s11.tex.
+summary_001step.md
+tables_by_scene.md
+tests_significance.md

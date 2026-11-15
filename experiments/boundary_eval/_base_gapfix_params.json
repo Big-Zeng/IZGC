@@ -1,0 +1,156 @@
+{
+ "gap_4|K-means++": {
+  "params": {},
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "gap_4|DBSCAN": {
+  "params": {
+   "eps": 5.0,
+   "min_samples": 19
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 81,
+  "alpha": 0.05,
+  "bf_mode": "full",
+  "n_bf": 81,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "gap_4|GMM": {
+  "params": {
+   "covariance_type": "diag",
+   "n_init": 11
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 40,
+  "alpha": 0.05,
+  "bf_mode": "full",
+  "n_bf": 40,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "gap_2|K-means++": {
+  "params": {},
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 1,
+  "n_done": 1,
+  "note": ""
+ },
+ "gap_2|GMM": {
+  "params": {
+   "covariance_type": "tied",
+   "n_init": 41
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 40,
+  "alpha": 0.05,
+  "bf_mode": "full",
+  "n_bf": 40,
+  "n_grid": 40,
+  "n_done": 40,
+  "note": ""
+ },
+ "gap_2|DBSCAN": {
+  "params": {
+   "eps": 5.0,
+   "min_samples": 26
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 36,
+  "alpha": 0.05,
+  "bf_mode": "full",
+  "n_bf": 36,
+  "n_grid": 2450,
+  "n_done": 2450,
+  "note": ""
+ },
+ "gap_4|BANG": {
+  "params": {
+   "levels": 10,
+   "thr": 0.01
+  },
+  "val_ARI": 1.0,
+  "val_k": 2,
+  "val_BF": 0.9424,
+  "n_tied": 2,
+  "alpha": 0.05,
+  "bf_mode": "full",
+  "n_bf": 2,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "gap_2|BANG": {
+  "params": {
+   "levels": 11,
+   "thr": 0.01
+  },
+  "val_ARI": 0.9826,
+  "val_k": 3,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 340,
+  "n_done": 340,
+  "note": ""
+ },
+ "gap_4|CLIQUE": {
+  "params": {
+   "intervals": 14,
+   "thr": 1
+  },
+  "val_ARI": 0.9857,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ },
+ "gap_2|CLIQUE": {
+  "params": {
+   "intervals": 14,
+   "thr": 1
+  },
+  "val_ARI": 0.9717,
+  "val_k": 2,
+  "val_BF": null,
+  "n_tied": 1,
+  "alpha": 0.05,
+  "bf_mode": "none",
+  "n_bf": 0,
+  "n_grid": 4850,
+  "n_done": 4850,
+  "note": ""
+ }
+}

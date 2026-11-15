@@ -1,0 +1,19 @@
+{
+ "scene": "density_3",
+ "method": "GMM",
+ "params": {
+  "covariance_type": "diag",
+  "n_init": 26
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 40,
+ "n_done": 40,
+ "timed_out": false,
+ "n_tied": 30,
+ "val_BF": 0.9637,
+ "alpha": 0.05,
+ "seconds": 62.9,
+ "stage1_seconds": 30.1,
+ "stage2_seconds": 32.8
+}

@@ -1,0 +1,19 @@
+{
+ "scene": "nonconvex_u",
+ "method": "GMM",
+ "params": {
+  "covariance_type": "full",
+  "n_init": 46
+ },
+ "val_ARI": 0.402,
+ "val_k": 2,
+ "n_grid": 40,
+ "n_done": 40,
+ "timed_out": false,
+ "n_tied": 19,
+ "val_BF": 0.7441,
+ "alpha": 0.05,
+ "seconds": 55.9,
+ "stage1_seconds": 36.1,
+ "stage2_seconds": 19.8
+}

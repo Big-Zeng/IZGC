@@ -1,0 +1,20 @@
+{
+ "scene": "nonconvex_u",
+ "method": "DPC-FWSN",
+ "params": {
+  "k": 6
+ },
+ "val_ARI": 0.9213,
+ "val_k": 2,
+ "n_grid": 49,
+ "n_done": 23,
+ "timed_out": true,
+ "n_tied": 3,
+ "val_BF": 0.7964,
+ "alpha": 0.05,
+ "bf_mode": "full",
+ "n_bf": 3,
+ "seconds": 778.9,
+ "stage1_seconds": 709.0,
+ "stage2_seconds": 70.0
+}

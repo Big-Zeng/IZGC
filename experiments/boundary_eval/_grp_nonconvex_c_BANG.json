@@ -1,0 +1,19 @@
+{
+ "scene": "nonconvex_c",
+ "method": "BANG",
+ "params": {
+  "levels": 11,
+  "thr": 0.01
+ },
+ "val_ARI": 0.9937,
+ "val_k": 3,
+ "n_grid": 340,
+ "n_done": 340,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "seconds": 58.4,
+ "stage1_seconds": 58.4,
+ "stage2_seconds": 0.0
+}

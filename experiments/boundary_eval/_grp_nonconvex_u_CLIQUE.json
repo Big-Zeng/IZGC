@@ -1,0 +1,19 @@
+{
+ "scene": "nonconvex_u",
+ "method": "CLIQUE",
+ "params": {
+  "intervals": 17,
+  "thr": 1
+ },
+ "val_ARI": 0.8234,
+ "val_k": 6,
+ "n_grid": 4850,
+ "n_done": 4850,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "seconds": 450.3,
+ "stage1_seconds": 450.3,
+ "stage2_seconds": 0.0
+}

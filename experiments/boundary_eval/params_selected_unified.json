@@ -1,0 +1,265 @@
+{
+ "A|IZGC-Full": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.6761465900466226
+ },
+ "A|IZGC-NoZP": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.6471818573498884
+ },
+ "A|IZGC-NoBarrier": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.6761465900466226,
+  "note": "identical to IZGC-Full: no barrier in this family"
+ },
+ "A|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_BF": 0.579345088161209
+ },
+ "A|GMM": {
+  "params": {
+   "covariance_type": "full",
+   "n_init": 3,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5758582502768549
+ },
+ "A|DBSCAN": {
+  "params": {
+   "eps": 4.5,
+   "min_samples": 20,
+   "alpha": 0.05
+  },
+  "val_BF": 0.7396110016279668
+ },
+ "A|CLIQUE": {
+  "params": {
+   "intervals": 8,
+   "thr": 4,
+   "alpha": 0.05
+  },
+  "val_BF": 0.6500898263014504
+ },
+ "A|BANG": {
+  "params": {
+   "levels": 8,
+   "thr": 0,
+   "alpha": 0.05
+  },
+  "val_BF": 0.6471818573498884
+ },
+ "B|IZGC-Full": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5920809367296631
+ },
+ "B|IZGC-NoZP": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5920809367296631
+ },
+ "B|IZGC-NoBarrier": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5920809367296631,
+  "note": "identical to IZGC-Full: no barrier in this family"
+ },
+ "B|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_BF": 0.5920809367296631
+ },
+ "B|GMM": {
+  "params": {
+   "covariance_type": "full",
+   "n_init": 3,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5920809367296631
+ },
+ "B|DBSCAN": {
+  "params": {
+   "eps": 4.5,
+   "min_samples": 5,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5920809367296631
+ },
+ "B|CLIQUE": {
+  "params": {
+   "intervals": 8,
+   "thr": 4,
+   "alpha": 0.05
+  },
+  "val_BF": 0.6632987543866415
+ },
+ "B|BANG": {
+  "params": {
+   "levels": 10,
+   "thr": 0,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5920809367296631
+ },
+ "C|IZGC-Full": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5634723422644771
+ },
+ "C|IZGC-NoZP": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5540165685796754
+ },
+ "C|IZGC-NoBarrier": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5634723422644771,
+  "note": "identical to IZGC-Full: no barrier in this family"
+ },
+ "C|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_BF": 0.5634723422644771
+ },
+ "C|GMM": {
+  "params": {
+   "covariance_type": "tied",
+   "n_init": 3,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5634723422644771
+ },
+ "C|DBSCAN": {
+  "params": {
+   "eps": 4.5,
+   "min_samples": 5,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5540165685796754
+ },
+ "C|CLIQUE": {
+  "params": {
+   "intervals": 8,
+   "thr": 4,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5616120562529223
+ },
+ "C|BANG": {
+  "params": {
+   "levels": 8,
+   "thr": 0,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5540165685796754
+ },
+ "D|IZGC-Full": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5062907623861843
+ },
+ "D|IZGC-NoZP": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5062907623861843
+ },
+ "D|K-means++": {
+  "params": {
+   "alpha": 0.05
+  },
+  "val_BF": 0.5062907623861843
+ },
+ "D|GMM": {
+  "params": {
+   "covariance_type": "full",
+   "n_init": 3,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5062907623861843
+ },
+ "D|DBSCAN": {
+  "params": {
+   "eps": 3.0,
+   "min_samples": 10,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5294755877034358
+ },
+ "D|CLIQUE": {
+  "params": {
+   "intervals": 10,
+   "thr": 8,
+   "alpha": 0.05
+  },
+  "val_BF": 0.6022682831443098
+ },
+ "D|BANG": {
+  "params": {
+   "levels": 8,
+   "thr": 0,
+   "alpha": 0.05
+  },
+  "val_BF": 0.5062907623861843
+ },
+ "D|IZGC-NoBarrier": {
+  "params": {
+   "grid_size": 1.5,
+   "R": 4.0,
+   "min_size": 5,
+   "buffer": 0
+  },
+  "val_BF": 0.5062907623861843
+ }
+}

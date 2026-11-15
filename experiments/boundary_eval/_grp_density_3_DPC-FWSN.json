@@ -1,0 +1,20 @@
+{
+ "scene": "density_3",
+ "method": "DPC-FWSN",
+ "params": {
+  "k": 12
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 49,
+ "n_done": 44,
+ "timed_out": true,
+ "n_tied": 44,
+ "val_BF": 0.9637,
+ "alpha": 0.05,
+ "bf_mode": "full",
+ "n_bf": 21,
+ "seconds": 1006.1,
+ "stage1_seconds": 699.0,
+ "stage2_seconds": 307.1
+}

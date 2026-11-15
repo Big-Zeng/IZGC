@@ -1,0 +1,23 @@
+{
+ "scene": "density_8",
+ "method": "IZGC-Full",
+ "params": {
+  "grid_size": 1.69,
+  "R": 30.0,
+  "min_size": 5,
+  "buffer": 0
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 4501,
+ "n_done": 4501,
+ "timed_out": false,
+ "n_tied": 3231,
+ "val_BF": 0.6216,
+ "alpha": null,
+ "bf_mode": "coarse+refine",
+ "n_bf": 347,
+ "seconds": 2359.9,
+ "stage1_seconds": 2323.4,
+ "stage2_seconds": 36.4
+}

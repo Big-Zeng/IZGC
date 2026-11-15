@@ -1,0 +1,21 @@
+{
+ "scene": "gap_4",
+ "method": "IZGC-Full",
+ "params": {
+  "grid_size": 1.21,
+  "R": 30.0,
+  "min_size": 5,
+  "buffer": 0
+ },
+ "val_ARI": 1.0,
+ "val_k": 2,
+ "n_grid": 451,
+ "n_done": 451,
+ "timed_out": false,
+ "n_tied": 168,
+ "val_BF": 0.9339,
+ "alpha": null,
+ "seconds": 102.8,
+ "stage1_seconds": 73.1,
+ "stage2_seconds": 29.7
+}

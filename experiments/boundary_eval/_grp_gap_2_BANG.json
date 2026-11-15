@@ -1,0 +1,21 @@
+{
+ "scene": "gap_2",
+ "method": "BANG",
+ "params": {
+  "levels": 11,
+  "thr": 0.01
+ },
+ "val_ARI": 0.9826,
+ "val_k": 3,
+ "n_grid": 340,
+ "n_done": 340,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "bf_mode": "none",
+ "n_bf": 0,
+ "seconds": 71.5,
+ "stage1_seconds": 71.5,
+ "stage2_seconds": 0.0
+}

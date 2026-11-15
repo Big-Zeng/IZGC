@@ -1,0 +1,19 @@
+{
+ "scene": "density_8",
+ "method": "BANG",
+ "params": {
+  "levels": 9,
+  "thr": 0.01
+ },
+ "val_ARI": 0.9784,
+ "val_k": 2,
+ "n_grid": 340,
+ "n_done": 340,
+ "timed_out": false,
+ "n_tied": 4,
+ "val_BF": 0.8769,
+ "alpha": 0.05,
+ "seconds": 76.2,
+ "stage1_seconds": 63.3,
+ "stage2_seconds": 12.9
+}

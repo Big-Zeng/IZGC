@@ -1,0 +1,21 @@
+{
+ "scene": "gap_2",
+ "method": "CLIQUE",
+ "params": {
+  "intervals": 14,
+  "thr": 1
+ },
+ "val_ARI": 0.9717,
+ "val_k": 2,
+ "n_grid": 4850,
+ "n_done": 4850,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "bf_mode": "none",
+ "n_bf": 0,
+ "seconds": 220.6,
+ "stage1_seconds": 220.6,
+ "stage2_seconds": 0.0
+}

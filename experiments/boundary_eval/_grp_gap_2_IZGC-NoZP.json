@@ -1,0 +1,16 @@
+{
+ "scene": "gap_2",
+ "method": "IZGC-NoZP",
+ "params": null,
+ "val_ARI": -1.0,
+ "val_k": 0,
+ "n_grid": 451,
+ "n_done": 451,
+ "timed_out": false,
+ "n_tied": 0,
+ "val_BF": null,
+ "alpha": null,
+ "seconds": 77.9,
+ "stage1_seconds": 77.9,
+ "stage2_seconds": 0.0
+}

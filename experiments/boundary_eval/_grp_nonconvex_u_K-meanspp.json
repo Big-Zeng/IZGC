@@ -1,0 +1,16 @@
+{
+ "scene": "nonconvex_u",
+ "method": "K-means++",
+ "params": {},
+ "val_ARI": 0.3713,
+ "val_k": 2,
+ "n_grid": 1,
+ "n_done": 1,
+ "timed_out": false,
+ "n_tied": 1,
+ "val_BF": null,
+ "alpha": 0.05,
+ "seconds": 10.4,
+ "stage1_seconds": 10.4,
+ "stage2_seconds": 0.0
+}

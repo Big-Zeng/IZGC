@@ -1,0 +1,19 @@
+{
+ "scene": "nonconvex_c",
+ "method": "GMM",
+ "params": {
+  "covariance_type": "spherical",
+  "n_init": 31
+ },
+ "val_ARI": 0.8271,
+ "val_k": 2,
+ "n_grid": 40,
+ "n_done": 40,
+ "timed_out": false,
+ "n_tied": 7,
+ "val_BF": 0.6764,
+ "alpha": 0.05,
+ "seconds": 39.4,
+ "stage1_seconds": 23.9,
+ "stage2_seconds": 15.5
+}
